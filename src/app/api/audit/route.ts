@@ -9,7 +9,7 @@ const useCases = new AuditUseCases(repository);
 export async function GET(request: Request) {
     try {
         const user = await getAuthUser();
-        if (!user || user.nivel !== 1) { // Apenas Admin Máster (Nível 1) pode ver auditoria
+        if (!user || user.nivelAcesso !== 1) { // Apenas Admin Máster (Nível 1) pode ver auditoria
             return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
         }
 
