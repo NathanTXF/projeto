@@ -22,6 +22,10 @@ model User {
   nivelAcesso  Int      // 1: Admin/Gestor, 2: Vendedor+, 3: Vendedor Visualização
   horarioInicio String? // HH:mm
   horarioFim    String? // HH:mm
+  failedAttempts Int      @default(0)
+  lockUntil      DateTime?
+  contato        String?
+  endereco       String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

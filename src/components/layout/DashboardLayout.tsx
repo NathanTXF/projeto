@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -11,7 +12,9 @@ import {
     LogOut,
     ChevronRight,
     History as LucideHistory,
-    UserCircle
+    UserCircle,
+    Database,
+    Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -19,26 +22,46 @@ import { Button } from "@/components/ui/button";
 const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
     { icon: Users, label: "Clientes", href: "/dashboard/clients" },
+    { icon: Database, label: "Cadastros", href: "/dashboard/auxiliary" },
     { icon: HandCoins, label: "Empréstimos", href: "/dashboard/loans" },
     { icon: FileText, label: "Comissões", href: "/dashboard/commissions" },
     { icon: FileText, label: "Financeiro", href: "/dashboard/financial" },
-    { icon: LucideHistory, label: "Auditoria", href: "/dashboard/audit" }, // Added Auditoria link
-    { icon: UserCircle, label: "Meu Perfil", href: "/dashboard/profile" }, // Added Meu Perfil link
+    { icon: Calendar, label: "Agenda", href: "/dashboard/agenda" },
+    { icon: Users, label: "Usuários", href: "/dashboard/users" },
+    { icon: LucideHistory, label: "Auditoria", href: "/dashboard/audit" },
+    { icon: UserCircle, label: "Meu Perfil", href: "/dashboard/profile" },
     { icon: Settings, label: "Configurações", href: "/dashboard/settings" },
 ];
 
 export function Sidebar() {
     const pathname = usePathname();
+    const [company, setCompany] = useState<{ nome: string, logoUrl?: string } | null>(null);
+
+    useEffect(() => {
+        fetch('/api/company')
+            .then(res => res.json())
+            .then(data => {
+                if (data.nome) setCompany(data);
+            })
+            .catch(() => { });
+    }, []);
 
     return (
-        <aside className="w-64 border-r bg-card flex flex-col h-screen sticky top-0">
-            <div className="p-6 border-b">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    Dinheiro Fácil
+        <aside className="w-64 border-r bg-card flex flex-col h-screen sticky top-0 bg-white/50 backdrop-blur-xl">
+            <div className="p-6 border-b flex items-center gap-3 group">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-lg overflow-hidden shrink-0">
+                    {company?.logoUrl ? (
+                        <img src={company.logoUrl} alt="Logo" className="h-full w-full object-contain p-1" />
+                    ) : (
+                        <Database className="h-5 w-5" />
+                    )}
+                </div>
+                <h1 className="text-lg font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent truncate">
+                    {company?.nome || "Dinheiro Fácil"}
                 </h1>
             </div>
 
-            <nav className="flex-1 p-4 space-y-2">
+            <nav className="flex-1 p-4 space-y-1.5">
                 {menuItems.map((item) => {
                     const isActive = pathname === item.href;
                     return (
@@ -46,23 +69,23 @@ export function Sidebar() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-sm font-medium",
+                                "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm font-semibold",
                                 isActive
-                                    ? "bg-primary text-primary-foreground shadow-md"
-                                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                    ? "bg-indigo-600 text-white shadow-indigo-200 shadow-lg translate-x-1"
+                                    : "text-slate-500 hover:bg-slate-50 hover:text-indigo-600"
                             )}
                         >
-                            <item.icon className="h-4 w-4" />
+                            <item.icon className={cn("h-4 w-4", isActive ? "text-white" : "text-slate-400")} />
                             {item.label}
-                            {isActive && <ChevronRight className="ml-auto h-4 w-4" />}
+                            {isActive && <ChevronRight className="ml-auto h-3 w-3" />}
                         </Link>
                     );
                 })}
             </nav>
 
-            <div className="p-4 border-t">
-                <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive">
-                    <LogOut className="mr-2 h-4 w-4" />
+            <div className="p-4 border-t bg-slate-50/50">
+                <Button variant="ghost" className="w-full justify-start text-slate-500 hover:text-destructive rounded-xl hover:bg-destructive/5 font-semibold">
+                    <LogOut className="mr-2 h-4 w-4 opacity-70" />
                     Sair
                 </Button>
             </div>

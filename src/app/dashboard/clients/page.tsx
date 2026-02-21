@@ -101,6 +101,10 @@ export default function ClientsPage() {
                     </DialogHeader>
                     <CustomerForm
                         initialData={selectedCustomer}
+                        onSuccess={() => {
+                            setIsDialogOpen(false);
+                            fetchCustomers();
+                        }}
                     />
                 </DialogContent>
             </Dialog>

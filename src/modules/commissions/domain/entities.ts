@@ -27,6 +27,7 @@ export interface CommissionRepository {
     findByLoanId(loanId: string): Promise<Commission | null>;
     findBySellerId(vendedorId: string): Promise<Commission[]>;
     findByPeriod(mesAno: string): Promise<Commission[]>;
+    findByFilters(filters: { mesAno?: string; vendedorId?: string }): Promise<Commission[]>;
     create(data: Commission): Promise<Commission>;
     update(id: string, data: Partial<Commission>): Promise<Commission>;
     delete(id: string): Promise<void>;

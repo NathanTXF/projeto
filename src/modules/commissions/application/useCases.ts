@@ -12,6 +12,10 @@ export class CommissionUseCases {
         return await this.repository.findByPeriod(mesAno);
     }
 
+    async getByFilters(filters: { mesAno?: string; vendedorId?: string }) {
+        return await this.repository.findByFilters(filters);
+    }
+
     async calculateAndCreate(params: {
         loanId: string;
         vendedorId: string;

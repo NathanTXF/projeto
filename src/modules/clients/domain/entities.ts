@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { differenceInYears } from 'date-fns';
 
 export const CustomerSchema = z.object({
     id: z.string().uuid().optional(),
@@ -11,16 +12,22 @@ export const CustomerSchema = z.object({
     cidade: z.string().min(2, 'Cidade obrigatória'),
     bairro: z.string().min(2, 'Bairro obrigatório'),
     estado: z.string().length(2, 'UF deve ter 2 caracteres'),
-    dataNascimento: z.date(),
-    sexo: z.enum(['feminino', 'masculino']),
+    dataNascimento: z.preprocess((arg) => {
+        if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+    }, z.date({ message: "Data de nascimento é obrigatória" })),
+    sexo: z.enum(['feminino', 'masculino'], { message: "Sexo é obrigatório" }),
     matricula: z.string().min(1, 'Matrícula obrigatória'),
-    senha: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres').optional(),
+    senha: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
     observacao: z.string().optional(),
     createdAt: z.date().optional(),
     updatedAt: z.date().optional(),
 });
 
 export type Customer = z.infer<typeof CustomerSchema>;
+
+export const calculateAge = (birthDate: Date | string): number => {
+    return differenceInYears(new Date(), new Date(birthDate));
+};
 
 export interface CustomerRepository {
     findAll(): Promise<Customer[]>;

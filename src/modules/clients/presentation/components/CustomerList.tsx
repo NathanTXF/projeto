@@ -9,8 +9,8 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Customer } from "../../domain/entities";
-import { Edit, Trash2, Search } from "lucide-react";
+import { Customer, calculateAge } from "../../domain/entities";
+import { Edit, Trash2, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 
@@ -44,9 +44,11 @@ export function CustomerList({ customers, onEdit, onDelete }: CustomerListProps)
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Cód</TableHead>
+                            <TableHead className="w-[80px]">Cód</TableHead>
                             <TableHead>Nome</TableHead>
                             <TableHead>CPF/CNPJ</TableHead>
+                            <TableHead>Idade</TableHead>
+                            <TableHead>Sexo</TableHead>
                             <TableHead>Cidade/UF</TableHead>
                             <TableHead>Celular</TableHead>
                             <TableHead className="text-right">Ações</TableHead>
@@ -55,7 +57,7 @@ export function CustomerList({ customers, onEdit, onDelete }: CustomerListProps)
                     <TableBody>
                         {filteredCustomers.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
+                                <TableCell colSpan={8} className="text-center h-24 text-muted-foreground">
                                     Nenhum cliente encontrado.
                                 </TableCell>
                             </TableRow>
@@ -65,6 +67,10 @@ export function CustomerList({ customers, onEdit, onDelete }: CustomerListProps)
                                     <TableCell>{customer.cod}</TableCell>
                                     <TableCell className="font-medium">{customer.nome}</TableCell>
                                     <TableCell>{customer.cpfCnpj}</TableCell>
+                                    <TableCell>
+                                        {customer.dataNascimento ? calculateAge(customer.dataNascimento) : "-"}
+                                    </TableCell>
+                                    <TableCell className="capitalize">{customer.sexo}</TableCell>
                                     <TableCell>{customer.cidade} / {customer.estado}</TableCell>
                                     <TableCell>{customer.celular}</TableCell>
                                     <TableCell className="text-right space-x-2">

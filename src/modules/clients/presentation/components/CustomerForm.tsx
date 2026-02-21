@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CustomerSchema, Customer } from "../../domain/entities";
@@ -20,18 +21,26 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 interface CustomerFormProps {
     initialData?: Customer;
+    onSuccess?: () => void;
 }
 
-export function CustomerForm({ initialData }: CustomerFormProps) {
+export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
     const router = useRouter();
+    const [showPassword, setShowPassword] = useState(false);
+
     const form = useForm<Customer>({
         resolver: zodResolver(CustomerSchema),
-        defaultValues: initialData || {
+        defaultValues: initialData ? {
+            ...initialData,
+            dataNascimento: initialData.dataNascimento ? new Date(initialData.dataNascimento) : undefined,
+        } : {
             nome: "",
             cpfCnpj: "",
             email: "",
@@ -42,6 +51,7 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
             estado: "",
             sexo: "masculino",
             matricula: "",
+            senha: "",
             observacao: "",
         },
     });
@@ -60,14 +70,20 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
             );
 
             if (!response.ok) {
-                throw new Error("Falha ao salvar cliente");
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Falha ao salvar cliente");
             }
 
             toast.success(
                 initialData ? "Cliente atualizado" : "Cliente cadastrado com sucesso"
             );
-            router.push("/dashboard/clients");
-            router.refresh();
+
+            if (onSuccess) {
+                onSuccess();
+            } else {
+                router.push("/dashboard/clients");
+                router.refresh();
+            }
         } catch (error: any) {
             toast.error(error.message);
         }
@@ -110,7 +126,7 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
                             <FormItem>
                                 <FormLabel>E-mail</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="joao@exemplo.com" {...field} />
+                                    <Input placeholder="joao@exemplo.com" type="email" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -129,6 +145,28 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
                             </FormItem>
                         )}
                     />
+
+                    <FormField
+                        control={form.control}
+                        name="dataNascimento"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Data de Nascimento</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="date"
+                                        {...field}
+                                        value={field.value instanceof Date
+                                            ? field.value.toISOString().split('T')[0]
+                                            : field.value || ""}
+                                        onChange={(e) => field.onChange(e.target.value)}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
                     <FormField
                         control={form.control}
                         name="sexo"
@@ -153,6 +191,7 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
                             </FormItem>
                         )}
                     />
+
                     <FormField
                         control={form.control}
                         name="matricula"
@@ -162,6 +201,39 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
                                 <FormControl>
                                     <Input placeholder="123456" {...field} />
                                 </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="senha"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Senha</FormLabel>
+                                <div className="relative">
+                                    <FormControl>
+                                        <Input
+                                            placeholder="******"
+                                            type={showPassword ? "text" : "password"}
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? (
+                                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                        ) : (
+                                            <Eye className="h-4 w-4 text-muted-foreground" />
+                                        )}
+                                    </Button>
+                                </div>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -218,6 +290,24 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
                             <FormLabel>Endereço Completo</FormLabel>
                             <FormControl>
                                 <Input placeholder="Rua exemplo, 123" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="observacao"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Observações</FormLabel>
+                            <FormControl>
+                                <Textarea
+                                    placeholder="Informações adicionais sobre o cliente..."
+                                    className="resize-none"
+                                    {...field}
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

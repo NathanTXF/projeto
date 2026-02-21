@@ -101,6 +101,10 @@ export default function LoansPage() {
                     </DialogHeader>
                     <LoanForm
                         initialData={selectedLoan}
+                        onSuccess={() => {
+                            setIsDialogOpen(false);
+                            fetchLoans();
+                        }}
                     />
                 </DialogContent>
             </Dialog>

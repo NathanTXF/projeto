@@ -9,10 +9,11 @@ const useCases = new CommissionUseCases(repository);
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
-        const mesAno = searchParams.get('mesAno');
+        const mesAno = searchParams.get('mesAno') || undefined;
+        const vendedorId = searchParams.get('vendedorId') || undefined;
 
-        if (mesAno) {
-            const commissions = await useCases.getByPeriod(mesAno);
+        if (mesAno || vendedorId) {
+            const commissions = await useCases.getByFilters({ mesAno, vendedorId });
             return NextResponse.json(commissions);
         }
 

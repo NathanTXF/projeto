@@ -8,7 +8,9 @@ import {
     Save,
     Camera,
     UserCircle,
-    RefreshCcw
+    RefreshCcw,
+    Phone,
+    MapPin
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -25,6 +27,8 @@ interface UserProfile {
     horarioInicio?: string;
     horarioFim?: string;
     fotoUrl?: string;
+    contato?: string;
+    endereco?: string;
 }
 
 export default function ProfilePage() {
@@ -58,7 +62,9 @@ export default function ProfilePage() {
             setSaving(true);
             const updateData: any = {
                 nome: profile.nome,
-                usuario: profile.usuario
+                usuario: profile.usuario,
+                contato: profile.contato,
+                endereco: profile.endereco
             };
 
             if (newPassword) {
@@ -128,6 +134,18 @@ export default function ProfilePage() {
                                 <Clock className="h-4 w-4 text-slate-400" />
                                 <span>Turno: <strong>{profile?.horarioInicio || '08:00'} - {profile?.horarioFim || '18:00'}</strong></span>
                             </div>
+                            {profile?.contato && (
+                                <div className="flex items-center gap-3 text-sm text-slate-600">
+                                    <Phone className="h-4 w-4 text-slate-400" />
+                                    <span>{profile.contato}</span>
+                                </div>
+                            )}
+                            {profile?.endereco && (
+                                <div className="flex items-center gap-3 text-sm text-slate-600">
+                                    <MapPin className="h-4 w-4 text-slate-400" />
+                                    <span className="truncate">{profile.endereco}</span>
+                                </div>
+                            )}
                             <div className="flex items-center gap-3 text-sm text-slate-600">
                                 <Shield className="h-4 w-4 text-slate-400" />
                                 <span>Segurança Ativa</span>
@@ -159,6 +177,29 @@ export default function ProfilePage() {
                                         id="usuario"
                                         value={profile?.usuario || ""}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, usuario: e.target.value }) : null)}
+                                        className="rounded-xl border-slate-200 focus:ring-indigo-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="contato" className="text-slate-700">Contato / Telefone</Label>
+                                    <Input
+                                        id="contato"
+                                        placeholder="(00) 00000-0000"
+                                        value={profile?.contato || ""}
+                                        onChange={(e) => setProfile(p => p ? ({ ...p, contato: e.target.value }) : null)}
+                                        className="rounded-xl border-slate-200 focus:ring-indigo-500"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="endereco" className="text-slate-700">Endereço</Label>
+                                    <Input
+                                        id="endereco"
+                                        placeholder="Rua, Número, Bairro"
+                                        value={profile?.endereco || ""}
+                                        onChange={(e) => setProfile(p => p ? ({ ...p, endereco: e.target.value }) : null)}
                                         className="rounded-xl border-slate-200 focus:ring-indigo-500"
                                     />
                                 </div>

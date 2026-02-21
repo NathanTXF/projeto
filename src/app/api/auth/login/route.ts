@@ -14,14 +14,16 @@ export async function POST(request: Request) {
         const repository = new PrismaUserRepository();
         const useCases = new UserUseCases(repository);
 
-        const user = await useCases.login(usuario, senha);
+        const result = await useCases.login(usuario, senha);
 
-        if (!user) {
+        if (result.error) {
             return NextResponse.json(
-                { message: 'Usuário ou senha inválidos' },
-                { status: 401 }
+                { message: result.error },
+                { status: result.error.includes('bloqueada') ? 403 : 401 }
             );
         }
+
+        const user = result.user;
 
         const token = await new SignJWT({
             id: user.id,

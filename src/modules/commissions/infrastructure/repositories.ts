@@ -47,9 +47,28 @@ export class PrismaCommissionRepository implements CommissionRepository {
         const commissions = await prisma.commission.findMany({
             where: { mesAno },
             include: {
-                loan: true,
+                loan: {
+                    include: { cliente: true }
+                },
                 vendedor: true,
             }
+        });
+        return commissions as unknown as Commission[];
+    }
+
+    async findByFilters(filters: { mesAno?: string; vendedorId?: string }): Promise<Commission[]> {
+        const commissions = await prisma.commission.findMany({
+            where: {
+                mesAno: filters.mesAno,
+                vendedorId: filters.vendedorId,
+            },
+            include: {
+                loan: {
+                    include: { cliente: true }
+                },
+                vendedor: true,
+            },
+            orderBy: { createdAt: 'desc' },
         });
         return commissions as unknown as Commission[];
     }
