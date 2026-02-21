@@ -29,6 +29,12 @@ export async function PATCH(request: Request) {
         }
 
         const body = await request.json();
+
+        // REGRA MVP: Apenas admin redefine senha
+        if (body.senha && authUser.nivelAcesso !== 1) {
+            return NextResponse.json({ error: 'Apenas administradores podem alterar senhas' }, { status: 403 });
+        }
+
         const updatedUser = await useCases.updateProfile(authUser.id, body);
 
         await logAudit({

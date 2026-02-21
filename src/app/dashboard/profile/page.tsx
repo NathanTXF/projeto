@@ -125,7 +125,7 @@ export default function ProfilePage() {
 
                         <div className="mt-6 flex flex-wrap justify-center gap-2">
                             <Badge variant="outline" className="bg-indigo-50 text-indigo-600 border-indigo-100 uppercase text-[10px] font-bold">
-                                {profile?.nivelAcesso === 1 ? 'ADMINISTRADOR' : 'VENDEDOR'}
+                                {profile?.nivelAcesso === 1 ? 'ADMINISTRADOR' : profile?.nivelAcesso === 2 ? 'VENDEDOR+' : 'VENDEDOR (VISUALIZAÇÃO)'}
                             </Badge>
                         </div>
 
@@ -206,19 +206,20 @@ export default function ProfilePage() {
                             </div>
 
                             <div className="space-y-2 pt-4 border-t border-slate-50">
-                                <Label htmlFor="senha" className="text-slate-700">Alterar Senha</Label>
+                                <Label htmlFor="senha" className="text-slate-700">Alterar Senha {profile?.nivelAcesso !== 1 && "(Apenas Administrador)"}</Label>
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                     <Input
                                         id="senha"
                                         type="password"
-                                        placeholder="Deixe em branco para manter a atual"
+                                        disabled={profile?.nivelAcesso !== 1}
+                                        placeholder={profile?.nivelAcesso === 1 ? "Deixe em branco para manter a atual" : "Bloqueado pelo sistema"}
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
-                                        className="rounded-xl border-slate-200 pl-10 focus:ring-indigo-500"
+                                        className="rounded-xl border-slate-200 pl-10 focus:ring-indigo-500 disabled:bg-slate-50 disabled:text-slate-400"
                                     />
                                 </div>
-                                <p className="text-[10px] text-slate-400 italic">Mínimo de 6 caracteres.</p>
+                                {profile?.nivelAcesso === 1 && <p className="text-[10px] text-slate-400 italic">Mínimo de 6 caracteres.</p>}
                             </div>
 
                             <div className="flex justify-end pt-4">

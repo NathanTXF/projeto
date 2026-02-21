@@ -14,7 +14,8 @@ export async function POST(request: Request) {
         const repository = new PrismaUserRepository();
         const useCases = new UserUseCases(repository);
 
-        const result = await useCases.login(usuario, senha);
+        const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+        const result = await useCases.login(usuario, senha, ip);
 
         if (result.error) {
             return NextResponse.json(

@@ -101,8 +101,9 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <SelectItem value="1">Administrador</SelectItem>
-                                        <SelectItem value="2">Vendedor</SelectItem>
+                                        <SelectItem value="1">Gestor (Nível 1 - Acesso Total)</SelectItem>
+                                        <SelectItem value="2">Vendedor+ (Nível 2 - Criar/Editar)</SelectItem>
+                                        <SelectItem value="3">Vendedor (Nível 3 - Apenas Visualizar)</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />

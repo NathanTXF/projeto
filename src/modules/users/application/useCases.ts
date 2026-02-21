@@ -1,20 +1,41 @@
 import { UserRepository, User } from '../domain/entities';
 import bcrypt from 'bcrypt';
+import { logAudit } from '../../../core/audit/logger';
 
 export class UserUseCases {
     constructor(private repository: UserRepository) { }
 
-    async login(usuario: string, senha: string) {
+    async login(usuario: string, senha: string, ip?: string) {
         const user = await this.repository.findByUsername(usuario);
         if (!user) return { error: 'Usuário não encontrado' };
 
+        // REGRA MVP: Restrição de Horário
+        if (user.horarioInicio && user.horarioFim) {
+            const now = new Date();
+            const currentTime = now.getHours() * 100 + now.getMinutes();
+
+            const [startH, startM] = user.horarioInicio.split(':').map(Number);
+            const [endH, endM] = user.horarioFim.split(':').map(Number);
+
+            const startTime = startH * 100 + startM;
+            const endTime = endH * 100 + endM;
+
+            if (currentTime < startTime || currentTime > endTime) {
+                await logAudit({
+                    usuarioId: user.id!,
+                    modulo: 'AUTH',
+                    acao: 'LOGIN_REJECTED_OUT_OF_HOURS',
+                    ip
+                });
+                return { error: `Acesso negado fora do horário permitido (${user.horarioInicio} - ${user.horarioFim})` };
+            }
+        }
+
         // Verificar se está bloqueado (mais de 3 tentativas)
         if (user.failedAttempts && user.failedAttempts >= 3) {
-            // Se houver lockUntil, verificar se já passou
             if (user.lockUntil && new Date() < new Date(user.lockUntil)) {
                 return { error: 'Conta bloqueada temporariamente. Procure o administrador.' };
             }
-            // Se for bloqueio permanente (sem lockUntil ou lockUntil no futuro)
             if (!user.lockUntil) {
                 return { error: 'Conta bloqueada. Procure o administrador para desbloquear.' };
             }
@@ -23,16 +44,18 @@ export class UserUseCases {
         const isPasswordValid = await bcrypt.compare(senha, user.senha as string);
 
         if (!isPasswordValid) {
-            // Incrementar tentativas falhas
             const attempts = (user.failedAttempts || 0) + 1;
             const updateData: Partial<User> = { failedAttempts: attempts };
 
-            if (attempts >= 3) {
-                // Bloquear - opcionalmente definir lockUntil para 30 min
-                // updateData.lockUntil = new Date(Date.now() + 30 * 60 * 1000);
-            }
-
             await this.repository.update(user.id!, updateData);
+
+            await logAudit({
+                usuarioId: user.id!,
+                modulo: 'AUTH',
+                acao: 'LOGIN_FAILED',
+                ip
+            });
+
             return { error: `Senha incorreta. Tentativa ${attempts} de 3.` };
         }
 
@@ -40,6 +63,13 @@ export class UserUseCases {
         await this.repository.update(user.id!, {
             failedAttempts: 0,
             lockUntil: null
+        });
+
+        await logAudit({
+            usuarioId: user.id!,
+            modulo: 'AUTH',
+            acao: 'LOGIN_SUCCESS',
+            ip
         });
 
         const { senha: _, ...userWithoutPassword } = user as any;
