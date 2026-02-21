@@ -24,6 +24,7 @@ interface LoanWithRelations extends Loan {
 
 interface LoanListProps {
     loans: LoanWithRelations[];
+    userLevel?: number;
     onEdit: (loan: Loan) => void;
     onDelete: (id: string) => void;
 }
@@ -35,7 +36,7 @@ const statusColors: Record<string, string> = {
     ATRASADO: "bg-rose-100 text-rose-700 border-rose-200",
 };
 
-export function LoanList({ loans, onEdit, onDelete }: LoanListProps) {
+export function LoanList({ loans, userLevel, onEdit, onDelete }: LoanListProps) {
     return (
         <div className="rounded-xl border bg-white overflow-hidden shadow-sm">
             <Table>
@@ -106,14 +107,16 @@ export function LoanList({ loans, onEdit, onDelete }: LoanListProps) {
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <div className="flex justify-end gap-1">
-                                        <Button variant="ghost" size="icon" onClick={() => onEdit(loan)} className="h-8 w-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50">
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-destructive hover:bg-rose-50" onClick={() => loan.id && onDelete(loan.id)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
+                                    {userLevel !== 3 && (
+                                        <div className="flex justify-end gap-1">
+                                            <Button variant="ghost" size="icon" onClick={() => onEdit(loan)} className="h-8 w-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50">
+                                                <Edit className="h-4 w-4" />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-destructive hover:bg-rose-50" onClick={() => loan.id && onDelete(loan.id)}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    )}
                                 </TableCell>
                             </TableRow>
                         ))

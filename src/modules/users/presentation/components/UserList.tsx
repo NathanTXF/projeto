@@ -12,14 +12,16 @@ import { Button } from "@/components/ui/button";
 import { User } from "../../domain/entities";
 import { Edit, Trash2, Shield, User as UserIcon, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { cn } from "@/lib/utils";
 
 interface UserListProps {
     users: User[];
+    userLevel?: number;
     onEdit: (user: User) => void;
     onDelete: (id: string) => void;
 }
 
-export function UserList({ users, onEdit, onDelete }: UserListProps) {
+export function UserList({ users, userLevel, onEdit, onDelete }: UserListProps) {
     return (
         <div className="rounded-xl border bg-white overflow-hidden shadow-sm">
             <Table>
@@ -56,15 +58,21 @@ export function UserList({ users, onEdit, onDelete }: UserListProps) {
                                 <TableCell>
                                     <Badge
                                         variant="outline"
-                                        className={user.nivelAcesso === 1
-                                            ? "bg-purple-50 text-purple-700 border-purple-200"
-                                            : "bg-blue-50 text-blue-700 border-blue-200"
-                                        }
+                                        className={cn(
+                                            user.nivelAcesso === 1 && "bg-purple-50 text-purple-700 border-purple-200",
+                                            user.nivelAcesso === 2 && "bg-blue-50 text-blue-700 border-blue-200",
+                                            user.nivelAcesso === 3 && "bg-slate-50 text-slate-700 border-slate-200"
+                                        )}
                                     >
                                         {user.nivelAcesso === 1 ? (
                                             <>
                                                 <Shield className="mr-1 h-3 w-3" />
-                                                Admin
+                                                Gestor
+                                            </>
+                                        ) : user.nivelAcesso === 2 ? (
+                                            <>
+                                                <UserIcon className="mr-1 h-3 w-3" />
+                                                Vendedor+
                                             </>
                                         ) : (
                                             <>
@@ -81,24 +89,26 @@ export function UserList({ users, onEdit, onDelete }: UserListProps) {
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <div className="flex justify-end gap-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => onEdit(user)}
-                                            className="h-8 w-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
-                                        >
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-slate-400 hover:text-destructive hover:bg-rose-50"
-                                            onClick={() => user.id && onDelete(user.id)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
+                                    {userLevel === 1 && (
+                                        <div className="flex justify-end gap-1">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => onEdit(user)}
+                                                className="h-8 w-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                            >
+                                                <Edit className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-slate-400 hover:text-destructive hover:bg-rose-50"
+                                                onClick={() => user.id && onDelete(user.id)}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    )}
                                 </TableCell>
                             </TableRow>
                         ))

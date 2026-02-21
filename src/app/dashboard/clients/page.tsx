@@ -20,6 +20,7 @@ export default function ClientsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | undefined>();
     const [loading, setLoading] = useState(true);
+    const [userLevel, setUserLevel] = useState<number | null>(null);
 
     const fetchCustomers = async () => {
         try {
@@ -29,8 +30,12 @@ export default function ClientsPage() {
                 const data = await response.json();
                 setCustomers(data);
             }
+
+            const profileRes = await fetch("/api/profile");
+            const profileData = await profileRes.json();
+            if (profileData.nivelAcesso) setUserLevel(profileData.nivelAcesso);
         } catch (error) {
-            toast.error("Erro ao carregar clientes");
+            toast.error("Erro ao carregar dados");
         } finally {
             setLoading(false);
         }
@@ -68,13 +73,15 @@ export default function ClientsPage() {
                         Gerencie o cadastro de seus clientes e visualize suas informações.
                     </p>
                 </div>
-                <Button onClick={() => {
-                    setSelectedCustomer(undefined);
-                    setIsDialogOpen(true);
-                }}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Novo Cliente
-                </Button>
+                {userLevel !== 3 && (
+                    <Button onClick={() => {
+                        setSelectedCustomer(undefined);
+                        setIsDialogOpen(true);
+                    }}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Novo Cliente
+                    </Button>
+                )}
             </div>
 
             {loading ? (
@@ -84,6 +91,7 @@ export default function ClientsPage() {
             ) : (
                 <CustomerList
                     customers={customers}
+                    userLevel={userLevel || 0}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                 />

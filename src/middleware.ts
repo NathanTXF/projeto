@@ -20,7 +20,23 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-        await jwtVerify(token, JWT_SECRET);
+        const { payload } = await jwtVerify(token, JWT_SECRET);
+        const level = payload.nivelAcesso as number;
+
+        // Regras de Acesso por Nível (Middleware)
+        const adminOnlyPaths = [
+            '/dashboard/users',
+            '/dashboard/audit',
+            '/dashboard/settings',
+            '/dashboard/financial',
+            '/dashboard/commissions',
+            '/dashboard/auxiliary'
+        ];
+
+        if (adminOnlyPaths.some(path => pathname.startsWith(path)) && level !== 1) {
+            return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+
         return NextResponse.next();
     } catch (err: any) {
         console.error('Middleware: JWT verification failed:', err.message);

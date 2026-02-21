@@ -16,11 +16,12 @@ import { useState } from "react";
 
 interface CustomerListProps {
     customers: Customer[];
+    userLevel?: number;
     onEdit: (customer: Customer) => void;
     onDelete: (id: string) => void;
 }
 
-export function CustomerList({ customers, onEdit, onDelete }: CustomerListProps) {
+export function CustomerList({ customers, userLevel, onEdit, onDelete }: CustomerListProps) {
     const [searchTerm, setSearchTerm] = useState("");
 
     const filteredCustomers = customers.filter((c) =>
@@ -74,12 +75,16 @@ export function CustomerList({ customers, onEdit, onDelete }: CustomerListProps)
                                     <TableCell>{customer.cidade} / {customer.estado}</TableCell>
                                     <TableCell>{customer.celular}</TableCell>
                                     <TableCell className="text-right space-x-2">
-                                        <Button variant="ghost" size="icon" onClick={() => onEdit(customer)}>
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => customer.id && onDelete(customer.id)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        {userLevel !== 3 && (
+                                            <>
+                                                <Button variant="ghost" size="icon" onClick={() => onEdit(customer)}>
+                                                    <Edit className="h-4 w-4" />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="text-destructive" onClick={() => customer.id && onDelete(customer.id)}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             ))

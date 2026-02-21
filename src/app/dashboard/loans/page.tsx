@@ -20,6 +20,7 @@ export default function LoansPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedLoan, setSelectedLoan] = useState<Loan | undefined>();
     const [loading, setLoading] = useState(true);
+    const [userLevel, setUserLevel] = useState<number | null>(null);
 
     const fetchLoans = async () => {
         try {
@@ -29,8 +30,12 @@ export default function LoansPage() {
                 const data = await response.json();
                 setLoans(data);
             }
+
+            const profileRes = await fetch("/api/profile");
+            const profileData = await profileRes.json();
+            if (profileData.nivelAcesso) setUserLevel(profileData.nivelAcesso);
         } catch (error) {
-            toast.error("Erro ao carregar empréstimos");
+            toast.error("Erro ao carregar dados");
         } finally {
             setLoading(false);
         }
@@ -68,13 +73,15 @@ export default function LoansPage() {
                         Gerencie as propostas e contratos de empréstimos registrados no sistema.
                     </p>
                 </div>
-                <Button onClick={() => {
-                    setSelectedLoan(undefined);
-                    setIsDialogOpen(true);
-                }}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Nova Venda
-                </Button>
+                {userLevel !== 3 && (
+                    <Button onClick={() => {
+                        setSelectedLoan(undefined);
+                        setIsDialogOpen(true);
+                    }}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Nova Venda
+                    </Button>
+                )}
             </div>
 
             {loading ? (
@@ -84,6 +91,7 @@ export default function LoansPage() {
             ) : (
                 <LoanList
                     loans={loans}
+                    userLevel={userLevel || 0}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                 />

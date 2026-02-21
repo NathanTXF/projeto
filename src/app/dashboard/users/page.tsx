@@ -24,6 +24,7 @@ export default function UsersPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [currentUserLevel, setCurrentUserLevel] = useState<number | null>(null);
 
     useEffect(() => {
         fetchUsers();
@@ -36,8 +37,12 @@ export default function UsersPage() {
             const data = await response.json();
             if (data.error) throw new Error(data.error);
             setUsers(data);
+
+            const profileRes = await fetch('/api/profile');
+            const profileData = await profileRes.json();
+            if (profileData.nivelAcesso) setCurrentUserLevel(profileData.nivelAcesso);
         } catch (error: any) {
-            toast.error("Erro ao carregar usuários: " + error.message);
+            toast.error("Erro ao carregar dados: " + error.message);
         } finally {
             setLoading(false);
         }
@@ -137,6 +142,7 @@ export default function UsersPage() {
                     ) : (
                         <UserList
                             users={filteredUsers}
+                            userLevel={currentUserLevel || 0}
                             onEdit={(user) => {
                                 setSelectedUser(user);
                                 setIsDialogOpen(true);

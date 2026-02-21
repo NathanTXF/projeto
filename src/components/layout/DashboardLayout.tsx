@@ -20,31 +20,45 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-    { icon: Users, label: "Clientes", href: "/dashboard/clients" },
-    { icon: Database, label: "Cadastros", href: "/dashboard/auxiliary" },
-    { icon: HandCoins, label: "Empréstimos", href: "/dashboard/loans" },
-    { icon: FileText, label: "Comissões", href: "/dashboard/commissions" },
-    { icon: FileText, label: "Financeiro", href: "/dashboard/financial" },
-    { icon: Calendar, label: "Agenda", href: "/dashboard/agenda" },
-    { icon: Users, label: "Usuários", href: "/dashboard/users" },
-    { icon: LucideHistory, label: "Auditoria", href: "/dashboard/audit" },
-    { icon: UserCircle, label: "Meu Perfil", href: "/dashboard/profile" },
-    { icon: Settings, label: "Configurações", href: "/dashboard/settings" },
+    { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", roles: [1, 2, 3] },
+    { icon: Users, label: "Clientes", href: "/dashboard/clients", roles: [1, 2, 3] },
+    { icon: Database, label: "Cadastros", href: "/dashboard/auxiliary", roles: [1] },
+    { icon: HandCoins, label: "Empréstimos", href: "/dashboard/loans", roles: [1, 2, 3] },
+    { icon: FileText, label: "Comissões", href: "/dashboard/commissions", roles: [1] },
+    { icon: FileText, label: "Financeiro", href: "/dashboard/financial", roles: [1] },
+    { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", roles: [1, 2, 3] },
+    { icon: Users, label: "Usuários", href: "/dashboard/users", roles: [1] },
+    { icon: LucideHistory, label: "Auditoria", href: "/dashboard/audit", roles: [1] },
+    { icon: UserCircle, label: "Meu Perfil", href: "/dashboard/profile", roles: [1, 2, 3] },
+    { icon: Settings, label: "Configurações", href: "/dashboard/settings", roles: [1] },
 ];
 
 export function Sidebar() {
     const pathname = usePathname();
     const [company, setCompany] = useState<{ nome: string, logoUrl?: string } | null>(null);
+    const [userLevel, setUserLevel] = useState<number | null>(null);
 
     useEffect(() => {
+        // Buscar dados da empresa
         fetch('/api/company')
             .then(res => res.json())
             .then(data => {
                 if (data.nome) setCompany(data);
             })
             .catch(() => { });
+
+        // Buscar nível de acesso do usuário
+        fetch('/api/profile')
+            .then(res => res.json())
+            .then(data => {
+                if (data.nivelAcesso) setUserLevel(data.nivelAcesso);
+            })
+            .catch(() => { });
     }, []);
+
+    const filteredItems = menuItems.filter(item =>
+        userLevel !== null && item.roles.includes(userLevel)
+    );
 
     return (
         <aside className="w-64 border-r bg-card flex flex-col h-screen sticky top-0 bg-white/50 backdrop-blur-xl">
@@ -62,7 +76,7 @@ export function Sidebar() {
             </div>
 
             <nav className="flex-1 p-4 space-y-1.5">
-                {menuItems.map((item) => {
+                {filteredItems.map((item) => {
                     const isActive = pathname === item.href;
                     return (
                         <Link
