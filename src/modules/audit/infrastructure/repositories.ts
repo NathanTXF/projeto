@@ -19,20 +19,20 @@ export class PrismaAuditRepository implements AuditRepository {
         }
 
         if (filters?.startDate || filters?.endDate) {
-            where.data = {};
-            if (filters.startDate) where.data.gte = filters.startDate;
-            if (filters.endDate) where.data.lte = filters.endDate;
+            where.timestamp = {};
+            if (filters.startDate) where.timestamp.gte = filters.startDate;
+            if (filters.endDate) where.timestamp.lte = filters.endDate;
         }
 
         return await prisma.audit.findMany({
             where,
-            orderBy: { data: 'desc' },
+            orderBy: { timestamp: 'desc' },
             include: {
                 usuario: {
                     select: { nome: true }
                 }
             }
-        }) as any; // Cast because we included userInfo
+        }) as any;
     }
 
     async findById(id: string): Promise<Audit | null> {

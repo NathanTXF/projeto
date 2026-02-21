@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from "react";
 import {
-    User,
-    Mail,
     Lock,
     Clock,
     Shield,
     Save,
     Camera,
-    UserCircle
+    UserCircle,
+    RefreshCcw
 } from "lucide-react";
+import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -107,7 +107,7 @@ export default function ProfilePage() {
                                 {profile?.fotoUrl ? (
                                     <img src={profile.fotoUrl} alt="Foto" className="w-full h-full object-cover" />
                                 ) : (
-                                    <UserIcon className="h-16 w-16 text-slate-300" />
+                                    <UserCircle className="h-16 w-16 text-slate-300" />
                                 )}
                             </div>
                             <button className="absolute bottom-1 right-1 bg-indigo-600 text-white p-2 rounded-full shadow-lg hover:bg-indigo-700 transition-colors">

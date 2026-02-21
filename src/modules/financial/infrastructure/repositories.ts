@@ -3,73 +3,94 @@ import { Transaction, FinancialRepository } from '../domain/entities';
 
 export class PrismaFinancialRepository implements FinancialRepository {
     async findAll(): Promise<Transaction[]> {
-        const transactions = await prisma.transaction.findMany({
-            orderBy: { data: 'desc' },
+        const records = await prisma.financial.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: { commission: { include: { loan: true } }, vendedor: true },
         });
-        return transactions as unknown as Transaction[];
+        return records.map(this.mapToTransaction);
     }
 
     async findById(id: string): Promise<Transaction | null> {
-        const transaction = await prisma.transaction.findUnique({
+        const record = await prisma.financial.findUnique({
             where: { id },
+            include: { commission: true, vendedor: true },
         });
-        return transaction as unknown as Transaction | null;
+        return record ? this.mapToTransaction(record) : null;
     }
 
     async findByPeriod(start: Date, end: Date): Promise<Transaction[]> {
-        const transactions = await prisma.transaction.findMany({
+        const records = await prisma.financial.findMany({
             where: {
-                data: {
-                    gte: start,
-                    lte: end,
-                },
+                createdAt: { gte: start, lte: end },
             },
-            orderBy: { data: 'asc' },
+            orderBy: { createdAt: 'asc' },
+            include: { commission: true, vendedor: true },
         });
-        return transactions as unknown as Transaction[];
+        return records.map(this.mapToTransaction);
     }
 
     async create(data: Transaction): Promise<Transaction> {
-        const transaction = await prisma.transaction.create({
-            data: data as any,
+        const record = await prisma.financial.create({
+            data: {
+                commissionId: (data as any).commissionId,
+                vendedorId: (data as any).vendedorId,
+                mesAno: (data as any).mesAno || new Date().toLocaleDateString('pt-BR', { month: '2-digit', year: 'numeric' }),
+                valorTotal: (data as any).valor || (data as any).valorTotal || 0,
+                status: (data as any).status || 'Em aberto',
+            },
+            include: { commission: true, vendedor: true },
         });
-        return transaction as unknown as Transaction;
+        return this.mapToTransaction(record);
     }
 
     async update(id: string, data: Partial<Transaction>): Promise<Transaction> {
-        const transaction = await prisma.transaction.update({
+        const record = await prisma.financial.update({
             where: { id },
-            data: data as any,
+            data: {
+                status: (data as any).status,
+                pagoEm: (data as any).pagoEm,
+                comprovanteUrl: (data as any).comprovanteUrl,
+            },
+            include: { commission: true, vendedor: true },
         });
-        return transaction as unknown as Transaction;
+        return this.mapToTransaction(record);
     }
 
     async delete(id: string): Promise<void> {
-        await prisma.transaction.delete({
-            where: { id },
-        });
+        await prisma.financial.delete({ where: { id } });
     }
 
     async getBalance(): Promise<{ totalEntradas: number; totalSaidas: number; saldo: number }> {
-        const aggregates = await prisma.transaction.groupBy({
-            by: ['tipo'],
-            _sum: {
-                valor: true,
-            },
+        const total = await prisma.financial.aggregate({
+            _sum: { valorTotal: true },
         });
 
-        let totalEntradas = 0;
-        let totalSaidas = 0;
-
-        aggregates.forEach((group) => {
-            if (group.tipo === 'ENTRADA') totalEntradas = Number(group._sum.valor || 0);
-            if (group.tipo === 'SAIDA') totalSaidas = Number(group._sum.valor || 0);
+        const paid = await prisma.financial.aggregate({
+            _sum: { valorTotal: true },
+            where: { status: 'Pago' },
         });
+
+        const totalEntradas = Number(paid._sum?.valorTotal || 0);
+        const totalSaidas = 0;
 
         return {
             totalEntradas,
             totalSaidas,
             saldo: totalEntradas - totalSaidas,
         };
+    }
+
+    private mapToTransaction(record: any): Transaction {
+        return {
+            id: record.id,
+            tipo: 'ENTRADA',
+            categoria: 'COMISSAO',
+            descricao: `Comissão ${record.mesAno || ''}`,
+            valor: Number(record.valorTotal),
+            data: record.createdAt,
+            status: record.status,
+            vendedorId: record.vendedorId,
+            vendedorNome: record.vendedor?.nome,
+        } as unknown as Transaction;
     }
 }
