@@ -14,6 +14,9 @@ export async function GET() {
         const startOfYear = new Date(now.getFullYear(), 0, 1);
         const lastYearStart = new Date(now.getFullYear() - 1, 0, 1);
 
+        const isAdmin = user.nivelAcesso === 1;
+        const whereVendedor = isAdmin ? {} : { vendedorId: user.id };
+
         const [
             totalClients,
             lastYearClients,
@@ -24,14 +27,36 @@ export async function GET() {
             clientsBySex,
             loansThisYear
         ] = await Promise.all([
-            prisma.customer.count(),
-            prisma.customer.count({ where: { createdAt: { lt: startOfYear } } }),
-            prisma.loan.count({ where: { status: 'ATIVO' } }),
+            prisma.customer.count({
+                where: isAdmin ? {} : {
+                    loans: { some: { vendedorId: user.id } }
+                }
+            }),
+            prisma.customer.count({
+                where: {
+                    ...(isAdmin ? {} : { loans: { some: { vendedorId: user.id } } }),
+                    createdAt: { lt: startOfYear }
+                }
+            }),
+            prisma.loan.count({
+                where: {
+                    ...whereVendedor,
+                    status: 'ATIVO'
+                }
+            }),
             prisma.commission.aggregate({
                 _sum: { valorCalculado: true },
-                where: { createdAt: { gte: startOfMonth } }
+                where: {
+                    ...whereVendedor,
+                    createdAt: { gte: startOfMonth }
+                }
             }),
-            prisma.commission.count({ where: { status: 'Em aberto' } }),
+            prisma.commission.count({
+                where: {
+                    ...whereVendedor,
+                    status: 'Em aberto'
+                }
+            }),
             prisma.user.findMany({
                 select: {
                     id: true,
@@ -50,10 +75,16 @@ export async function GET() {
             }),
             prisma.customer.groupBy({
                 by: ['sexo'],
-                _count: true
+                _count: true,
+                where: isAdmin ? {} : {
+                    loans: { some: { vendedorId: user.id } }
+                }
             }),
             prisma.loan.findMany({
-                where: { dataInicio: { gte: startOfYear } },
+                where: {
+                    ...whereVendedor,
+                    dataInicio: { gte: startOfYear }
+                },
                 select: { dataInicio: true }
             })
         ]);
