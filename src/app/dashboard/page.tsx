@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Users, HandCoins, TrendingUp, AlertCircle, TrendingDown, Crown } from "lucide-react";
+import { Users, HandCoins, TrendingUp, AlertCircle, TrendingDown, Crown, FileText, Calendar as CalendarIcon, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/Badge";
 
 interface DashboardStats {
     totalClients: number;

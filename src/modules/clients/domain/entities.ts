@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { differenceInYears } from 'date-fns';
 
 export const CustomerSchema = z.object({
     id: z.string().uuid().optional(),
@@ -8,16 +7,14 @@ export const CustomerSchema = z.object({
     cpfCnpj: z.string().min(11, 'CPF/CNPJ inválido'),
     email: z.string().email('E-mail inválido'),
     celular: z.string().min(10, 'Celular inválido'),
-    endereco: z.string().min(5, 'Endereço obrigatório'),
-    cidade: z.string().min(2, 'Cidade obrigatória'),
-    bairro: z.string().min(2, 'Bairro obrigatório'),
-    estado: z.string().length(2, 'UF deve ter 2 caracteres'),
-    dataNascimento: z.preprocess((arg) => {
-        if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
-    }, z.date({ message: "Data de nascimento é obrigatória" })),
+    endereco: z.string().min(5, 'Endereço muito curto'),
+    cidade: z.string().min(2, 'Cidade inválida'),
+    bairro: z.string().min(2, 'Bairro inválido'),
+    estado: z.string().length(2, 'UF inválida'),
+    dataNascimento: z.date({ message: "Data de nascimento é obrigatória" }),
     sexo: z.enum(['feminino', 'masculino'], { message: "Sexo é obrigatório" }),
-    matricula: z.string().min(1, 'Matrícula obrigatória'),
-    senha: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+    matricula: z.string().optional(),
+    senha: z.string().optional(),
     observacao: z.string().optional(),
     createdAt: z.date().optional(),
     updatedAt: z.date().optional(),
@@ -26,14 +23,21 @@ export const CustomerSchema = z.object({
 export type Customer = z.infer<typeof CustomerSchema>;
 
 export const calculateAge = (birthDate: Date | string): number => {
-    return differenceInYears(new Date(), new Date(birthDate));
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+        age--;
+    }
+    return age;
 };
 
 export interface CustomerRepository {
     findAll(): Promise<Customer[]>;
     findById(id: string): Promise<Customer | null>;
     findByCpfCnpj(cpfCnpj: string): Promise<Customer | null>;
-    create(data: Customer): Promise<Customer>;
-    update(id: string, data: Partial<Customer>): Promise<Customer>;
+    create(customer: Customer): Promise<Customer>;
+    update(id: string, customer: Partial<Customer>): Promise<Customer>;
     delete(id: string): Promise<void>;
 }

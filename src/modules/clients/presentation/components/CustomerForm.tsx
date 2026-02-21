@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { CustomerSchema, Customer } from "../../domain/entities";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,8 +27,14 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
+const customerFormSchema = CustomerSchema.extend({
+    senha: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").optional().or(z.literal("")),
+});
+
+type CustomerFormValues = z.infer<typeof customerFormSchema>;
+
 interface CustomerFormProps {
-    initialData?: Customer;
+    initialData?: Partial<Customer> | null;
     onSuccess?: () => void;
 }
 
@@ -35,28 +42,26 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
     const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
 
-    const form = useForm<Customer>({
-        resolver: zodResolver(CustomerSchema),
-        defaultValues: initialData ? {
-            ...initialData,
-            dataNascimento: initialData.dataNascimento ? new Date(initialData.dataNascimento) : undefined,
-        } : {
-            nome: "",
-            cpfCnpj: "",
-            email: "",
-            celular: "",
-            endereco: "",
-            cidade: "",
-            bairro: "",
-            estado: "",
-            sexo: "masculino",
-            matricula: "",
+    const form = useForm<CustomerFormValues>({
+        resolver: zodResolver(customerFormSchema),
+        defaultValues: {
+            nome: initialData?.nome || "",
+            cpfCnpj: initialData?.cpfCnpj || "",
+            email: initialData?.email || "",
+            celular: initialData?.celular || "",
+            endereco: initialData?.endereco || "",
+            cidade: initialData?.cidade || "",
+            bairro: initialData?.bairro || "",
+            estado: initialData?.estado || "",
+            dataNascimento: initialData?.dataNascimento ? new Date(initialData.dataNascimento) : new Date(),
+            sexo: (initialData?.sexo as "feminino" | "masculino") || "masculino",
+            matricula: initialData?.matricula || "",
             senha: "",
-            observacao: "",
+            observacao: initialData?.observacao || "",
         },
     });
 
-    const onSubmit = async (data: Customer) => {
+    const onSubmit = async (data: CustomerFormValues) => {
         try {
             const response = await fetch(
                 initialData ? `/api/clients/${initialData.id}` : "/api/clients",
@@ -159,7 +164,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                         value={field.value instanceof Date
                                             ? field.value.toISOString().split('T')[0]
                                             : field.value || ""}
-                                        onChange={(e) => field.onChange(e.target.value)}
+                                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value + 'T12:00:00') : undefined)}
                                     />
                                 </FormControl>
                                 <FormMessage />

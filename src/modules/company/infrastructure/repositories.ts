@@ -1,4 +1,4 @@
-import { prisma } from '@/core/infra/prisma';
+import { prisma } from '@/lib/prisma';
 import { Company, CompanyRepository } from '../domain/entities';
 
 export class PrismaCompanyRepository implements CompanyRepository {

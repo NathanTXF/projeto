@@ -13,7 +13,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Calendar } from "@/components/ui/calendar";
 import { AppointmentForm } from "@/modules/agenda/presentation/components/AppointmentForm";
 import { Appointment } from "@/modules/agenda/domain/entities";
 import { Badge } from "@/components/ui/Badge";
@@ -113,13 +112,15 @@ export default function AgendaPage() {
                         <CardTitle className="text-lg font-bold">Calendário</CardTitle>
                         <CardDescription>Selecione uma data para visualizar.</CardDescription>
                     </CardHeader>
-                    <CardContent className="p-4 flex justify-center">
-                        <Calendar
-                            mode="single"
-                            selected={date}
-                            onSelect={setDate}
-                            className="rounded-md border-none"
-                            locale={ptBR}
+                    <CardContent className="p-4">
+                        <Input
+                            type="date"
+                            value={date ? date.toISOString().split('T')[0] : ""}
+                            onChange={(e) => {
+                                const newDate = e.target.value ? new Date(e.target.value + 'T12:00:00') : undefined;
+                                setDate(newDate);
+                            }}
+                            className="rounded-xl border-slate-200"
                         />
                     </CardContent>
                 </Card>

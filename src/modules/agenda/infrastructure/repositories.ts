@@ -1,4 +1,4 @@
-import { prisma } from '@/core/infra/prisma';
+import { prisma } from '@/lib/prisma';
 import { Appointment, AppointmentRepository } from '../domain/entities';
 
 export class PrismaAppointmentRepository implements AppointmentRepository {
