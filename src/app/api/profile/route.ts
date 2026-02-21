@@ -1,0 +1,45 @@
+import { NextResponse } from 'next/server';
+import { PrismaUserRepository } from '@/modules/users/infrastructure/repositories';
+import { UserUseCases } from '@/modules/users/application/useCases';
+import { getAuthUser } from '@/core/auth/getUser';
+import { logAudit } from '@/core/audit/logger';
+
+const repository = new PrismaUserRepository();
+const useCases = new UserUseCases(repository);
+
+export async function GET() {
+    try {
+        const authUser = await getAuthUser();
+        if (!authUser) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        }
+
+        const profile = await useCases.getProfile(authUser.id);
+        return NextResponse.json(profile);
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
+
+export async function PATCH(request: Request) {
+    try {
+        const authUser = await getAuthUser();
+        if (!authUser) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        }
+
+        const body = await request.json();
+        const updatedUser = await useCases.updateProfile(authUser.id, body);
+
+        await logAudit({
+            usuarioId: authUser.id,
+            modulo: 'USERS',
+            acao: 'UPDATE_PROFILE',
+            entidadeId: authUser.id
+        });
+
+        return NextResponse.json({ message: 'Perfil atualizado com sucesso' });
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}

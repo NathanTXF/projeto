@@ -1,0 +1,292 @@
+MVP – DINHEIRO FÁCIL
+Aja como um arquiteto de softwares sênior especialista em sistemas financeiros regulamentados, desenvolva um sistema web com arquitetura limpa, modular e escalável para uma gestão completa de empréstimos consignados da empresa Dinheiro Fácil, incluindo:
+•	Gestão de clientes
+•	Gestão de empréstimos
+•	Gestão de comissões
+•	Gestão financeira de pagamentos
+•	Controle de usuários e permissões
+•	Auditoria de ações
+•	Dashboard analítico interativo
+1. Stack Principal
+- Framework: Next.js (App Router obrigatório)
+- Backend: Route Handlers (API Routes do App Router)
+- Linguagem: TypeScript obrigatório em 100% do projeto
+- Estilização: Tailwind CSS
+- Componentes: Shadcn UI
+- Banco de Dados: PostgreSQL
+- ORM: Prisma
+- Containerização: Docker + Docker Compose
+- Ambiente isolado por containers
+
+2. Arquitetura
+- Estrutura modular por domínio
+- Separação clara entre:
+  	- Camada de apresentação
+  	- Camada de aplicação
+ 	- Camada de domínio
+- Camada de infraestrutura
+- Utilizar princípios de Clean Architecture
+- Utilizar DTOs para entrada e saída
+- Validação com Zod
+- Nunca misturar lógica de negócio dentro de componentes React
+
+3. Backend
+- APIs RESTful
+- Uso correto de métodos HTTP
+- Tratamento centralizado de erros
+- Middleware para autenticação
+- JWT para autenticação
+- Hash de senha com bcrypt
+
+4. Frontend
+- Mobile First obrigatório
+- Componentização reutilizável
+- Layout com Sidebar + Header
+- Estados gerenciados com Server Components sempre que possível
+- Evitar uso desnecessário de Client Components
+
+5. Banco de Dados
+- PostgreSQL rodando em container separado
+- Migrations com Prisma
+- Seeds de exemplo
+
+6. Docker
+- Container para:
+- App
+- Banco
+- Docker Compose configurado
+- Variáveis de ambiente via .env
+- Ambiente preparado para produção
+
+7. Entregáveis
+Quero que você gere:
+1. Estrutura de pastas ideal
+2. Arquivo docker-compose.yml
+3. Dockerfile
+4. Estrutura inicial do Prisma
+5. Exemplo de módulo completo (CRUD)
+6. Explicação da arquitetura adotada
+
+REGRAS DE AUTENTICAÇÃO
+TELA DE LOGIN
+Campos:
+o	Usuário
+o	Senha
+Regras:
+•	Bloquear após 3 tentativas
+•	Sem recuperação de senha
+•	Apenas admin redefine senha
+•	Registrar log de login
+•	JWT com expiração configurável
+
+MÓDULOS DO SISTEMA
+DASHBOARD
+Todos os gráficos interativos (hover, filtro dinâmico, clique)
+
+Componentes:
+1.	Gráfico Top 5 Vendedores
+o	Foto do usuário
+o	Nome
+o	Quantidade de clientes
+o	Clique → abre lista de clientes do vendedor
+2.	Gráfico Clientes por Sexo
+o	Masculino x Feminino
+o	Filtro por período
+3.	Gráfico Registros por Mês
+o	Quantidade de empréstimos mensais
+o	Filtro por ano
+4.	Card – Total de Clientes no Ano
+o	Número total
+o	Crescimento (%) em relação ao ano anterior
+CLIENTES
+•	Cód (auto incremental)
+•	Nome
+•	CPF/CNPJ
+•	E-mail
+•	Celular
+•	Endereço
+•	Cidade
+•	Bairro
+•	Estado
+•	Data de nascimento
+•	Sexo (feminino / masculino)
+•	Idade (calculada automaticamente)
+•	Matrícula
+•	Senha (hash)
+o	Input tipo password
+o	Botão 👁 visualizar senha
+•	Observação (textarea)
+CADASTROS AUXILIARES
+Entidades:
+•	Órgão
+•	Banco
+•	Tipo
+•	Grupo
+•	Tabela
+Campos padrão:
+•	Id (auto incremental)
+•	nome
+REGISTROS
+Campos:
+•	Cód (automático)
+•	Data do empréstimo
+•	Cliente (Busca com auto complete por nome)
+•	Prazo (quantidade de parcelas)
+•	R$ Parcela
+•	R$ Bruto
+•	R$ Líquido
+•	Órgão (select)
+•	Banco (select)
+•	Tipo (select)
+•	Grupo (select)
+•	Tabela (select)
+•	Usuário/vendedor (select)
+
+Regra MVP
+•	Todos campos são obrigatórios
+•	Usuário logado vem pré-selecionado
+•	Não permitir edição após comissão aprovada
+COMISSÕES
+Fluxo:
+1.	Gestor seleciona:
+o	Usuário
+o	Mês/Ano
+2.	Sistema gera tabela automática com os registros do período
+Em cada registro:
+•	Cliente
+•	Data
+•	Valor líquido
+•	Tipo de comissão:
+o	🔘 Porcentagem
+o	🔘 Valor fixo
+•	Campo valor (% ou R$)
+•	Valor da comissão (calculado automaticamente)
+Ação:
+•	✔ Aprovar comissão
+Ao aprovar:
+•	Registro sai da tela de comissões
+•	Vai automaticamente para Financeiro
+Regra MVP
+•	Comissão percentual = valor líquido × %
+•	Comissão fixa = valor informado
+•	Registro só entra no financeiro após aprovação
+•	Bloquear edição do registro
+FINANCEIRO
+Visualização por Usuário:
+•	Foto do usuário
+•	Mês/Ano
+•	Valor total da comissão
+•	Status:
+o	🟡 Em aberto
+o	🟢 Pago
+Ações:
+•	Botão Pagar
+•	Campo data de pagamento
+ Ao pagar:
+•	Status muda para Pago
+•	Registro bloqueado para edição
+•	Exigir data de pagamento
+•	Opção de anexar o comprovante do pagamento
+AGENDA
+Funções:
+o	Registrar compromissos
+Campos:
+•	Data
+•	Hora
+•	Tipo
+•	Observação
+•	Usuário que criou o compromisso
+ Versão MVP:
+•	Lista diária/semanal
+•	Sem integração externa
+USUÁRIOS
+Criar admin padrão via seed.
+Campos:
+•	id
+•	nome
+•	usuario
+•	senha (hash)
+•	fotoUrl
+•	nivelAcesso (ENUM: 1 | 2 | 3)
+•	horarioInicio
+•	horarioFim
+Permissões:
+Nível 1:
+•	Visualizar
+•	Criar
+•	Editar
+•	Excluir
+Nível 2:
+•	Visualizar
+•	Criar
+Nível 3:
+•	Apenas visualizar
+Regras:
+•	Apenas admin cria usuários
+•	Apenas admin redefine senha
+•	Respeitar horário de acesso
+PERFIL DO USUÁRIO
+Funções:
+•	Colocar foto do perfil
+•	Colocar nome do usuário que será visualizado no sistema
+•	Colocar dados do usuário
+o	Contato
+o	Endereço
+AUDITORIA
+Registrar:
+•	Login
+•	Logout
+•	Criação
+•	Edição
+•	Exclusão
+•	Aprovação de comissão
+•	Pagamento
+Campos:
+•	usuarioId
+•	modulo
+•	acao
+•	entidadeId
+•	timestamp
+•	ip
+EMPRESA
+Funções:
+•	Cadastrar a logo da empresa que ficará na sidebar
+•	Cadastrar dados da empresa
+o	Nome
+o	CNPJ
+o	Contato
+o	Endereço
+
+ENTREGÁVEIS EXIGIDOS DA LLM
+A LLM deve gerar:
+1.	Estrutura de pastas completa
+2.	Dockerfile
+3.	docker-compose.yml
+4.	Schema Prisma completo
+5.	Seed inicial (admin)
+6.	Exemplo completo de um módulo (Clientes):
+o	Entity
+o	DTO
+o	UseCase
+o	Repository
+o	Route Handler
+o	Validação Zod
+7.	Explicação da arquitetura
+REGRAS DE QUALIDADE DE CÓDIGO
+•	TypeScript strict mode
+•	ESLint
+•	Código tipado
+•	Nenhum any
+•	Funções puras no domínio
+•	Tratamento global de erros
+________________________________________
+DEFINIÇÕES IMPORTANTES (PARA EVITAR AMBIGUIDADE DA LLM)
+•	"Código automático" = campo incremental único por entidade
+•	"Valor líquido" = valor recebido pelo cliente
+•	"Valor bruto" = valor total do contrato
+•	"Usuário" = vendedor
+•	"Gestor" = usuário nível 1
+•	Comissão só existe após aprovação
+•	Financeiro só recebe comissão aprovada
+•	Registro não pode ser alterado após aprovação da comissão
+

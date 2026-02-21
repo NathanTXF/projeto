@@ -1,0 +1,181 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  nome         String
+  usuario      String   @unique
+  senha        String
+  fotoUrl      String?
+  nivelAcesso  Int      // 1: Admin/Gestor, 2: Vendedor+, 3: Vendedor Visualização
+  horarioInicio String? // HH:mm
+  horarioFim    String? // HH:mm
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  loans        Loan[]         @relation("SellerLoans")
+  audits       Audit[]
+  appointments Appointment[]
+  commissions  Commission[]
+  financials   Financial[]
+}
+
+model Customer {
+  id           String   @id @default(uuid())
+  cod          Int      @unique @default(autoincrement())
+  nome         String
+  cpfCnpj      String   @unique
+  email        String
+  celular      String
+  endereco     String
+  cidade       String
+  bairro       String
+  estado       String
+  dataNascimento DateTime
+  sexo         String   // "feminino" | "masculino"
+  matricula    String
+  senha        String?  // hash
+  observacao   String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  loans        Loan[]
+}
+
+model Organ {
+  id    Int    @id @default(autoincrement())
+  nome  String
+  loans Loan[]
+}
+
+model Bank {
+  id    Int    @id @default(autoincrement())
+  nome  String
+  loans Loan[]
+}
+
+model LoanType {
+  id    Int    @id @default(autoincrement())
+  nome  String
+  loans Loan[]
+}
+
+model LoanGroup {
+  id    Int    @id @default(autoincrement())
+  nome  String
+  loans Loan[]
+}
+
+model LoanTable {
+  id    Int    @id @default(autoincrement())
+  nome  String
+  loans Loan[]
+}
+
+model Loan {
+  id               String   @id @default(uuid())
+  cod              Int      @unique @default(autoincrement())
+  dataInicio       DateTime
+  clienteId        String
+  prazo            Int
+  valorParcela     Decimal  @db.Decimal(10, 2)
+  valorBruto       Decimal  @db.Decimal(10, 2)
+  valorLiquido     Decimal  @db.Decimal(10, 2)
+  orgaoId          Int
+  bancoId          Int
+  tipoId           Int
+  grupoId          Int
+  tabelaId         Int
+  vendedorId       String
+  status           String   @default("ATIVO")
+  observacao       String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  cliente          Customer @relation(fields: [clienteId], references: [id])
+  orgao            Organ    @relation(fields: [orgaoId], references: [id])
+  banco            Bank     @relation(fields: [bancoId], references: [id])
+  tipo             LoanType @relation(fields: [tipoId], references: [id])
+  grupo            LoanGroup @relation(fields: [grupoId], references: [id])
+  tabela           LoanTable @relation(fields: [tabelaId], references: [id])
+  vendedor         User     @relation("SellerLoans", fields: [vendedorId], references: [id])
+
+  commission       Commission?
+}
+
+model Commission {
+  id              String   @id @default(uuid())
+  loanId          String   @unique
+  vendedorId      String
+  mesAno          String   // MM/YYYY
+  tipoComissao    String   // "Porcentagem" | "Valor Fixo"
+  valorReferencia Decimal  @db.Decimal(10, 2) // % ou R$
+  valorCalculado  Decimal  @db.Decimal(10, 2)
+  status          String   @default("Em aberto") // "Em aberto" | "Aprovado"
+  aprovadoEm      DateTime?
+  createdAt       DateTime @default(now())
+
+  loan            Loan     @relation(fields: [loanId], references: [id])
+  vendedor        User     @relation(fields: [vendedorId], references: [id])
+  financial       Financial?
+}
+
+model Financial {
+  id              String   @id @default(uuid())
+  commissionId    String   @unique
+  vendedorId      String
+  mesAno          String
+  valorTotal      Decimal  @db.Decimal(10, 2)
+  status          String   @default("Em aberto") // "Em aberto" | "Pago"
+  pagoEm          DateTime?
+  comprovanteUrl  String?
+  createdAt       DateTime @default(now())
+
+  commission      Commission @relation(fields: [commissionId], references: [id])
+  vendedor        User       @relation(fields: [vendedorId], references: [id])
+}
+
+model Audit {
+  id         String   @id @default(uuid())
+  usuarioId  String
+  modulo     String
+  acao       String
+  entidadeId String?
+  ip         String?
+  timestamp  DateTime @default(now())
+
+  usuario    User     @relation(fields: [usuarioId], references: [id])
+}
+
+model Appointment {
+  id         String   @id @default(uuid())
+  data       DateTime
+  hora       String   // HH:mm
+  tipo       String
+  observacao String?  @db.Text
+  criadorId  String
+  createdAt  DateTime @default(now())
+
+  criador    User     @relation(fields: [criadorId], references: [id])
+}
+
+model Company {
+  id       Int     @id @default(1)
+  nome     String
+  cnpj     String
+  contato  String
+  endereco String
+  logoUrl  String?
+}
