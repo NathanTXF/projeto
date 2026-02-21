@@ -32,8 +32,7 @@ export default function LoginPage() {
 
             if (response.ok) {
                 toast.success("Bem-vindo de volta!");
-                router.push("/dashboard");
-                router.refresh();
+                window.location.href = '/dashboard';
             } else {
                 toast.error(data.message || "Erro ao realizar login");
             }

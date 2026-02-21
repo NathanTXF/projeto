@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
 import { PrismaUserRepository } from '@/modules/users/infrastructure/repositories';
 import { UserUseCases } from '@/modules/users/application/useCases';
-import { signToken } from '@/core/auth/jwt';
+import { SignJWT } from 'jose';
+
+const JWT_SECRET = new TextEncoder().encode(
+    process.env.JWT_SECRET || 'secret-previna-se-em-producao'
+);
 
 export async function POST(request: Request) {
     try {
-        const body = await request.json();
-        const { usuario, senha } = body;
-        console.log('Login attempt for user:', usuario);
+        const { usuario, senha } = await request.json();
 
         const repository = new PrismaUserRepository();
         const useCases = new UserUseCases(repository);
@@ -21,12 +23,15 @@ export async function POST(request: Request) {
             );
         }
 
-        const token = signToken({
+        const token = await new SignJWT({
             id: user.id,
             nome: user.nome,
             usuario: user.usuario,
             nivelAcesso: user.nivelAcesso,
-        });
+        })
+            .setProtectedHeader({ alg: 'HS256' })
+            .setExpirationTime('8h')
+            .sign(JWT_SECRET);
 
         const response = NextResponse.json({
             message: 'Login realizado com sucesso',
@@ -38,18 +43,17 @@ export async function POST(request: Request) {
             }
         });
 
-        // Set cookie manually for JWT
         response.cookies.set('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 60 * 60 * 8, // 8 hours
+            maxAge: 60 * 60 * 8,
             path: '/',
         });
 
         return response;
-    } catch (error) {
-        console.error('Login error:', error);
+    } catch (error: any) {
+        console.error('Login error:', error.message);
         return NextResponse.json(
             { message: 'Erro interno ao realizar login' },
             { status: 500 }

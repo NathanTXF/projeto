@@ -19,24 +19,24 @@ export async function GET() {
             pendingCommissions,
             topSellers
         ] = await Promise.all([
-            prisma.cliente.count(),
-            prisma.emprestimo.count({ where: { status: 'ATIVO' } }),
-            prisma.comissao.aggregate({
-                _sum: { valor: true },
+            prisma.customer.count(),
+            prisma.loan.count({ where: { status: 'ATIVO' } }),
+            prisma.commission.aggregate({
+                _sum: { valorCalculado: true },
                 where: { createdAt: { gte: startOfMonth } }
             }),
-            prisma.comissao.count({ where: { status: 'PENDENTE' } }),
-            prisma.usuario.findMany({
+            prisma.commission.count({ where: { status: 'Em aberto' } }),
+            prisma.user.findMany({
                 select: {
                     id: true,
                     nome: true,
                     _count: {
-                        select: { emprestimos: true }
+                        select: { loans: true }
                     }
                 },
                 take: 5,
                 orderBy: {
-                    emprestimos: {
+                    loans: {
                         _count: 'desc'
                     }
                 }
@@ -47,16 +47,17 @@ export async function GET() {
             stats: {
                 totalClients,
                 activeLoans,
-                totalCommissionsMonth: totalCommissionsMonth._sum.valor || 0,
+                totalCommissionsMonth: totalCommissionsMonth._sum?.valorCalculado ?? 0,
                 pendingCommissions,
             },
             topSellers: topSellers.map(s => ({
                 id: s.id,
                 nome: s.nome,
-                vendas: s._count.emprestimos
+                vendas: s._count.loans
             }))
         });
     } catch (error: any) {
+        console.error('Dashboard stats error:', error.message);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

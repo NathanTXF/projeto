@@ -1,6 +1,8 @@
-import jwt from 'jsonwebtoken';
+import { SignJWT, jwtVerify } from 'jose';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret-previna-se-em-producao';
+const JWT_SECRET = new TextEncoder().encode(
+    process.env.JWT_SECRET || 'secret-previna-se-em-producao'
+);
 
 export interface AuthUser {
     id: string;
@@ -9,17 +11,17 @@ export interface AuthUser {
     nivelAcesso: number;
 }
 
-export const signToken = (user: AuthUser) => {
-    return jwt.sign(user, JWT_SECRET, {
-        expiresIn: '8h', // Expiração configurável
-    });
+export const signToken = async (user: AuthUser): Promise<string> => {
+    return new SignJWT({ ...user })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setExpirationTime('8h')
+        .sign(JWT_SECRET);
 };
 
-export const verifyToken = (token: string): AuthUser | null => {
+export const verifyToken = async (token: string): Promise<AuthUser | null> => {
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as AuthUser;
-        console.log('JWT: Token verified successfully for:', decoded.usuario);
-        return decoded;
+        const { payload } = await jwtVerify(token, JWT_SECRET);
+        return payload as unknown as AuthUser;
     } catch (error: any) {
         console.error('JWT Verification Error:', error.message);
         return null;
