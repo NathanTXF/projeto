@@ -199,37 +199,46 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
-                    <div className="bg-gradient-to-br from-white to-slate-50/50 p-6">
-                        <DialogHeader className="mb-6">
-                            <div className="flex items-center gap-4 mb-2">
-                                <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center shadow-inner">
-                                    {selectedItem ? (
-                                        <Edit className="h-6 w-6 text-emerald-600" />
-                                    ) : (
-                                        <Plus className="h-6 w-6 text-emerald-600" />
-                                    )}
-                                </div>
-                                <div>
-                                    <DialogTitle className="text-xl font-bold text-slate-800">
-                                        {selectedItem ? "Editar" : "Novo"} {title.endsWith('s') ? title.slice(0, -1) : title}
-                                    </DialogTitle>
-                                    <DialogDescription className="text-slate-500 font-medium mt-1">
-                                        {selectedItem ? "Altere a descrição do registro." : "Adicione um novo registro ao sistema."}
-                                    </DialogDescription>
-                                </div>
+                    {/* Gradient Header */}
+                    <div className="relative overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-5">
+                        <div className="pointer-events-none absolute inset-0">
+                            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-xl" />
+                            <div className="absolute -left-4 -bottom-4 h-20 w-20 rounded-full bg-white/5 blur-lg" />
+                        </div>
+                        <div className="relative flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm ring-1 ring-white/20">
+                                {selectedItem ? (
+                                    <Edit className="h-5 w-5 text-white" />
+                                ) : (
+                                    <Plus className="h-5 w-5 text-white" />
+                                )}
                             </div>
-                        </DialogHeader>
+                            <div>
+                                <DialogTitle className="text-lg font-bold text-white">
+                                    {selectedItem ? "Editar" : "Novo"} {title.endsWith('s') ? title.slice(0, -1) : title}
+                                </DialogTitle>
+                                <DialogDescription className="text-emerald-100/80 text-sm mt-0.5">
+                                    {selectedItem ? "Altere a descrição do registro." : "Adicione um novo registro ao sistema."}
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </div>
 
-                        <div className="space-y-4 py-2">
+                    {/* Form Body */}
+                    <div className="px-6 py-5">
+                        <div className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Descrição</label>
-                                <Input
-                                    value={nome}
-                                    onChange={(e) => setNome(e.target.value)}
-                                    placeholder={`Ex: ${title === 'Órgãos' ? 'INSS' : title === 'Bancos' ? 'Banco do Brasil' : 'Digite o nome...'}`}
-                                    className="rounded-xl border-slate-200 bg-white shadow-sm focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-colors h-11"
-                                    autoFocus
-                                />
+                                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Descrição</label>
+                                <div className="relative">
+                                    <Database className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <Input
+                                        value={nome}
+                                        onChange={(e) => setNome(e.target.value)}
+                                        placeholder={`Ex: ${title === 'Órgãos' ? 'INSS' : title === 'Bancos' ? 'Banco do Brasil' : 'Digite o nome...'}`}
+                                        className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:bg-white transition-colors"
+                                        autoFocus
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -237,20 +246,17 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                             <Button
                                 variant="outline"
                                 onClick={() => setIsDialogOpen(false)}
-                                className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 font-semibold h-11"
+                                className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 font-semibold h-10"
                             >
                                 Cancelar
                             </Button>
                             <Button
                                 onClick={handleSave}
                                 disabled={submitting || !nome.trim()}
-                                className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-200/50 transition-all hover:scale-[1.02] border-none font-semibold h-11 px-6 active:scale-[0.98]"
+                                className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-200/50 transition-all hover:scale-[1.02] border-none font-semibold h-10 px-6 active:scale-[0.98] gap-2"
                             >
                                 {submitting ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Salvando...
-                                    </>
+                                    <><Loader2 className="h-4 w-4 animate-spin" />Salvando...</>
                                 ) : (
                                     "Salvar Registro"
                                 )}
