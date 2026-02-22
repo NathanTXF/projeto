@@ -16,8 +16,8 @@ export default function AuxiliaryPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
-                    <CardContent className="pt-6">
+                <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm transition-all hover:shadow-xl hover:bg-white/90">
+                    <CardContent className="h-full flex flex-col justify-center">
                         <AuxiliarySection
                             title="Órgãos"
                             description="Convênios atendidos pela empresa"
@@ -26,8 +26,8 @@ export default function AuxiliaryPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
-                    <CardContent className="pt-6">
+                <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm transition-all hover:shadow-xl hover:bg-white/90">
+                    <CardContent className="h-full flex flex-col justify-center">
                         <AuxiliarySection
                             title="Bancos"
                             description="Instituições financeiras parceiras"
@@ -36,8 +36,8 @@ export default function AuxiliaryPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
-                    <CardContent className="pt-6">
+                <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm transition-all hover:shadow-xl hover:bg-white/90">
+                    <CardContent className="h-full flex flex-col justify-center">
                         <AuxiliarySection
                             title="Tipos de Empréstimo"
                             description="Categorias de produtos de crédito"
@@ -46,8 +46,8 @@ export default function AuxiliaryPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
-                    <CardContent className="pt-6">
+                <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm transition-all hover:shadow-xl hover:bg-white/90">
+                    <CardContent className="h-full flex flex-col justify-center">
                         <AuxiliarySection
                             title="Grupos"
                             description="Agrupamentos de tabelas"
