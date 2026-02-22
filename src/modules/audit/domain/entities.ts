@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const AuditSchema = z.object({
     id: z.string().uuid().optional(),
-    data: z.date().optional(),
+    timestamp: z.date().optional(),
     usuarioId: z.string().uuid(),
     modulo: z.string(),
     acao: z.string(),

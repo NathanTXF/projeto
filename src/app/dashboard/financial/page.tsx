@@ -290,10 +290,10 @@ export default function FinancialPage() {
 
             {/* Nova Transação Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-[500px] border-none shadow-2xl rounded-3xl overflow-hidden p-0">
-                    <DialogHeader className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                        <DialogTitle className="text-2xl font-bold font-outfit">Nova Transação</DialogTitle>
-                        <DialogDescription className="text-blue-100">
+                <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                        <DialogTitle>Nova Transação</DialogTitle>
+                        <DialogDescription>
                             Preencha os dados abaixo para registrar uma nova movimentação financeira.
                         </DialogDescription>
                     </DialogHeader>

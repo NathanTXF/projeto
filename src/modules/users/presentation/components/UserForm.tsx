@@ -55,7 +55,7 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-6 bg-white">
                 <FormField
                     control={form.control}
                     name="nome"

@@ -180,7 +180,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                     <DialogHeader>
                         <DialogTitle>{selectedItem ? "Editar" : "Novo"} {title}</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4 py-4">
+                    <div className="space-y-4 p-6 bg-white">
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Nome</label>
                             <Input
@@ -190,7 +190,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                             />
                         </div>
                     </div>
-                    <DialogFooter>
+                    <DialogFooter className="p-6 bg-white pt-0">
                         <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                             Cancelar
                         </Button>
