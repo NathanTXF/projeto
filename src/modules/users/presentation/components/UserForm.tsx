@@ -10,6 +10,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
+    FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,20 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { User, UserSchema } from "../../domain/entities";
-import { Loader2 } from "lucide-react";
+import {
+    Loader2,
+    UserCircle,
+    AtSign,
+    KeyRound,
+    Shield,
+    Phone,
+    MapPin,
+    Clock,
+    Save,
+    Eye,
+    EyeOff,
+} from "lucide-react";
+import { useState } from "react";
 
 const userFormSchema = UserSchema.extend({
     senha: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").optional().or(z.literal("")),
@@ -36,6 +50,8 @@ interface UserFormProps {
 }
 
 export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
+    const [showPassword, setShowPassword] = useState(false);
+
     const form = useForm<UserFormValues>({
         resolver: zodResolver(userFormSchema),
         defaultValues: initialData ? {
@@ -55,143 +71,279 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-6 bg-white/50 backdrop-blur-sm rounded-2xl">
-                <FormField
-                    control={form.control}
-                    name="nome"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="text-slate-700 font-semibold">Nome Completo</FormLabel>
-                            <FormControl>
-                                <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" placeholder="Ex: João Silva" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* ── Seção: Identificação ── */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50">
+                            <UserCircle className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                            Identificação
+                        </h3>
+                    </div>
 
-                <div className="grid grid-cols-2 gap-4">
                     <FormField
                         control={form.control}
-                        name="usuario"
+                        name="nome"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Usuário (Login)</FormLabel>
+                                <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    Nome Completo
+                                </FormLabel>
                                 <FormControl>
-                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" placeholder="joao.silva" {...field} />
+                                    <div className="relative">
+                                        <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                        <Input
+                                            placeholder="Ex: João Silva"
+                                            className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                            {...field}
+                                        />
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
 
-                    <FormField
-                        control={form.control}
-                        name="nivelAcesso"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Nível de Acesso</FormLabel>
-                                <Select
-                                    onValueChange={(val) => field.onChange(parseInt(val))}
-                                    defaultValue={field.value.toString()}
-                                >
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="usuario"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Usuário (Login)
+                                    </FormLabel>
                                     <FormControl>
-                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
-                                            <SelectValue placeholder="Selecione o nível" />
-                                        </SelectTrigger>
+                                        <div className="relative">
+                                            <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                placeholder="joao.silva"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
+                                                {...field}
+                                            />
+                                        </div>
                                     </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="1">Gestor (Nível 1 - Acesso Total)</SelectItem>
-                                        <SelectItem value="2">Vendedor+ (Nível 2 - Criar/Editar)</SelectItem>
-                                        <SelectItem value="3">Vendedor (Nível 3 - Apenas Visualizar)</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="nivelAcesso"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Nível de Acesso
+                                    </FormLabel>
+                                    <Select
+                                        onValueChange={(val) => field.onChange(parseInt(val))}
+                                        defaultValue={field.value.toString()}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                                <SelectValue placeholder="Selecione o nível" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="1">
+                                                <span className="flex items-center gap-2">
+                                                    <span className="h-2 w-2 rounded-full bg-red-500" />
+                                                    Gestor (Acesso Total)
+                                                </span>
+                                            </SelectItem>
+                                            <SelectItem value="2">
+                                                <span className="flex items-center gap-2">
+                                                    <span className="h-2 w-2 rounded-full bg-amber-500" />
+                                                    Vendedor+ (Criar/Editar)
+                                                </span>
+                                            </SelectItem>
+                                            <SelectItem value="3">
+                                                <span className="flex items-center gap-2">
+                                                    <span className="h-2 w-2 rounded-full bg-blue-500" />
+                                                    Vendedor (Apenas Visualizar)
+                                                </span>
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
+
+                {/* ── Seção: Segurança ── */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-50">
+                            <KeyRound className="h-4 w-4 text-violet-600" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                            Segurança
+                        </h3>
+                    </div>
+
+                    <FormField
+                        control={form.control}
+                        name="senha"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    {initialData ? "Nova Senha (deixe em branco para manter)" : "Senha"}
+                                </FormLabel>
+                                <FormControl>
+                                    <div className="relative">
+                                        <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                        <Input
+                                            placeholder="••••••"
+                                            type={showPassword ? "text" : "password"}
+                                            className="pl-10 pr-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                            {...field}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-slate-400 hover:text-slate-600"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
+                                </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
                 </div>
 
-                <FormField
-                    control={form.control}
-                    name="senha"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="text-slate-700 font-semibold">{initialData ? "Nova Senha (deixe em branco para manter)" : "Senha"}</FormLabel>
-                            <FormControl>
-                                <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="password" placeholder="******" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
+                {/* ── Seção: Contato & Expediente ── */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50">
+                            <Clock className="h-4 w-4 text-emerald-600" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                            Contato & Expediente
+                        </h3>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="contato"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Telefone
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                placeholder="(00) 00000-0000"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                {...field}
+                                                value={field.value || ""}
+                                            />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="endereco"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Endereço
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                placeholder="Rua, Número, Bairro"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                {...field}
+                                                value={field.value || ""}
+                                            />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="horarioInicio"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Início Expediente
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                type="time"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                {...field}
+                                                value={field.value || ""}
+                                            />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="horarioFim"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Fim Expediente
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                type="time"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                {...field}
+                                                value={field.value || ""}
+                                            />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
+
+                {/* ── Botão Salvar ── */}
+                <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg shadow-indigo-200/50 transition-all duration-200 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] gap-2"
+                >
+                    {isLoading ? (
+                        <><Loader2 className="h-4 w-4 animate-spin" />Salvando...</>
+                    ) : (
+                        <><Save className="h-4 w-4" />{initialData ? "Atualizar Usuário" : "Criar Usuário"}</>
                     )}
-                />
-
-                <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                        control={form.control}
-                        name="contato"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Contato / Telefone</FormLabel>
-                                <FormControl>
-                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" placeholder="(00) 00000-0000" {...field} value={field.value || ""} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="endereco"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Endereço</FormLabel>
-                                <FormControl>
-                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" placeholder="Rua, Número, Bairro" {...field} value={field.value || ""} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                        control={form.control}
-                        name="horarioInicio"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Início do Expediente</FormLabel>
-                                <FormControl>
-                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="time" {...field} value={field.value || ""} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="horarioFim"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Fim do Expediente</FormLabel>
-                                <FormControl>
-                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="time" {...field} value={field.value || ""} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-
-                <div className="flex justify-end gap-3 pt-4">
-                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition-all text-white font-medium">
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {initialData ? "Atualizar Usuário" : "Criar Usuário"}
-                    </Button>
-                </div>
+                </Button>
             </form>
         </Form>
     );

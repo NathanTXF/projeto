@@ -191,18 +191,35 @@ export default function AgendaPage() {
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-[450px]">
-                    <DialogHeader>
-                        <DialogTitle>Novo Compromisso</DialogTitle>
-                        <DialogDescription>
-                            Agende um novo compromisso para {date ? format(date, "dd/MM/yyyy") : "a data selecionada"}.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <AppointmentForm
-                        initialDate={date}
-                        onSubmit={handleCreate}
-                        isLoading={isSubmitting}
-                    />
+                <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                    {/* Gradient Header */}
+                    <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5">
+                        <div className="pointer-events-none absolute inset-0">
+                            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-xl" />
+                            <div className="absolute -left-4 -bottom-4 h-20 w-20 rounded-full bg-white/5 blur-lg" />
+                        </div>
+                        <div className="relative flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm ring-1 ring-white/20">
+                                <CalendarIcon className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-lg font-bold text-white">
+                                    Novo Compromisso
+                                </DialogTitle>
+                                <DialogDescription className="text-blue-100/80 text-sm mt-0.5">
+                                    Agende um novo compromisso para {date ? format(date, "dd/MM/yyyy") : "a data selecionada"}.
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Form Body */}
+                    <div className="px-6 py-4">
+                        <AppointmentForm
+                            initialDate={date}
+                            onSubmit={handleCreate}
+                            isLoading={isSubmitting}
+                        />
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>

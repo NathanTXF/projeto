@@ -269,21 +269,27 @@ export default function FinancialPage() {
             {/* Modal de Pagamento */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
-                    <div className="bg-gradient-to-br from-white to-slate-50/50 p-6">
-                        <DialogHeader className="mb-6">
-                            <div className="flex items-center gap-4 mb-2">
-                                <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center shadow-inner">
-                                    <DollarSign className="h-6 w-6 text-emerald-600" />
-                                </div>
-                                <div>
-                                    <DialogTitle className="text-xl font-bold text-slate-800">Pagar Comissão</DialogTitle>
-                                    <DialogDescription className="text-slate-500 font-medium">
-                                        Registrar pagamento para o vendedor.
-                                    </DialogDescription>
-                                </div>
+                    {/* Gradient Header */}
+                    <div className="relative overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-5">
+                        <div className="pointer-events-none absolute inset-0">
+                            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-xl" />
+                            <div className="absolute -left-4 -bottom-4 h-20 w-20 rounded-full bg-white/5 blur-lg" />
+                        </div>
+                        <div className="relative flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm ring-1 ring-white/20">
+                                <DollarSign className="h-5 w-5 text-white" />
                             </div>
-                        </DialogHeader>
+                            <div>
+                                <DialogTitle className="text-lg font-bold text-white">Pagar Comissão</DialogTitle>
+                                <DialogDescription className="text-emerald-100/80 text-sm mt-0.5">
+                                    Registrar pagamento para o vendedor.
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </div>
 
+                    {/* Form Body */}
+                    <div className="px-6 py-4">
                         {selectedTransaction && (
                             <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-100">
                                 <p className="text-sm text-slate-500 font-medium mb-1">Valor a ser pago</p>
@@ -302,9 +308,12 @@ export default function FinancialPage() {
                                     name="pagoEm"
                                     render={({ field }) => (
                                         <FormItem className="space-y-1.5">
-                                            <FormLabel className="text-sm font-semibold text-slate-700">Data de Pagamento</FormLabel>
+                                            <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Data de Pagamento</FormLabel>
                                             <FormControl>
-                                                <Input type="date" {...field} className="rounded-xl border-slate-200 bg-white shadow-sm focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-colors" />
+                                                <div className="relative">
+                                                    <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                    <Input type="date" {...field} className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:bg-white transition-colors" />
+                                                </div>
                                             </FormControl>
                                             <FormMessage className="text-xs" />
                                         </FormItem>
@@ -316,14 +325,14 @@ export default function FinancialPage() {
                                     name="comprovanteUrl"
                                     render={({ field }) => (
                                         <FormItem className="space-y-1.5">
-                                            <FormLabel className="text-sm font-semibold text-slate-700">Link do Comprovante (Opcional)</FormLabel>
+                                            <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Link do Comprovante (Opcional)</FormLabel>
                                             <FormControl>
                                                 <div className="relative">
                                                     <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                                     <Input
                                                         placeholder="https://..."
                                                         {...field}
-                                                        className="pl-9 rounded-xl border-slate-200 bg-white shadow-sm focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-colors"
+                                                        className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:bg-white transition-colors"
                                                     />
                                                 </div>
                                             </FormControl>
@@ -344,13 +353,10 @@ export default function FinancialPage() {
                                     <Button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-200/50 transition-all hover:scale-[1.02] border-none font-semibold"
+                                        className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-200/50 transition-all hover:scale-[1.02] border-none font-semibold gap-2"
                                     >
                                         {isSubmitting ? (
-                                            <>
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                Processando...
-                                            </>
+                                            <><Loader2 className="h-4 w-4 animate-spin" />Processando...</>
                                         ) : (
                                             "Confirmar Pagamento"
                                         )}

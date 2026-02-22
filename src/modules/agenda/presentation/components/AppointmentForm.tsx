@@ -14,8 +14,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
-import { AppointmentSchema } from "../../domain/entities";
+import {
+    Loader2,
+    Calendar,
+    Clock,
+    Tag,
+    MessageSquare,
+    Save,
+    CalendarPlus,
+} from "lucide-react";
 
 const formSchema = z.object({
     data: z.string().min(1, "Data é obrigatória"),
@@ -45,29 +52,118 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-6 bg-white/50 backdrop-blur-sm rounded-2xl">
-                <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* ── Seção: Data & Horário ── */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50">
+                            <Calendar className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                            Data & Horário
+                        </h3>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="data"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Data
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                type="date"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                {...field}
+                                            />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="hora"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Hora
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                type="time"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                {...field}
+                                            />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
+
+                {/* ── Seção: Detalhes ── */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50">
+                            <Tag className="h-4 w-4 text-emerald-600" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                            Detalhes
+                        </h3>
+                    </div>
+
                     <FormField
                         control={form.control}
-                        name="data"
+                        name="tipo"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Data</FormLabel>
+                                <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    Tipo de Compromisso
+                                </FormLabel>
                                 <FormControl>
-                                    <Input type="date" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
+                                    <div className="relative">
+                                        <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                        <Input
+                                            placeholder="Ex: Reunião, Cobrança, Visita..."
+                                            className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                            {...field}
+                                        />
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
+
                     <FormField
                         control={form.control}
-                        name="hora"
+                        name="observacao"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Hora</FormLabel>
+                                <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    Observação (Opcional)
+                                </FormLabel>
                                 <FormControl>
-                                    <Input type="time" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
+                                    <div className="relative">
+                                        <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                                        <Textarea
+                                            placeholder="Detalhes adicionais do compromisso..."
+                                            className="pl-10 min-h-[80px] resize-none rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                            {...field}
+                                            value={field.value || ""}
+                                        />
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -75,45 +171,18 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                     />
                 </div>
 
-                <FormField
-                    control={form.control}
-                    name="tipo"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="text-slate-700 font-semibold">Tipo de Compromisso</FormLabel>
-                            <FormControl>
-                                <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" placeholder="Ex: Reunião, Cobrança, Visita..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
+                {/* ── Botão Salvar ── */}
+                <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg shadow-indigo-200/50 transition-all duration-200 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] gap-2"
+                >
+                    {isLoading ? (
+                        <><Loader2 className="h-4 w-4 animate-spin" />Agendando...</>
+                    ) : (
+                        <><CalendarPlus className="h-4 w-4" />Agendar Compromisso</>
                     )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="observacao"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="text-slate-700 font-semibold">Observação (Opcional)</FormLabel>
-                            <FormControl>
-                                <Textarea
-                                    placeholder="Detalhes adicionais do compromisso..."
-                                    className="min-h-[100px] rounded-xl border-slate-200 focus-visible:ring-indigo-500"
-                                    {...field}
-                                    value={field.value || ""}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <div className="flex justify-end pt-4">
-                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition-all text-white font-medium">
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Agendar Compromisso
-                    </Button>
-                </div>
+                </Button>
             </form>
         </Form>
     );

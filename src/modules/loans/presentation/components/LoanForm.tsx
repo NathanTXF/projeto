@@ -26,7 +26,23 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Customer } from "@/modules/clients/domain/entities";
 import { AuxiliaryEntity } from "@/modules/auxiliary/domain/entities";
-import { Loader2, Search } from "lucide-react";
+import {
+    Loader2,
+    Search,
+    User,
+    Calendar,
+    Building2,
+    Landmark,
+    DollarSign,
+    ClipboardList,
+    Save,
+    Lock,
+    Tag,
+    Layers,
+    Table2,
+    Timer,
+    Activity,
+} from "lucide-react";
 
 interface LoanFormProps {
     initialData?: Loan & { cliente?: { nome: string, cpfCnpj: string } };
@@ -52,7 +68,6 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
     const [isLocked, setIsLocked] = useState(false);
 
     useEffect(() => {
-        // Se estiver editando, verificar se há comissões aprovadas/pagas
         if (initialData?.id) {
             fetch(`/api/commissions?loanId=${initialData.id}`)
                 .then(res => res.json())
@@ -72,7 +87,6 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
             setSearchResults([]);
             return;
         }
-
         setIsSearching(true);
         try {
             const res = await fetch(`/api/clients/search?q=${query}`);
@@ -173,299 +187,415 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
     if (loadingData) {
         return (
             <div className="flex items-center justify-center p-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
             </div>
         );
     }
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 bg-white/50 backdrop-blur-sm rounded-2xl">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                        control={form.control}
-                        name="clienteId"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                                <FormLabel className="text-slate-700 font-semibold">Cliente</FormLabel>
-                                <div className="relative">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* ── Seção: Cliente & Data ── */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50">
+                            <User className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                            Cliente & Data
+                        </h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                        <FormField
+                            control={form.control}
+                            name="clienteId"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Cliente
+                                    </FormLabel>
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                        <Input
-                                            placeholder="Buscar por nome ou CPF..."
-                                            className="pl-9 h-11 rounded-xl border-slate-200 focus-visible:ring-indigo-500"
-                                            value={clientSearch}
-                                            onChange={(e) => {
-                                                setClientSearch(e.target.value);
-                                                handleSearch(e.target.value);
-                                            }}
-                                            onFocus={() => setShowResults(true)}
-                                        />
-                                    </div>
-
-                                    {showResults && (searchResults.length > 0 || isSearching) && (
-                                        <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                                            {isSearching ? (
-                                                <div className="p-4 text-center text-slate-400 flex items-center justify-center gap-2">
-                                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                                    <span className="text-sm">Buscando...</span>
-                                                </div>
-                                            ) : (
-                                                <div className="max-h-[300px] overflow-y-auto divide-y divide-slate-50">
-                                                    {searchResults.map((c) => (
-                                                        <div
-                                                            key={c.id}
-                                                            className="p-3 hover:bg-slate-50 cursor-pointer transition-colors"
-                                                            onClick={() => {
-                                                                field.onChange(c.id);
-                                                                setClientSearch(`${c.nome} (${c.cpfCnpj})`);
-                                                                setShowResults(false);
-                                                            }}
-                                                        >
-                                                            <div className="flex flex-col">
-                                                                <span className="font-bold text-slate-800 text-sm">{c.nome}</span>
-                                                                <span className="text-[10px] text-slate-500 font-mono tracking-tighter">{c.cpfCnpj}</span>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
+                                        <div className="relative">
+                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                placeholder="Buscar por nome ou CPF..."
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                value={clientSearch}
+                                                onChange={(e) => {
+                                                    setClientSearch(e.target.value);
+                                                    handleSearch(e.target.value);
+                                                }}
+                                                onFocus={() => setShowResults(true)}
+                                            />
                                         </div>
-                                    )}
-                                </div>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
 
-                    <FormField
-                        control={form.control}
-                        name="dataInicio"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Data da Venda</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="date"
-                                        className="rounded-xl border-slate-200 focus-visible:ring-indigo-500"
-                                        {...field}
-                                        value={field.value instanceof Date
-                                            ? field.value.toISOString().split('T')[0]
-                                            : field.value || ""}
-                                        onChange={(e) => field.onChange(new Date(e.target.value))}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                                        {showResults && (searchResults.length > 0 || isSearching) && (
+                                            <div className="absolute z-50 w-full mt-2 bg-white rounded-xl border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                                {isSearching ? (
+                                                    <div className="p-4 text-center text-slate-400 flex items-center justify-center gap-2">
+                                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                                        <span className="text-sm">Buscando...</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="max-h-[200px] overflow-y-auto divide-y divide-slate-50">
+                                                        {searchResults.map((c) => (
+                                                            <div
+                                                                key={c.id}
+                                                                className="p-3 hover:bg-slate-50 cursor-pointer transition-colors"
+                                                                onClick={() => {
+                                                                    field.onChange(c.id);
+                                                                    setClientSearch(`${c.nome} (${c.cpfCnpj})`);
+                                                                    setShowResults(false);
+                                                                }}
+                                                            >
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-bold text-slate-800 text-sm">{c.nome}</span>
+                                                                    <span className="text-[10px] text-slate-500 font-mono tracking-tighter">{c.cpfCnpj}</span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="dataInicio"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Data da Venda
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                type="date"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                {...field}
+                                                value={field.value instanceof Date
+                                                    ? field.value.toISOString().split('T')[0]
+                                                    : field.value || ""}
+                                                onChange={(e) => field.onChange(new Date(e.target.value))}
+                                            />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                        control={form.control}
-                        name="orgaoId"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Órgão</FormLabel>
-                                <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
-                                    <FormControl>
-                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
-                                            <SelectValue placeholder="Selecione o órgão" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {organs.map((o) => (
-                                            <SelectItem key={o.id} value={o.id.toString()}>{o.nome}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                {/* ── Seção: Dados do Contrato ── */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50">
+                            <ClipboardList className="h-4 w-4 text-emerald-600" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                            Dados do Contrato
+                        </h3>
+                    </div>
 
-                    <FormField
-                        control={form.control}
-                        name="bancoId"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Banco</FormLabel>
-                                <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
-                                    <FormControl>
-                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
-                                            <SelectValue placeholder="Selecione o banco" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {banks.map((b) => (
-                                            <SelectItem key={b.id} value={b.id.toString()}>{b.nome}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                        <FormField
+                            control={form.control}
+                            name="orgaoId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Órgão
+                                    </FormLabel>
+                                    <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                                        <FormControl>
+                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                                <SelectValue placeholder="Selecione o órgão" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {organs.map((o) => (
+                                                <SelectItem key={o.id} value={o.id.toString()}>{o.nome}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="bancoId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Banco
+                                    </FormLabel>
+                                    <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                                        <FormControl>
+                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                                <SelectValue placeholder="Selecione o banco" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {banks.map((b) => (
+                                                <SelectItem key={b.id} value={b.id.toString()}>{b.nome}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3">
+                        <FormField
+                            control={form.control}
+                            name="tipoId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Tipo
+                                    </FormLabel>
+                                    <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                                        <FormControl>
+                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                                <SelectValue placeholder="Selecione" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {types.map((t) => (
+                                                <SelectItem key={t.id} value={t.id.toString()}>{t.nome}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="grupoId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Grupo
+                                    </FormLabel>
+                                    <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                                        <FormControl>
+                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                                <SelectValue placeholder="Selecione" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {groups.map((g) => (
+                                                <SelectItem key={g.id} value={g.id.toString()}>{g.nome}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="tabelaId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Tabela
+                                    </FormLabel>
+                                    <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                                        <FormControl>
+                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                                <SelectValue placeholder="Selecione" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {tables.map((t) => (
+                                                <SelectItem key={t.id} value={t.id.toString()}>{t.nome}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormField
-                        control={form.control}
-                        name="tipoId"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Tipo de Empréstimo</FormLabel>
-                                <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
-                                    <FormControl>
-                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
-                                            <SelectValue placeholder="Selecione" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {types.map((t) => (
-                                            <SelectItem key={t.id} value={t.id.toString()}>{t.nome}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                {/* ── Seção: Valores ── */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50">
+                            <DollarSign className="h-4 w-4 text-amber-600" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                            Valores & Condições
+                        </h3>
+                    </div>
 
-                    <FormField
-                        control={form.control}
-                        name="grupoId"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Grupo</FormLabel>
-                                <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3">
+                        <FormField
+                            control={form.control}
+                            name="valorBruto"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Valor Bruto (R$)
+                                    </FormLabel>
                                     <FormControl>
-                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
-                                            <SelectValue placeholder="Selecione" />
-                                        </SelectTrigger>
+                                        <div className="relative">
+                                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
+                                                type="number"
+                                                step="0.01"
+                                                {...field}
+                                                onChange={e => field.onChange(Number(e.target.value))}
+                                            />
+                                        </div>
                                     </FormControl>
-                                    <SelectContent>
-                                        {groups.map((g) => (
-                                            <SelectItem key={g.id} value={g.id.toString()}>{g.nome}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="valorLiquido"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Valor Líquido (R$)
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
+                                                type="number"
+                                                step="0.01"
+                                                {...field}
+                                                onChange={e => field.onChange(Number(e.target.value))}
+                                            />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="valorParcela"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Valor Parcela (R$)
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
+                                                type="number"
+                                                step="0.01"
+                                                {...field}
+                                                onChange={e => field.onChange(Number(e.target.value))}
+                                            />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
 
-                    <FormField
-                        control={form.control}
-                        name="tabelaId"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Tabela</FormLabel>
-                                <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                        <FormField
+                            control={form.control}
+                            name="prazo"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Prazo (Parcelas)
+                                    </FormLabel>
                                     <FormControl>
-                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
-                                            <SelectValue placeholder="Selecione" />
-                                        </SelectTrigger>
+                                        <div className="relative">
+                                            <Timer className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
+                                                type="number"
+                                                {...field}
+                                                onChange={e => field.onChange(Number(e.target.value))}
+                                            />
+                                        </div>
                                     </FormControl>
-                                    <SelectContent>
-                                        {tables.map((t) => (
-                                            <SelectItem key={t.id} value={t.id.toString()}>{t.nome}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="status"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Status
+                                    </FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                                <SelectValue placeholder="Selecione o status" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="ATIVO">
+                                                <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500" />Ativo</span>
+                                            </SelectItem>
+                                            <SelectItem value="FINALIZADO">
+                                                <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-blue-500" />Finalizado</span>
+                                            </SelectItem>
+                                            <SelectItem value="CANCELADO">
+                                                <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-500" />Cancelado</span>
+                                            </SelectItem>
+                                            <SelectItem value="ATRASADO">
+                                                <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />Atrasado</span>
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormField
-                        control={form.control}
-                        name="valorBruto"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Valor Bruto (R$)</FormLabel>
-                                <FormControl>
-                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="number" step="0.01" {...field} onChange={e => field.onChange(Number(e.target.value))} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="valorLiquido"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Valor Líquido (R$)</FormLabel>
-                                <FormControl>
-                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="number" step="0.01" {...field} onChange={e => field.onChange(Number(e.target.value))} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="valorParcela"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Valor Parcela (R$)</FormLabel>
-                                <FormControl>
-                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="number" step="0.01" {...field} onChange={e => field.onChange(Number(e.target.value))} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                        control={form.control}
-                        name="prazo"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Prazo (Parcelas)</FormLabel>
-                                <FormControl>
-                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="status"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-slate-700 font-semibold">Status</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
-                                            <SelectValue placeholder="Selecione o status" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="ATIVO">Ativo</SelectItem>
-                                        <SelectItem value="FINALIZADO">Finalizado</SelectItem>
-                                        <SelectItem value="CANCELADO">Cancelado</SelectItem>
-                                        <SelectItem value="ATRASADO">Atrasado</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-
-                <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition-all font-medium py-6" disabled={submitting || isLocked}>
-                    {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                    {isLocked ? "Edição Bloqueada (Comissões Processadas)" : (initialData ? "Atualizar Registro" : "Registrar Venda")}
+                {/* ── Botão Salvar ── */}
+                <Button
+                    type="submit"
+                    disabled={submitting || isLocked}
+                    className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg shadow-indigo-200/50 transition-all duration-200 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] gap-2"
+                >
+                    {submitting ? (
+                        <><Loader2 className="h-4 w-4 animate-spin" />Salvando...</>
+                    ) : isLocked ? (
+                        <><Lock className="h-4 w-4" />Edição Bloqueada (Comissões Processadas)</>
+                    ) : (
+                        <><Save className="h-4 w-4" />{initialData ? "Atualizar Registro" : "Registrar Venda"}</>
+                    )}
                 </Button>
             </form>
-        </Form >
+        </Form>
     );
 }

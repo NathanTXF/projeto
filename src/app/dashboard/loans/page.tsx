@@ -148,22 +148,37 @@ export default function LoansPage() {
             )}
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>
-                            {selectedLoan ? "Editar Venda" : "Registrar Nova Venda"}
-                        </DialogTitle>
-                        <DialogDescription>
-                            Preencha os dados do contrato abaixo.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <LoanForm
-                        initialData={selectedLoan}
-                        onSuccess={() => {
-                            setIsDialogOpen(false);
-                            fetchLoans();
-                        }}
-                    />
+                <DialogContent className="max-w-2xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                    {/* Gradient Header */}
+                    <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5">
+                        <div className="pointer-events-none absolute inset-0">
+                            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-xl" />
+                            <div className="absolute -left-4 -bottom-4 h-20 w-20 rounded-full bg-white/5 blur-lg" />
+                        </div>
+                        <div className="relative flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm ring-1 ring-white/20">
+                                <HandCoins className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-lg font-bold text-white">
+                                    {selectedLoan ? "Editar Venda" : "Registrar Nova Venda"}
+                                </DialogTitle>
+                                <DialogDescription className="text-blue-100/80 text-sm mt-0.5">
+                                    Preencha os dados do contrato abaixo.
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Scrollable Form Body */}
+                    <div className="max-h-[calc(90vh-120px)] overflow-y-auto px-6 py-4">
+                        <LoanForm
+                            initialData={selectedLoan}
+                            onSuccess={() => {
+                                setIsDialogOpen(false);
+                                fetchLoans();
+                            }}
+                        />
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>
