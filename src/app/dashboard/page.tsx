@@ -3,22 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Users, HandCoins, TrendingUp, AlertCircle, TrendingDown, Crown, FileText, Calendar as CalendarIcon, Plus } from "lucide-react";
+import { Users, HandCoins, TrendingUp, AlertCircle, TrendingDown, Crown, FileText, Calendar as CalendarIcon, Plus, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/Badge";
-
-interface DashboardStats {
-    totalClients: number;
-    activeLoans: number;
-    totalCommissionsMonth: number;
-    pendingCommissions: number;
-}
-
-interface TopSeller {
-    id: string;
-    nome: string;
-    vendas: number;
-}
 
 import {
     ResponsiveContainer,
@@ -107,14 +94,25 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
-            <div className="flex justify-between items-center bg-white/50 p-6 rounded-2xl border border-slate-200 backdrop-blur-sm shadow-sm">
-                <div>
-                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">Dashboard</h1>
-                    <p className="text-slate-500 mt-1">Análise de desempenho e métricas operacionais.</p>
+            {/* ── Header Premium com Gradiente ── */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 shadow-xl shadow-indigo-200/40">
+                <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+                    <div className="absolute -left-6 -bottom-6 h-32 w-32 rounded-full bg-white/5 blur-xl" />
+                    <div className="absolute right-1/3 top-1/2 h-24 w-24 rounded-full bg-indigo-400/20 blur-xl" />
                 </div>
-                <div className="flex gap-2">
-                    <Badge variant="outline" className="bg-white border-slate-200 px-3 py-1 text-slate-500 font-semibold gap-2 shadow-sm rounded-xl">
-                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm ring-1 ring-white/20 shadow-inner">
+                            <LayoutDashboard className="h-7 w-7 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-white">Dashboard</h1>
+                            <p className="mt-1 text-blue-100/90 font-medium">Análise de desempenho e métricas operacionais.</p>
+                        </div>
+                    </div>
+                    <Badge variant="outline" className="w-fit bg-white/10 backdrop-blur-sm border-white/20 px-3 py-1.5 text-white font-semibold gap-2 shadow-sm rounded-xl">
+                        <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                         Sistema Ativo
                     </Badge>
                 </div>

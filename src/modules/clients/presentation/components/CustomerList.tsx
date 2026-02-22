@@ -9,11 +9,13 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Customer, calculateAge } from "../../domain/entities";
-import { Edit, Trash2, Search, User } from "lucide-react";
+import { Edit, Trash2, Search, UserCircle, MapPin, Phone } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/Badge";
 
 interface CustomerListProps {
     customers: Customer[];
@@ -32,68 +34,135 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
 
     return (
         <div className="space-y-4">
+            {/* ── Barra de Busca ── */}
             <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                     placeholder="Buscar por nome ou CPF..."
-                    className="pl-8"
+                    className="pl-10 rounded-xl border-slate-200 bg-white shadow-sm focus-visible:ring-indigo-500/20 focus-visible:border-indigo-400 transition-all h-11"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
+                {searchTerm && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium">
+                        {filteredCustomers.length} resultado{filteredCustomers.length !== 1 ? "s" : ""}
+                    </span>
+                )}
             </div>
 
-            <Card className="border-none shadow-lg overflow-hidden rounded-2xl bg-white/70 backdrop-blur-sm">
-                <CardHeader className="bg-white border-b border-slate-100 pb-4">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <CardTitle className="text-xl">Lista de Clientes</CardTitle>
-                            <CardDescription>Gerencie todos os clientes cadastrados.</CardDescription>
-                        </div>
-                    </div>
-                </CardHeader>
+            {/* ── Tabela de Clientes ── */}
+            <Card className="border-none shadow-lg overflow-hidden rounded-2xl bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-0">
                     <Table>
-                        <TableHeader className="bg-slate-50/50">
-                            <TableRow>
-                                <TableHead className="w-[80px] font-semibold text-slate-700">Cód</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Nome</TableHead>
-                                <TableHead className="font-semibold text-slate-700">CPF/CNPJ</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Idade</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Sexo</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Cidade/UF</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Celular</TableHead>
-                                <TableHead className="text-right font-semibold text-slate-700">Ações</TableHead>
+                        <TableHeader className="bg-slate-50/80">
+                            <TableRow className="hover:bg-transparent border-slate-100">
+                                <TableHead className="font-semibold text-slate-600 text-xs uppercase tracking-wider h-12 pl-6">Cliente</TableHead>
+                                <TableHead className="font-semibold text-slate-600 text-xs uppercase tracking-wider">CPF/CNPJ</TableHead>
+                                <TableHead className="font-semibold text-slate-600 text-xs uppercase tracking-wider">Idade</TableHead>
+                                <TableHead className="font-semibold text-slate-600 text-xs uppercase tracking-wider">Sexo</TableHead>
+                                <TableHead className="font-semibold text-slate-600 text-xs uppercase tracking-wider">Localidade</TableHead>
+                                <TableHead className="font-semibold text-slate-600 text-xs uppercase tracking-wider">Celular</TableHead>
+                                <TableHead className="text-right font-semibold text-slate-600 text-xs uppercase tracking-wider pr-6">Ações</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {filteredCustomers.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="text-center h-24 text-slate-400 italic">
-                                        Nenhum cliente encontrado.
+                                    <TableCell colSpan={7} className="text-center h-32">
+                                        <div className="flex flex-col items-center gap-2 text-slate-400">
+                                            <UserCircle className="h-10 w-10 text-slate-300" />
+                                            <p className="font-medium">Nenhum cliente encontrado.</p>
+                                            <p className="text-xs text-slate-300">
+                                                {searchTerm ? "Tente ajustar sua busca." : "Cadastre seu primeiro cliente."}
+                                            </p>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 filteredCustomers.map((customer) => (
-                                    <TableRow key={customer.id} className="hover:bg-slate-50/50 transition-colors">
-                                        <TableCell className="font-medium text-slate-600">{customer.cod}</TableCell>
-                                        <TableCell className="font-semibold text-slate-800">{customer.nome}</TableCell>
-                                        <TableCell className="text-slate-600">{customer.cpfCnpj}</TableCell>
-                                        <TableCell className="text-slate-600">
-                                            {customer.dataNascimento ? calculateAge(customer.dataNascimento) : "-"}
+                                    <TableRow key={customer.id} className="group hover:bg-indigo-50/30 transition-colors border-slate-100/80">
+                                        {/* Nome com Avatar */}
+                                        <TableCell className="pl-6">
+                                            <div className="flex items-center gap-3">
+                                                <Avatar className="h-9 w-9 border-2 border-white shadow-sm">
+                                                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
+                                                        {customer.nome.charAt(0).toUpperCase()}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div className="flex flex-col">
+                                                    <span className="font-semibold text-slate-800 text-sm">{customer.nome}</span>
+                                                    <span className="text-xs text-slate-400 font-medium">Cód. {customer.cod}</span>
+                                                </div>
+                                            </div>
                                         </TableCell>
-                                        <TableCell className="capitalize text-slate-600">{customer.sexo}</TableCell>
-                                        <TableCell className="text-slate-600">{customer.cidade} / {customer.estado}</TableCell>
-                                        <TableCell className="text-slate-600">{customer.celular}</TableCell>
-                                        <TableCell className="text-right space-x-2">
+
+                                        {/* CPF/CNPJ */}
+                                        <TableCell>
+                                            <span className="text-sm text-slate-600 font-mono bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                                                {customer.cpfCnpj}
+                                            </span>
+                                        </TableCell>
+
+                                        {/* Idade */}
+                                        <TableCell className="text-sm text-slate-600 font-medium">
+                                            {customer.dataNascimento ? (
+                                                <span>{calculateAge(customer.dataNascimento)} anos</span>
+                                            ) : (
+                                                <span className="text-slate-300">—</span>
+                                            )}
+                                        </TableCell>
+
+                                        {/* Sexo */}
+                                        <TableCell>
+                                            <Badge
+                                                variant="secondary"
+                                                className={
+                                                    customer.sexo === "masculino"
+                                                        ? "bg-blue-50 text-blue-700 border-blue-100 font-medium text-xs"
+                                                        : "bg-pink-50 text-pink-700 border-pink-100 font-medium text-xs"
+                                                }
+                                            >
+                                                {customer.sexo === "masculino" ? "M" : "F"}
+                                            </Badge>
+                                        </TableCell>
+
+                                        {/* Cidade/UF */}
+                                        <TableCell>
+                                            <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                                                <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                                                <span>{customer.cidade}/{customer.estado}</span>
+                                            </div>
+                                        </TableCell>
+
+                                        {/* Celular */}
+                                        <TableCell>
+                                            <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                                                <Phone className="h-3.5 w-3.5 text-slate-400" />
+                                                <span>{customer.celular}</span>
+                                            </div>
+                                        </TableCell>
+
+                                        {/* Ações */}
+                                        <TableCell className="text-right pr-6">
                                             {userLevel !== 3 && (
-                                                <>
-                                                    <Button variant="ghost" size="icon" onClick={() => onEdit(customer)} className="text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors">
+                                                <div className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => onEdit(customer)}
+                                                        className="h-8 w-8 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                                    >
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
-                                                    <Button variant="ghost" size="icon" className="text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors" onClick={() => customer.id && onDelete(customer.id)}>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                                        onClick={() => customer.id && onDelete(customer.id)}
+                                                    >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
-                                                </>
+                                                </div>
                                             )}
                                         </TableCell>
                                     </TableRow>

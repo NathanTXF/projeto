@@ -12,7 +12,7 @@ import {
     SelectValue
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Filter, Users as UsersIcon, Calendar as CalendarIcon, RefreshCcw } from "lucide-react";
+import { Filter, Coins, Users as UsersIcon, Calendar as CalendarIcon, RefreshCcw, CheckCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function CommissionsPage() {
@@ -96,20 +96,65 @@ export default function CommissionsPage() {
         }
     };
 
+    const formatCurrency = (value: number) =>
+        new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
+    const totalAprovado = commissions.filter(c => c.status === 'APROVADO').reduce((acc, c) => acc + Number(c.valorCalculado), 0);
+    const totalPendente = commissions.filter(c => c.status === 'EM_ABERTO').reduce((acc, c) => acc + Number(c.valorCalculado), 0);
+
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            <div className="flex justify-between items-center bg-white/50 p-6 rounded-2xl border border-slate-200 backdrop-blur-sm shadow-sm">
-                <div>
-                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Comissões</h1>
-                    <p className="text-slate-500 mt-1">
-                        Gestão e aprovação de comissões por período e vendedor.
-                    </p>
+        <div className="space-y-6 animate-in fade-in duration-500">
+            {/* ── Header Premium com Gradiente ── */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 shadow-xl shadow-indigo-200/40">
+                <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+                    <div className="absolute -left-6 -bottom-6 h-32 w-32 rounded-full bg-white/5 blur-xl" />
+                    <div className="absolute right-1/3 top-1/2 h-24 w-24 rounded-full bg-indigo-400/20 blur-xl" />
                 </div>
-                <div className="flex gap-3">
-                    <Button variant="outline" onClick={() => { setPeriod("all"); setVendedorId("all"); }} className="gap-2 rounded-xl transition-all hover:bg-slate-50">
+                <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm ring-1 ring-white/20 shadow-inner">
+                            <Coins className="h-7 w-7 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-white">Comissões</h1>
+                            <p className="mt-1 text-blue-100/90 font-medium">
+                                Gestão e aprovação de comissões por período e vendedor.
+                            </p>
+                        </div>
+                    </div>
+                    <Button
+                        variant="outline"
+                        onClick={() => { setPeriod("all"); setVendedorId("all"); }}
+                        className="gap-2 rounded-xl bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white transition-all font-medium"
+                    >
                         <RefreshCcw className="h-4 w-4" />
                         Limpar Filtros
                     </Button>
+                </div>
+                {/* Mini stats */}
+                <div className="relative mt-6 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div className="flex items-center gap-3 rounded-xl bg-white/10 backdrop-blur-sm px-4 py-3 ring-1 ring-white/10">
+                        <CheckCircle className="h-5 w-5 text-emerald-300" />
+                        <div>
+                            <p className="text-xs font-medium text-blue-200/80 uppercase tracking-wide">Aprovado</p>
+                            <p className="text-lg font-bold text-white">{formatCurrency(totalAprovado)}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3 rounded-xl bg-white/10 backdrop-blur-sm px-4 py-3 ring-1 ring-white/10">
+                        <Clock className="h-5 w-5 text-amber-300" />
+                        <div>
+                            <p className="text-xs font-medium text-blue-200/80 uppercase tracking-wide">Pendente</p>
+                            <p className="text-lg font-bold text-white">{formatCurrency(totalPendente)}</p>
+                        </div>
+                    </div>
+                    <div className="hidden sm:flex items-center gap-3 rounded-xl bg-white/10 backdrop-blur-sm px-4 py-3 ring-1 ring-white/10">
+                        <Filter className="h-5 w-5 text-blue-200" />
+                        <div>
+                            <p className="text-xs font-medium text-blue-200/80 uppercase tracking-wide">Registros</p>
+                            <p className="text-lg font-bold text-white">{loading ? "..." : commissions.length}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 

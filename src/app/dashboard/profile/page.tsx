@@ -96,14 +96,22 @@ export default function ProfilePage() {
     if (loading) return <div className="p-8 text-center text-slate-500">Carregando perfil...</div>;
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex justify-between items-center bg-white/50 p-6 rounded-2xl border border-slate-200 backdrop-blur-sm shadow-sm">
-                <div>
-                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
-                        <UserCircle className="h-8 w-8 text-indigo-600" />
-                        Meu Perfil
-                    </h1>
-                    <p className="text-slate-500 mt-1">Gerencie suas informações pessoais e segurança.</p>
+        <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* ── Header Premium com Gradiente ── */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 shadow-xl shadow-indigo-200/40">
+                <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+                    <div className="absolute -left-6 -bottom-6 h-32 w-32 rounded-full bg-white/5 blur-xl" />
+                    <div className="absolute right-1/3 top-1/2 h-24 w-24 rounded-full bg-indigo-400/20 blur-xl" />
+                </div>
+                <div className="relative flex items-center gap-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm ring-1 ring-white/20 shadow-inner">
+                        <UserCircle className="h-7 w-7 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-3xl font-extrabold tracking-tight text-white">Meu Perfil</h1>
+                        <p className="mt-1 text-blue-100/90 font-medium">Gerencie suas informações pessoais e segurança.</p>
+                    </div>
                 </div>
             </div>
 
