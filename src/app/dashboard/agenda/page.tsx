@@ -97,13 +97,15 @@ export default function AgendaPage() {
                     </h1>
                     <p className="text-slate-500 mt-1">Organize suas reuniões, visitas e cobranças.</p>
                 </div>
-                <Button
-                    onClick={() => setIsDialogOpen(true)}
-                    className="gap-2 rounded-xl shadow-md bg-indigo-600 hover:bg-indigo-700"
-                >
-                    <Plus className="h-4 w-4" />
-                    Novo Compromisso
-                </Button>
+                <div className="flex gap-3">
+                    <Button
+                        onClick={() => setIsDialogOpen(true)}
+                        className="gap-2 rounded-xl shadow-md bg-indigo-600 hover:bg-indigo-700 transition-all font-medium px-4"
+                    >
+                        <Plus className="h-4 w-4" />
+                        Novo Compromisso
+                    </Button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

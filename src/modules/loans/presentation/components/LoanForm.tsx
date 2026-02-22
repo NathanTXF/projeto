@@ -180,20 +180,20 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 bg-white">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 bg-white/50 backdrop-blur-sm rounded-2xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                         control={form.control}
                         name="clienteId"
                         render={({ field }) => (
                             <FormItem className="flex flex-col">
-                                <FormLabel>Cliente</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Cliente</FormLabel>
                                 <div className="relative">
                                     <div className="relative">
                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                         <Input
                                             placeholder="Buscar por nome ou CPF..."
-                                            className="pl-9 h-11 rounded-xl"
+                                            className="pl-9 h-11 rounded-xl border-slate-200 focus-visible:ring-indigo-500"
                                             value={clientSearch}
                                             onChange={(e) => {
                                                 setClientSearch(e.target.value);
@@ -243,10 +243,11 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         name="dataInicio"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Data da Venda</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Data da Venda</FormLabel>
                                 <FormControl>
                                     <Input
                                         type="date"
+                                        className="rounded-xl border-slate-200 focus-visible:ring-indigo-500"
                                         {...field}
                                         value={field.value instanceof Date
                                             ? field.value.toISOString().split('T')[0]
@@ -266,10 +267,10 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         name="orgaoId"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Órgão</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Órgão</FormLabel>
                                 <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
                                     <FormControl>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
                                             <SelectValue placeholder="Selecione o órgão" />
                                         </SelectTrigger>
                                     </FormControl>
@@ -289,10 +290,10 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         name="bancoId"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Banco</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Banco</FormLabel>
                                 <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
                                     <FormControl>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
                                             <SelectValue placeholder="Selecione o banco" />
                                         </SelectTrigger>
                                     </FormControl>
@@ -314,10 +315,10 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         name="tipoId"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Tipo de Empréstimo</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Tipo de Empréstimo</FormLabel>
                                 <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
                                     <FormControl>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
                                             <SelectValue placeholder="Selecione" />
                                         </SelectTrigger>
                                     </FormControl>
@@ -337,10 +338,10 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         name="grupoId"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Grupo</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Grupo</FormLabel>
                                 <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
                                     <FormControl>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
                                             <SelectValue placeholder="Selecione" />
                                         </SelectTrigger>
                                     </FormControl>
@@ -360,10 +361,10 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         name="tabelaId"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Tabela</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Tabela</FormLabel>
                                 <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
                                     <FormControl>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
                                             <SelectValue placeholder="Selecione" />
                                         </SelectTrigger>
                                     </FormControl>
@@ -385,9 +386,9 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         name="valorBruto"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Valor Bruto (R$)</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Valor Bruto (R$)</FormLabel>
                                 <FormControl>
-                                    <Input type="number" step="0.01" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="number" step="0.01" {...field} onChange={e => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -398,9 +399,9 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         name="valorLiquido"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Valor Líquido (R$)</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Valor Líquido (R$)</FormLabel>
                                 <FormControl>
-                                    <Input type="number" step="0.01" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="number" step="0.01" {...field} onChange={e => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -411,9 +412,9 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         name="valorParcela"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Valor Parcela (R$)</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Valor Parcela (R$)</FormLabel>
                                 <FormControl>
-                                    <Input type="number" step="0.01" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="number" step="0.01" {...field} onChange={e => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -427,9 +428,9 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         name="prazo"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Prazo (Parcelas)</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Prazo (Parcelas)</FormLabel>
                                 <FormControl>
-                                    <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -440,10 +441,10 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         name="status"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Status</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Status</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
                                             <SelectValue placeholder="Selecione o status" />
                                         </SelectTrigger>
                                     </FormControl>
@@ -460,7 +461,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                     />
                 </div>
 
-                <Button type="submit" className="w-full" disabled={submitting || isLocked}>
+                <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition-all font-medium py-6" disabled={submitting || isLocked}>
                     {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                     {isLocked ? "Edição Bloqueada (Comissões Processadas)" : (initialData ? "Atualizar Registro" : "Registrar Venda")}
                 </Button>

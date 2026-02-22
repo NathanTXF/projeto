@@ -107,13 +107,13 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
-            <div className="flex justify-between items-end">
+            <div className="flex justify-between items-center bg-white/50 p-6 rounded-2xl border border-slate-200 backdrop-blur-sm shadow-sm">
                 <div>
-                    <h1 className="text-4xl font-black tracking-tight text-slate-900">Dashboard</h1>
-                    <p className="text-slate-500 mt-1 font-medium">Análise de desempenho e métricas operacionais.</p>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">Dashboard</h1>
+                    <p className="text-slate-500 mt-1">Análise de desempenho e métricas operacionais.</p>
                 </div>
                 <div className="flex gap-2">
-                    <Badge variant="outline" className="bg-white border-slate-200 px-3 py-1 text-slate-500 font-semibold gap-2">
+                    <Badge variant="outline" className="bg-white border-slate-200 px-3 py-1 text-slate-500 font-semibold gap-2 shadow-sm rounded-xl">
                         <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                         Sistema Ativo
                     </Badge>

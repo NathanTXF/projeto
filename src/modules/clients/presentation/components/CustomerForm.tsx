@@ -96,16 +96,16 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-6 bg-white">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-6 bg-white/50 backdrop-blur-sm rounded-2xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                         control={form.control}
                         name="nome"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Nome Completo</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Nome Completo</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="João da Silva" {...field} />
+                                    <Input placeholder="João da Silva" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -116,9 +116,9 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         name="cpfCnpj"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>CPF/CNPJ</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">CPF/CNPJ</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="000.000.000-00" {...field} />
+                                    <Input placeholder="000.000.000-00" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -129,9 +129,9 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         name="email"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>E-mail</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">E-mail</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="joao@exemplo.com" type="email" {...field} />
+                                    <Input placeholder="joao@exemplo.com" type="email" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -142,9 +142,9 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         name="celular"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Celular</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Celular</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="(00) 00000-0000" {...field} />
+                                    <Input placeholder="(00) 00000-0000" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -156,10 +156,11 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         name="dataNascimento"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Data de Nascimento</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Data de Nascimento</FormLabel>
                                 <FormControl>
                                     <Input
                                         type="date"
+                                        className="rounded-xl border-slate-200 focus-visible:ring-indigo-500"
                                         {...field}
                                         value={field.value instanceof Date
                                             ? field.value.toISOString().split('T')[0]
@@ -177,13 +178,13 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         name="sexo"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Sexo</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Sexo</FormLabel>
                                 <Select
                                     onValueChange={field.onChange}
                                     defaultValue={field.value}
                                 >
                                     <FormControl>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
                                             <SelectValue placeholder="Selecione" />
                                         </SelectTrigger>
                                     </FormControl>
@@ -202,9 +203,9 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         name="matricula"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Matrícula</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Matrícula</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="123456" {...field} />
+                                    <Input placeholder="123456" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -216,11 +217,12 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         name="senha"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Senha</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Senha</FormLabel>
                                 <div className="relative">
                                     <FormControl>
                                         <Input
                                             placeholder="******"
+                                            className="rounded-xl border-slate-200 focus-visible:ring-indigo-500"
                                             type={showPassword ? "text" : "password"}
                                             {...field}
                                         />
@@ -251,9 +253,9 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         name="cidade"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Cidade</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Cidade</FormLabel>
                                 <FormControl>
-                                    <Input {...field} />
+                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -264,9 +266,9 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         name="bairro"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Bairro</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Bairro</FormLabel>
                                 <FormControl>
-                                    <Input {...field} />
+                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -277,9 +279,9 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         name="estado"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>UF</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">UF</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="SP" maxLength={2} {...field} />
+                                    <Input placeholder="SP" maxLength={2} className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -292,9 +294,9 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                     name="endereco"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Endereço Completo</FormLabel>
+                            <FormLabel className="text-slate-700 font-semibold">Endereço Completo</FormLabel>
                             <FormControl>
-                                <Input placeholder="Rua exemplo, 123" {...field} />
+                                <Input placeholder="Rua exemplo, 123" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -306,11 +308,11 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                     name="observacao"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Observações</FormLabel>
+                            <FormLabel className="text-slate-700 font-semibold">Observações</FormLabel>
                             <FormControl>
                                 <Textarea
                                     placeholder="Informações adicionais sobre o cliente..."
-                                    className="resize-none"
+                                    className="resize-none rounded-xl border-slate-200 focus-visible:ring-indigo-500"
                                     {...field}
                                 />
                             </FormControl>
@@ -319,7 +321,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                     )}
                 />
 
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition-all font-medium py-6">
                     {initialData ? "Salvar Alterações" : "Cadastrar Cliente"}
                 </Button>
             </form>

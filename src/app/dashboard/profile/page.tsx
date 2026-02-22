@@ -97,16 +97,18 @@ export default function ProfilePage() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div>
-                <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
-                    <UserCircle className="h-8 w-8 text-indigo-600" />
-                    Meu Perfil
-                </h1>
-                <p className="text-slate-500 mt-1">Gerencie suas informações pessoais e segurança.</p>
+            <div className="flex justify-between items-center bg-white/50 p-6 rounded-2xl border border-slate-200 backdrop-blur-sm shadow-sm">
+                <div>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
+                        <UserCircle className="h-8 w-8 text-indigo-600" />
+                        Meu Perfil
+                    </h1>
+                    <p className="text-slate-500 mt-1">Gerencie suas informações pessoais e segurança.</p>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <Card className="md:col-span-1 border-none shadow-lg overflow-hidden rounded-2xl bg-white">
+                <Card className="md:col-span-1 border-none shadow-lg overflow-hidden rounded-2xl bg-white/70 backdrop-blur-sm">
                     <CardContent className="p-6 flex flex-col items-center text-center">
                         <div className="relative group">
                             <div className="w-32 h-32 rounded-full bg-slate-100 flex items-center justify-center border-4 border-white shadow-md overflow-hidden">
@@ -124,7 +126,7 @@ export default function ProfilePage() {
                         <p className="text-sm text-slate-500 font-medium">@{profile?.usuario}</p>
 
                         <div className="mt-6 flex flex-wrap justify-center gap-2">
-                            <Badge variant="outline" className="bg-indigo-50 text-indigo-600 border-indigo-100 uppercase text-[10px] font-bold">
+                            <Badge variant="outline" className="bg-indigo-100 text-indigo-700 border-none uppercase text-[10px] font-bold">
                                 {profile?.nivelAcesso === 1 ? 'ADMINISTRADOR' : profile?.nivelAcesso === 2 ? 'VENDEDOR+' : 'VENDEDOR (VISUALIZAÇÃO)'}
                             </Badge>
                         </div>
@@ -147,15 +149,15 @@ export default function ProfilePage() {
                                 </div>
                             )}
                             <div className="flex items-center gap-3 text-sm text-slate-600">
-                                <Shield className="h-4 w-4 text-slate-400" />
-                                <span>Segurança Ativa</span>
+                                <Shield className="h-4 w-4 text-emerald-500" />
+                                <span className="text-emerald-700 font-medium">Segurança Ativa</span>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="md:col-span-2 border-none shadow-lg rounded-2xl bg-white">
-                    <CardHeader className="border-b border-slate-50">
+                <Card className="md:col-span-2 border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
+                    <CardHeader className="bg-white border-b border-slate-100 pb-4">
                         <CardTitle className="text-lg">Informações da Conta</CardTitle>
                         <CardDescription>Mantenha seus dados sempre atualizados.</CardDescription>
                     </CardHeader>

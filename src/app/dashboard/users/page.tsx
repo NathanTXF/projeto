@@ -107,16 +107,18 @@ export default function UsersPage() {
                     </h1>
                     <p className="text-slate-500 mt-1">Administre os acessos e horários dos colaboradores.</p>
                 </div>
-                <Button
-                    onClick={() => {
-                        setSelectedUser(null);
-                        setIsDialogOpen(true);
-                    }}
-                    className="gap-2 rounded-xl shadow-md bg-indigo-600 hover:bg-indigo-700"
-                >
-                    <Plus className="h-4 w-4" />
-                    Novo Usuário
-                </Button>
+                <div className="flex gap-3">
+                    <Button
+                        onClick={() => {
+                            setSelectedUser(null);
+                            setIsDialogOpen(true);
+                        }}
+                        className="gap-2 rounded-xl shadow-md bg-indigo-600 hover:bg-indigo-700 transition-all font-medium px-4"
+                    >
+                        <Plus className="h-4 w-4" />
+                        Novo Usuário
+                    </Button>
+                </div>
             </div>
 
             <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">

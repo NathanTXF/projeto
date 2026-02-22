@@ -55,15 +55,15 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-6 bg-white">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-6 bg-white/50 backdrop-blur-sm rounded-2xl">
                 <FormField
                     control={form.control}
                     name="nome"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Nome Completo</FormLabel>
+                            <FormLabel className="text-slate-700 font-semibold">Nome Completo</FormLabel>
                             <FormControl>
-                                <Input placeholder="Ex: João Silva" {...field} />
+                                <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" placeholder="Ex: João Silva" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -76,9 +76,9 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                         name="usuario"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Usuário (Login)</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Usuário (Login)</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="joao.silva" {...field} />
+                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" placeholder="joao.silva" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -90,13 +90,13 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                         name="nivelAcesso"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Nível de Acesso</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Nível de Acesso</FormLabel>
                                 <Select
                                     onValueChange={(val) => field.onChange(parseInt(val))}
                                     defaultValue={field.value.toString()}
                                 >
                                     <FormControl>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="rounded-xl border-slate-200 focus-visible:ring-indigo-500">
                                             <SelectValue placeholder="Selecione o nível" />
                                         </SelectTrigger>
                                     </FormControl>
@@ -117,9 +117,9 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                     name="senha"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{initialData ? "Nova Senha (deixe em branco para manter)" : "Senha"}</FormLabel>
+                            <FormLabel className="text-slate-700 font-semibold">{initialData ? "Nova Senha (deixe em branco para manter)" : "Senha"}</FormLabel>
                             <FormControl>
-                                <Input type="password" placeholder="******" {...field} />
+                                <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="password" placeholder="******" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -132,9 +132,9 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                         name="contato"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Contato / Telefone</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Contato / Telefone</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="(00) 00000-0000" {...field} value={field.value || ""} />
+                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" placeholder="(00) 00000-0000" {...field} value={field.value || ""} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -146,9 +146,9 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                         name="endereco"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Endereço</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Endereço</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Rua, Número, Bairro" {...field} value={field.value || ""} />
+                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" placeholder="Rua, Número, Bairro" {...field} value={field.value || ""} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -162,9 +162,9 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                         name="horarioInicio"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Início do Expediente</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Início do Expediente</FormLabel>
                                 <FormControl>
-                                    <Input type="time" {...field} value={field.value || ""} />
+                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="time" {...field} value={field.value || ""} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -176,9 +176,9 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                         name="horarioFim"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Fim do Expediente</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Fim do Expediente</FormLabel>
                                 <FormControl>
-                                    <Input type="time" {...field} value={field.value || ""} />
+                                    <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" type="time" {...field} value={field.value || ""} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -187,7 +187,7 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                 </div>
 
                 <div className="flex justify-end gap-3 pt-4">
-                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
+                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition-all text-white font-medium">
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         {initialData ? "Atualizar Usuário" : "Criar Usuário"}
                     </Button>

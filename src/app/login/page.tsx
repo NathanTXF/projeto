@@ -44,23 +44,23 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4 dark:bg-black">
-            <Card className="w-full max-w-md border-zinc-200 shadow-xl dark:border-zinc-800">
-                <CardHeader className="space-y-1 text-center font-sans">
+        <div className="flex min-h-screen items-center justify-center bg-slate-50/50 p-4">
+            <Card className="w-full max-w-md border-none shadow-xl rounded-2xl bg-white/70 backdrop-blur-sm">
+                <CardHeader className="space-y-1 text-center font-sans bg-white border-b border-slate-100 pb-6 rounded-t-2xl">
                     <div className="flex justify-center mb-4">
-                        <div className="rounded-full bg-zinc-950 p-3 text-white dark:bg-zinc-50 dark:text-black">
+                        <div className="rounded-full bg-indigo-100 p-3 text-indigo-700">
                             <Lock className="h-6 w-6" />
                         </div>
                     </div>
-                    <CardTitle className="text-2xl font-bold tracking-tight">Dinheiro Fácil</CardTitle>
-                    <CardDescription className="text-zinc-500 dark:text-zinc-400">
+                    <CardTitle className="text-2xl font-bold tracking-tight text-slate-800">Dinheiro Fácil</CardTitle>
+                    <CardDescription className="text-slate-500">
                         Acesse sua conta para gerenciar empréstimos e comissões
                     </CardDescription>
                 </CardHeader>
-                <form onSubmit={handleLogin}>
+                <form onSubmit={handleLogin} className="pt-6">
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="usuario">Usuário</Label>
+                            <Label htmlFor="usuario" className="text-slate-700 font-semibold">Usuário</Label>
                             <div className="relative">
                                 <Input
                                     id="usuario"
@@ -68,14 +68,14 @@ export default function LoginPage() {
                                     placeholder="Seu usuário"
                                     value={usuario}
                                     onChange={(e) => setUsuario(e.target.value)}
-                                    className="pl-10"
+                                    className="pl-10 rounded-xl border-slate-200 focus-visible:ring-indigo-500"
                                     required
                                 />
-                                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="senha">Senha</Label>
+                            <Label htmlFor="senha" className="text-slate-700 font-semibold">Senha</Label>
                             <div className="relative">
                                 <Input
                                     id="senha"
@@ -83,17 +83,17 @@ export default function LoginPage() {
                                     placeholder="••••••••"
                                     value={senha}
                                     onChange={(e) => setSenha(e.target.value)}
-                                    className="pl-10"
+                                    className="pl-10 rounded-xl border-slate-200 focus-visible:ring-indigo-500"
                                     required
                                 />
-                                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                             </div>
                         </div>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="pb-6">
                         <Button
                             type="submit"
-                            className="w-full bg-zinc-950 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-black dark:hover:bg-zinc-200"
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition-all font-medium py-6"
                             disabled={loading}
                         >
                             {loading ? "Entrando..." : "Entrar no Sistema"}

@@ -159,7 +159,7 @@ export default function AuditPage() {
                                 </TableRow>
                             ) : (
                                 logs.map((log) => (
-                                    <TableRow key={log.id} className="hover:bg-indigo-50/30 transition-colors group">
+                                    <TableRow key={log.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <TableCell className="text-slate-600 font-mono text-xs">
                                             {new Intl.DateTimeFormat('pt-BR', {
                                                 day: '2-digit', month: '2-digit', year: 'numeric',

@@ -29,16 +29,16 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
     return (
         <div className="rounded-md border bg-white">
             <Table>
-                <TableHeader>
+                <TableHeader className="bg-slate-50/50">
                     <TableRow>
-                        <TableHead>Vendedor</TableHead>
-                        <TableHead>Contrato</TableHead>
-                        <TableHead>Cliente</TableHead>
-                        <TableHead>Período</TableHead>
-                        <TableHead>Tipo</TableHead>
-                        <TableHead>Valor Comissão</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Ações</TableHead>
+                        <TableHead className="font-semibold text-slate-700">Vendedor</TableHead>
+                        <TableHead className="font-semibold text-slate-700">Contrato</TableHead>
+                        <TableHead className="font-semibold text-slate-700">Cliente</TableHead>
+                        <TableHead className="font-semibold text-slate-700">Período</TableHead>
+                        <TableHead className="font-semibold text-slate-700">Tipo</TableHead>
+                        <TableHead className="font-semibold text-slate-700">Valor Comissão</TableHead>
+                        <TableHead className="font-semibold text-slate-700">Status</TableHead>
+                        <TableHead className="text-right font-semibold text-slate-700">Ações</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -50,34 +50,34 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
                         </TableRow>
                     ) : (
                         commissions.map((c) => (
-                            <TableRow key={c.id}>
-                                <TableCell className="font-medium">{c.vendedor?.nome || 'N/A'}</TableCell>
-                                <TableCell>#{c.loan?.cod || 'N/A'}</TableCell>
-                                <TableCell>{c.loan?.cliente?.nome || 'N/A'}</TableCell>
-                                <TableCell>{c.mesAno}</TableCell>
+                            <TableRow key={c.id} className="hover:bg-slate-50/50 transition-colors">
+                                <TableCell className="font-semibold text-slate-800">{c.vendedor?.nome || 'N/A'}</TableCell>
+                                <TableCell className="font-semibold text-slate-500 font-outfit text-xs">#{c.loan?.cod || 'N/A'}</TableCell>
+                                <TableCell className="text-slate-600">{c.loan?.cliente?.nome || 'N/A'}</TableCell>
+                                <TableCell className="text-slate-600 font-medium">{c.mesAno}</TableCell>
                                 <TableCell>
-                                    <span className="text-xs uppercase font-semibold text-muted-foreground">
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                                         {c.tipoComissao.replace('_', ' ')}
                                     </span>
                                 </TableCell>
-                                <TableCell className="font-bold text-emerald-600">
+                                <TableCell className="font-bold text-emerald-600 font-outfit text-md">
                                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(c.valorCalculado))}
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant="outline" className={statusColors[c.status]}>
+                                    <Badge variant="outline" className={`${statusColors[c.status]} font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 border-none`}>
                                         {c.status.replace('_', ' ')}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right space-x-2">
                                     {c.status === 'EM_ABERTO' && (
-                                        <>
-                                            <Button variant="ghost" size="icon" className="text-emerald-600" onClick={() => onApprove(c.id)}>
+                                        <div className="flex justify-end gap-1">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors" onClick={() => onApprove(c.id)}>
                                                 <CheckCircle className="h-4 w-4" />
                                             </Button>
-                                            <Button variant="ghost" size="icon" className="text-destructive" onClick={() => onCancel(c.id)}>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors" onClick={() => onCancel(c.id)}>
                                                 <XCircle className="h-4 w-4" />
                                             </Button>
-                                        </>
+                                        </div>
                                     )}
                                 </TableCell>
                             </TableRow>

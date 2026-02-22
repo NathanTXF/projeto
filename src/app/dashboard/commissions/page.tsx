@@ -97,17 +97,17 @@ export default function CommissionsPage() {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="flex justify-between items-center bg-white/50 p-6 rounded-2xl border border-slate-200 backdrop-blur-sm shadow-sm">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900 font-outfit">Comissões</h1>
-                    <p className="text-muted-foreground">
+                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Comissões</h1>
+                    <p className="text-slate-500 mt-1">
                         Gestão e aprovação de comissões por período e vendedor.
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => { setPeriod("all"); setVendedorId("all"); }} className="rounded-xl">
-                        <RefreshCcw className="h-4 w-4 mr-2" />
+                <div className="flex gap-3">
+                    <Button variant="outline" onClick={() => { setPeriod("all"); setVendedorId("all"); }} className="gap-2 rounded-xl transition-all hover:bg-slate-50">
+                        <RefreshCcw className="h-4 w-4" />
                         Limpar Filtros
                     </Button>
                 </div>

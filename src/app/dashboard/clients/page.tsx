@@ -65,20 +65,23 @@ export default function ClientsPage() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
+        <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="flex justify-between items-center bg-white/50 p-6 rounded-2xl border border-slate-200 backdrop-blur-sm shadow-sm">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
-                    <p className="text-muted-foreground">
+                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Clientes</h1>
+                    <p className="text-slate-500 mt-1">
                         Gerencie o cadastro de seus clientes e visualize suas informações.
                     </p>
                 </div>
                 {userLevel !== 3 && (
-                    <Button onClick={() => {
-                        setSelectedCustomer(undefined);
-                        setIsDialogOpen(true);
-                    }}>
-                        <Plus className="mr-2 h-4 w-4" />
+                    <Button
+                        onClick={() => {
+                            setSelectedCustomer(undefined);
+                            setIsDialogOpen(true);
+                        }}
+                        className="gap-2 rounded-xl shadow-md transition-all hover:shadow-lg bg-gradient-to-r from-blue-600 to-indigo-600 border-none"
+                    >
+                        <Plus className="h-4 w-4" />
                         Novo Cliente
                     </Button>
                 )}

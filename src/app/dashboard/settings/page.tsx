@@ -44,17 +44,19 @@ export default function SettingsPage() {
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
-            <div>
-                <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
-                    <Settings className="h-8 w-8 text-indigo-600" />
-                    Configurações
-                </h1>
-                <p className="text-slate-500 mt-1">Personalize o comportamento do sistema.</p>
+            <div className="flex justify-between items-center bg-white/50 p-6 rounded-2xl border border-slate-200 backdrop-blur-sm shadow-sm">
+                <div>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
+                        <Settings className="h-8 w-8 text-indigo-600" />
+                        Configurações
+                    </h1>
+                    <p className="text-slate-500 mt-1">Personalize o comportamento do sistema.</p>
+                </div>
             </div>
 
             {/* Aparência */}
-            <Card className="border-none shadow-lg rounded-2xl bg-white">
-                <CardHeader className="border-b border-slate-50">
+            <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
+                <CardHeader className="bg-white border-b border-slate-100 pb-4">
                     <CardTitle className="flex items-center gap-2 text-lg">
                         <Monitor className="h-5 w-5 text-indigo-500" />
                         Aparência
@@ -68,8 +70,8 @@ export default function SettingsPage() {
                                 key={t}
                                 onClick={() => setTema(t)}
                                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all ${tema === t
-                                        ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                                        : "border-slate-200 text-slate-500 hover:border-slate-300"
+                                    ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                                    : "border-slate-200 text-slate-500 hover:border-slate-300"
                                     }`}
                             >
                                 {t === "claro" && <Sun className="h-4 w-4" />}
@@ -83,8 +85,8 @@ export default function SettingsPage() {
             </Card>
 
             {/* Notificações */}
-            <Card className="border-none shadow-lg rounded-2xl bg-white">
-                <CardHeader className="border-b border-slate-50">
+            <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
+                <CardHeader className="bg-white border-b border-slate-100 pb-4">
                     <CardTitle className="flex items-center gap-2 text-lg">
                         <Bell className="h-5 w-5 text-indigo-500" />
                         Notificações
@@ -118,8 +120,8 @@ export default function SettingsPage() {
             </Card>
 
             {/* Segurança */}
-            <Card className="border-none shadow-lg rounded-2xl bg-white">
-                <CardHeader className="border-b border-slate-50">
+            <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
+                <CardHeader className="bg-white border-b border-slate-100 pb-4">
                     <CardTitle className="flex items-center gap-2 text-lg">
                         <Shield className="h-5 w-5 text-indigo-500" />
                         Segurança da Sessão
@@ -148,8 +150,8 @@ export default function SettingsPage() {
             </Card>
 
             {/* Sistema */}
-            <Card className="border-none shadow-lg rounded-2xl bg-white">
-                <CardHeader className="border-b border-slate-50">
+            <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
+                <CardHeader className="bg-white border-b border-slate-100 pb-4">
                     <CardTitle className="flex items-center gap-2 text-lg">
                         <Database className="h-5 w-5 text-indigo-500" />
                         Sobre o Sistema

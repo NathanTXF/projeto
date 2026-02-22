@@ -5,16 +5,18 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function AuxiliaryPage() {
     return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Cadastros Auxiliares</h1>
-                <p className="text-muted-foreground">
-                    Gerencie as entidades auxiliares utilizadas em todo o sistema.
-                </p>
+        <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="flex justify-between items-center bg-white/50 p-6 rounded-2xl border border-slate-200 backdrop-blur-sm shadow-sm">
+                <div>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
+                        Cadastros Auxiliares
+                    </h1>
+                    <p className="text-slate-500 mt-1">Gerencie as entidades auxiliares utilizadas em todo o sistema.</p>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
+                <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
                     <CardContent className="pt-6">
                         <AuxiliarySection
                             title="Órgãos"
@@ -24,7 +26,7 @@ export default function AuxiliaryPage() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
                     <CardContent className="pt-6">
                         <AuxiliarySection
                             title="Bancos"
@@ -34,7 +36,7 @@ export default function AuxiliaryPage() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
                     <CardContent className="pt-6">
                         <AuxiliarySection
                             title="Tipos de Empréstimo"
@@ -44,7 +46,7 @@ export default function AuxiliaryPage() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
                     <CardContent className="pt-6">
                         <AuxiliarySection
                             title="Grupos"
@@ -54,7 +56,7 @@ export default function AuxiliaryPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="md:col-span-2">
+                <Card className="md:col-span-2 border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
                     <CardContent className="pt-6">
                         <AuxiliarySection
                             title="Tabelas de Comissão"

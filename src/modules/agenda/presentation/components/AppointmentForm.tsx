@@ -45,16 +45,16 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-6 bg-white">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-6 bg-white/50 backdrop-blur-sm rounded-2xl">
                 <div className="grid grid-cols-2 gap-4">
                     <FormField
                         control={form.control}
                         name="data"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Data</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Data</FormLabel>
                                 <FormControl>
-                                    <Input type="date" {...field} />
+                                    <Input type="date" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -65,9 +65,9 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                         name="hora"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Hora</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Hora</FormLabel>
                                 <FormControl>
-                                    <Input type="time" {...field} />
+                                    <Input type="time" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -80,9 +80,9 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                     name="tipo"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Tipo de Compromisso</FormLabel>
+                            <FormLabel className="text-slate-700 font-semibold">Tipo de Compromisso</FormLabel>
                             <FormControl>
-                                <Input placeholder="Ex: Reunião, Cobrança, Visita..." {...field} />
+                                <Input className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" placeholder="Ex: Reunião, Cobrança, Visita..." {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -94,11 +94,11 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                     name="observacao"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Observação (Opcional)</FormLabel>
+                            <FormLabel className="text-slate-700 font-semibold">Observação (Opcional)</FormLabel>
                             <FormControl>
                                 <Textarea
                                     placeholder="Detalhes adicionais do compromisso..."
-                                    className="min-h-[100px]"
+                                    className="min-h-[100px] rounded-xl border-slate-200 focus-visible:ring-indigo-500"
                                     {...field}
                                     value={field.value || ""}
                                 />
@@ -109,7 +109,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                 />
 
                 <div className="flex justify-end pt-4">
-                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700">
+                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition-all text-white font-medium">
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Agendar Compromisso
                     </Button>

@@ -38,8 +38,8 @@ export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormPro
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="flex flex-col items-center gap-4 p-6 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 bg-white/50 backdrop-blur-sm rounded-2xl">
+                <div className="flex flex-col items-center gap-4 py-8 border-2 border-dashed border-slate-200 rounded-2xl bg-white/60 hover:bg-white/80 transition-colors">
                     <div className="h-24 w-24 rounded-2xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
                         {form.watch("logoUrl") ? (
                             <img src={form.watch("logoUrl")!} alt="Logo Preview" className="h-full w-full object-contain p-2" />
@@ -47,8 +47,8 @@ export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormPro
                             <Building2 className="h-10 w-10 text-slate-300" />
                         )}
                     </div>
-                    <div className="flex flex-col items-center gap-1 text-center">
-                        <Button type="button" variant="outline" size="sm" className="gap-2 text-xs">
+                    <div className="flex flex-col items-center gap-2 text-center">
+                        <Button type="button" variant="outline" size="sm" className="gap-2 text-xs rounded-xl shadow-sm hover:bg-slate-50">
                             <Upload className="h-3 w-3" />
                             Alterar Logo (URL)
                         </Button>
@@ -61,9 +61,9 @@ export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormPro
                     name="logoUrl"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>URL da Logomarca</FormLabel>
+                            <FormLabel className="text-slate-700 font-semibold">URL da Logomarca</FormLabel>
                             <FormControl>
-                                <Input placeholder="https://exemplo.com/logo.png" {...field} value={field.value || ""} />
+                                <Input placeholder="https://exemplo.com/logo.png" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} value={field.value || ""} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -75,9 +75,9 @@ export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormPro
                     name="nome"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Nome da Empresa</FormLabel>
+                            <FormLabel className="text-slate-700 font-semibold">Nome da Empresa</FormLabel>
                             <FormControl>
-                                <Input placeholder="Dinheiro Fácil Ltda" {...field} />
+                                <Input placeholder="Dinheiro Fácil Ltda" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -90,9 +90,9 @@ export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormPro
                         name="cnpj"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>CNPJ</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">CNPJ</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="00.000.000/0000-00" {...field} />
+                                    <Input placeholder="00.000.000/0000-00" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -103,9 +103,9 @@ export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormPro
                         name="contato"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Contato / Telefone</FormLabel>
+                                <FormLabel className="text-slate-700 font-semibold">Contato / Telefone</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="(00) 00000-0000" {...field} />
+                                    <Input placeholder="(00) 00000-0000" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -118,9 +118,9 @@ export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormPro
                     name="endereco"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Endereço Completo</FormLabel>
+                            <FormLabel className="text-slate-700 font-semibold">Endereço Completo</FormLabel>
                             <FormControl>
-                                <Input placeholder="Rua Exemplo, 123 - Centro" {...field} />
+                                <Input placeholder="Rua Exemplo, 123 - Centro" className="rounded-xl border-slate-200 focus-visible:ring-indigo-500" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -128,12 +128,12 @@ export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormPro
                 />
 
                 <div className="flex justify-end pt-4">
-                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700">
+                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition-all font-medium py-6 px-8">
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Salvar Alterações
                     </Button>
                 </div>
             </form>
-        </Form>
+        </Form >
     );
 }
