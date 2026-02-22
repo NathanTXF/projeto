@@ -58,14 +58,11 @@ export class CommissionUseCases {
         });
 
         if (financialUseCases) {
-            await financialUseCases.registerTransaction({
-                data: new Date(),
-                valor: Number(commission.valorCalculado),
-                tipo: 'SAIDA',
-                categoria: 'COMISSAO',
-                descricao: `Pagamento de comissão - ref. contrato #${commission.loanId}`,
-                referenciaId: commission.id,
-                pagoEm: new Date(),
+            await financialUseCases.createFinancialRecord({
+                commissionId: commission.id,
+                vendedorId: commission.vendedorId,
+                mesAno: commission.mesAno,
+                valorTotal: Number(commission.valorCalculado),
             }, requesterId);
         }
 

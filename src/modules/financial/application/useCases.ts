@@ -1,4 +1,4 @@
-import { Transaction, FinancialRepository } from '../domain/entities';
+import { FinancialTransaction, FinancialRepository, FinancialStatus } from '../domain/entities';
 import { logAudit } from '../../../core/audit/logger';
 
 export class FinancialUseCases {
@@ -8,48 +8,44 @@ export class FinancialUseCases {
         return await this.repository.findAll();
     }
 
-    async getBalance() {
-        return await this.repository.getBalance();
+    async getByPeriod(mesAno: string) {
+        return await this.repository.findByPeriod(mesAno);
     }
 
-    async registerTransaction(data: Transaction, requesterId: string) {
-        const transaction = await this.repository.create(data);
+    async getByVendedor(vendedorId: string) {
+        return await this.repository.findByVendedor(vendedorId);
+    }
 
-        await logAudit({
-            usuarioId: requesterId,
-            modulo: 'FINANCIAL',
-            acao: 'CREATE_TRANSACTION',
-            entidadeId: transaction.id,
+    async createFinancialRecord(data: Omit<FinancialTransaction, 'id' | 'createdAt' | 'status'>, requesterId: string) {
+        const financial = await this.repository.create({
+            ...data,
+            status: 'Em aberto' as FinancialStatus
         });
 
-        return transaction;
+        await logAudit({
+            usuarioId: requesterId,
+            modulo: 'FINANCEIRO',
+            acao: 'CREATE_FINANCIAL_RECORD',
+            entidadeId: financial.id,
+        });
+
+        return financial;
     }
 
-    async updateTransaction(id: string, data: Partial<Transaction>, requesterId: string) {
-        const transaction = await this.repository.update(id, data);
+    async payCommission(id: string, pagoEm: Date, comprovanteUrl: string | undefined, requesterId: string) {
+        const financial = await this.repository.update(id, {
+            status: 'Pago' as FinancialStatus,
+            pagoEm: pagoEm,
+            comprovanteUrl: comprovanteUrl,
+        });
 
         await logAudit({
             usuarioId: requesterId,
-            modulo: 'FINANCIAL',
-            acao: 'UPDATE_TRANSACTION',
+            modulo: 'FINANCEIRO',
+            acao: 'PAGAMENTO',
             entidadeId: id,
         });
 
-        return transaction;
-    }
-
-    async deleteTransaction(id: string, requesterId: string) {
-        await this.repository.delete(id);
-
-        await logAudit({
-            usuarioId: requesterId,
-            modulo: 'FINANCIAL',
-            acao: 'DELETE_TRANSACTION',
-            entidadeId: id,
-        });
-    }
-
-    async getMovementByPeriod(start: Date, end: Date) {
-        return await this.repository.findByPeriod(start, end);
+        return financial;
     }
 }

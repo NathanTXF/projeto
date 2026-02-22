@@ -1,38 +1,28 @@
 import { z } from 'zod';
+import { User } from '../../users/domain/entities';
 
-export const TransactionTypeSchema = z.enum(['ENTRADA', 'SAIDA']);
-export type TransactionType = z.infer<typeof TransactionTypeSchema>;
+export const FinancialStatusSchema = z.enum(['Em aberto', 'Pago']);
+export type FinancialStatus = z.infer<typeof FinancialStatusSchema>;
 
-export const TransactionCategorySchema = z.enum([
-    'EMPRESTIMO',
-    'COMISSAO',
-    'DESPESA_FIXA',
-    'DESPESA_VARIAVEL',
-    'OUTROS'
-]);
-export type TransactionCategory = z.infer<typeof TransactionCategorySchema>;
-
-export const TransactionSchema = z.object({
+export const FinancialSchema = z.object({
     id: z.string().uuid().optional(),
-    data: z.date(),
-    valor: z.number().positive(),
-    tipo: TransactionTypeSchema,
-    categoria: TransactionCategorySchema,
-    descricao: z.string().min(3),
-    referenciaId: z.string().optional(), // ID do empréstimo ou comissão
-    pagoEm: z.date().optional(),
+    commissionId: z.string().uuid(),
+    vendedorId: z.string().uuid(),
+    mesAno: z.string(),
+    valorTotal: z.number().positive(),
+    status: FinancialStatusSchema.default('Em aberto'),
+    pagoEm: z.date().optional().nullable(),
+    comprovanteUrl: z.string().optional().nullable(),
     createdAt: z.date().optional(),
-    updatedAt: z.date().optional(),
 });
 
-export type Transaction = z.infer<typeof TransactionSchema>;
+export type FinancialTransaction = z.infer<typeof FinancialSchema>;
 
 export interface FinancialRepository {
-    findAll(): Promise<Transaction[]>;
-    findById(id: string): Promise<Transaction | null>;
-    findByPeriod(start: Date, end: Date): Promise<Transaction[]>;
-    create(data: Transaction): Promise<Transaction>;
-    update(id: string, data: Partial<Transaction>): Promise<Transaction>;
-    delete(id: string): Promise<void>;
-    getBalance(): Promise<{ totalEntradas: number; totalSaidas: number; saldo: number }>;
+    findAll(): Promise<FinancialTransaction[]>;
+    findById(id: string): Promise<FinancialTransaction | null>;
+    findByPeriod(mesAno: string): Promise<FinancialTransaction[]>;
+    findByVendedor(vendedorId: string): Promise<FinancialTransaction[]>;
+    create(data: FinancialTransaction): Promise<FinancialTransaction>;
+    update(id: string, data: Partial<FinancialTransaction>): Promise<FinancialTransaction>;
 }

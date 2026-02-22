@@ -2,15 +2,13 @@
 
 import { useState, useEffect } from "react";
 import {
-    TrendingUp,
-    TrendingDown,
     DollarSign,
     Calendar as CalendarIcon,
-    Plus,
-    ArrowUpCircle,
-    ArrowDownCircle,
+    CheckCircle2,
+    Clock,
     Filter,
-    Loader2
+    Loader2,
+    Link as LinkIcon
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,60 +38,44 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const transactionFormSchema = z.object({
-    data: z.string().min(1, "Data é obrigatória"),
-    valor: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, "Valor deve ser positivo"),
-    tipo: z.enum(["ENTRADA", "SAIDA"]),
-    categoria: z.enum(["EMPRESTIMO", "COMISSAO", "DESPESA_FIXA", "DESPESA_VARIAVEL", "OUTROS"]),
-    descricao: z.string().min(3, "Descrição deve ter no mínimo 3 caracteres"),
+const paymentFormSchema = z.object({
+    pagoEm: z.string().min(1, "Data de pagamento é obrigatória"),
+    comprovanteUrl: z.string().url("URL inválida").optional().or(z.literal("")),
 });
 
-type TransactionFormValues = z.infer<typeof transactionFormSchema>;
+type PaymentFormValues = z.infer<typeof paymentFormSchema>;
 
-interface Transaction {
+interface FinancialTransaction {
     id: string;
-    data: string;
-    valor: number;
-    tipo: 'ENTRADA' | 'SAIDA';
-    categoria: string;
-    descricao: string;
+    commissionId: string;
+    vendedorId: string;
+    mesAno: string;
+    valorTotal: number;
+    status: 'Em aberto' | 'Pago';
     pagoEm?: string;
-}
-
-interface Balance {
-    totalEntradas: number;
-    totalSaidas: number;
-    saldo: number;
+    comprovanteUrl?: string;
+    vendedorNome?: string;
+    vendedorFoto?: string;
 }
 
 export default function FinancialPage() {
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [balance, setBalance] = useState<Balance>({ totalEntradas: 0, totalSaidas: 0, saldo: 0 });
+    const [transactions, setTransactions] = useState<FinancialTransaction[]>([]);
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [selectedTransaction, setSelectedTransaction] = useState<FinancialTransaction | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const form = useForm<TransactionFormValues>({
-        resolver: zodResolver(transactionFormSchema),
+    const form = useForm<PaymentFormValues>({
+        resolver: zodResolver(paymentFormSchema),
         defaultValues: {
-            tipo: "SAIDA",
-            categoria: "DESPESA_FIXA",
-            data: new Date().toISOString().split('T')[0],
-            valor: "",
-            descricao: "",
+            pagoEm: new Date().toISOString().split('T')[0],
+            comprovanteUrl: "",
         },
     });
 
@@ -109,7 +91,6 @@ export default function FinancialPage() {
             if (data.error) throw new Error(data.error);
 
             setTransactions(data.transactions);
-            setBalance(data.balance);
         } catch (error: any) {
             toast.error("Erro ao carregar dados financeiros: " + error.message);
         } finally {
@@ -117,26 +98,37 @@ export default function FinancialPage() {
         }
     };
 
-    const onSubmit = async (values: TransactionFormValues) => {
+    const handleOpenPaymentDialog = (transaction: FinancialTransaction) => {
+        setSelectedTransaction(transaction);
+        form.reset({
+            pagoEm: new Date().toISOString().split('T')[0],
+            comprovanteUrl: "",
+        });
+        setIsDialogOpen(true);
+    };
+
+    const onSubmit = async (values: PaymentFormValues) => {
+        if (!selectedTransaction) return;
+
         try {
             setIsSubmitting(true);
-            const response = await fetch('/api/financial', {
-                method: 'POST',
+            const response = await fetch(`/api/financial/${selectedTransaction.id}`, {
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    ...values,
-                    valor: Number(values.valor),
+                    action: 'PAY',
+                    pagoEm: values.pagoEm,
+                    comprovanteUrl: values.comprovanteUrl || undefined,
                 }),
             });
 
             if (response.ok) {
-                toast.success("Transação registrada com sucesso!");
+                toast.success("Comissão paga com sucesso!");
                 setIsDialogOpen(false);
-                form.reset();
                 fetchData();
             } else {
                 const errorData = await response.json();
-                toast.error("Erro ao registrar transação: " + errorData.error);
+                toast.error("Erro ao registrar pagamento: " + errorData.error);
             }
         } catch (error: any) {
             toast.error("Erro na requisição: " + error.message);
@@ -154,86 +146,34 @@ export default function FinancialPage() {
             <div className="flex justify-between items-center bg-white/50 p-6 rounded-2xl border border-slate-200 backdrop-blur-sm shadow-sm">
                 <div>
                     <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Financeiro</h1>
-                    <p className="text-slate-500 mt-1">Gestão de fluxo de caixa e movimentações financeiras.</p>
+                    <p className="text-slate-500 mt-1">Controle de pagamento de comissões aos vendedores.</p>
                 </div>
                 <div className="flex gap-3">
-                    <Button variant="outline" className="gap-2 rounded-xl transition-all hover:bg-slate-50">
+                    <Button variant="outline" className="gap-2 rounded-xl transition-all hover:bg-slate-50 shadow-sm border-slate-200 text-slate-600 font-medium">
                         <Filter className="h-4 w-4" />
-                        Filtrar
-                    </Button>
-                    <Button
-                        onClick={() => setIsDialogOpen(true)}
-                        className="gap-2 rounded-xl shadow-md transition-all hover:shadow-lg bg-gradient-to-r from-blue-600 to-indigo-600 border-none"
-                    >
-                        <Plus className="h-4 w-4" />
-                        Nova Transação
+                        Filtrar por Período
                     </Button>
                 </div>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid gap-6 md:grid-cols-3">
-                <Card className="border-none shadow-sm bg-gradient-to-br from-emerald-50/50 to-white overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                        <ArrowUpCircle className="h-24 w-24 text-emerald-600" />
-                    </div>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                        <CardTitle className="text-sm font-medium text-emerald-800">Total Entradas</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-emerald-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-emerald-700">{formatCurrency(balance.totalEntradas)}</div>
-                        <p className="text-xs text-emerald-600/70 mt-1 font-medium italic">Acumulado total</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-none shadow-sm bg-gradient-to-br from-rose-50/50 to-white overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                        <ArrowDownCircle className="h-24 w-24 text-rose-600" />
-                    </div>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                        <CardTitle className="text-sm font-medium text-rose-800">Total Saídas</CardTitle>
-                        <TrendingDown className="h-4 w-4 text-rose-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-rose-700">{formatCurrency(balance.totalSaidas)}</div>
-                        <p className="text-xs text-rose-600/70 mt-1 font-medium italic">Comissões e despesas</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-none shadow-md bg-gradient-to-br from-blue-600 to-indigo-700 text-white overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                        <DollarSign className="h-24 w-24 text-white" />
-                    </div>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                        <CardTitle className="text-sm font-medium text-blue-100">Saldo Atual</CardTitle>
-                        <DollarSign className="h-4 w-4 text-blue-200" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{formatCurrency(balance.saldo)}</div>
-                        <p className="text-xs text-blue-200 mt-1 font-medium italic">Disponível em caixa</p>
-                    </CardContent>
-                </Card>
             </div>
 
             <Card className="border-none shadow-lg overflow-hidden rounded-2xl bg-white/70 backdrop-blur-sm">
-                <CardHeader className="bg-white border-b border-slate-100 pb-4">
+                <CardHeader className="bg-white/80 border-b border-slate-100 pb-5">
                     <div className="flex justify-between items-center">
                         <div>
-                            <CardTitle className="text-xl">Movimentações</CardTitle>
-                            <CardDescription>Lista completa de entradas e saídas.</CardDescription>
+                            <CardTitle className="text-xl font-bold text-slate-800">Pagamentos de Comissão</CardTitle>
+                            <CardDescription className="text-slate-500 font-medium mt-1">Lista de comissões aprovadas aguardando pagamento.</CardDescription>
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
                     <Table>
-                        <TableHeader className="bg-slate-50/50">
-                            <TableRow>
-                                <TableHead className="font-semibold text-slate-700">Data</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Descrição</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Categoria</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Tipo</TableHead>
-                                <TableHead className="text-right font-semibold text-slate-700">Valor</TableHead>
+                        <TableHeader className="bg-slate-50/80">
+                            <TableRow className="hover:bg-transparent border-slate-100">
+                                <TableHead className="font-semibold text-slate-700 h-12">Vendedor</TableHead>
+                                <TableHead className="font-semibold text-slate-700">Mês/Ano</TableHead>
+                                <TableHead className="font-semibold text-slate-700">Valor Total</TableHead>
+                                <TableHead className="font-semibold text-slate-700">Status</TableHead>
+                                <TableHead className="text-right font-semibold text-slate-700">Ações</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -242,43 +182,67 @@ export default function FinancialPage() {
                                     <TableCell colSpan={5} className="h-32 text-center text-slate-400">
                                         <div className="flex flex-col items-center gap-2">
                                             <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                                            <span>Carregando movimentações...</span>
+                                            <span className="font-medium">Carregando dados financeiros...</span>
                                         </div>
                                     </TableCell>
                                 </TableRow>
                             ) : transactions.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={5} className="h-32 text-center text-slate-400 italic">
-                                        Nenhuma transação registrada.
+                                        Nenhuma comissão pendente ou paga encontrada.
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 transactions.map((t) => (
-                                    <TableRow key={t.id} className="hover:bg-slate-50/50 transition-colors">
-                                        <TableCell className="font-medium text-slate-600">
-                                            {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(t.data))}
-                                        </TableCell>
-                                        <TableCell className="text-slate-600 max-w-xs truncate font-medium">
-                                            {t.descricao}
+                                    <TableRow key={t.id} className="hover:bg-slate-50/50 transition-colors border-slate-100">
+                                        <TableCell className="font-medium text-slate-700">
+                                            <div className="flex items-center gap-3">
+                                                <Avatar className="h-9 w-9 border-2 border-white shadow-sm">
+                                                    <AvatarImage src={t.vendedorFoto || undefined} alt={t.vendedorNome} />
+                                                    <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold">
+                                                        {t.vendedorNome?.charAt(0).toUpperCase()}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <span className="font-semibold text-slate-800">{t.vendedorNome}</span>
+                                            </div>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant="outline" className="bg-slate-100/50 text-slate-600 border-slate-200 uppercase text-[10px] font-bold tracking-tight">
-                                                {t.categoria.replace('_', ' ')}
-                                            </Badge>
+                                            <div className="flex items-center gap-2 text-slate-600 font-medium bg-slate-100/50 w-fit px-2.5 py-1 rounded-md border border-slate-200/60">
+                                                <CalendarIcon className="h-3.5 w-3.5 text-slate-400" />
+                                                {t.mesAno}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="font-bold font-outfit text-slate-700 text-base">
+                                            {formatCurrency(t.valorTotal)}
                                         </TableCell>
                                         <TableCell>
                                             <Badge
-                                                variant={t.tipo === 'ENTRADA' ? 'default' : 'destructive'}
-                                                className={t.tipo === 'ENTRADA'
-                                                    ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-none font-bold text-xs'
-                                                    : 'bg-rose-100 text-rose-700 hover:bg-rose-200 border-none font-bold text-xs'}
+                                                variant={t.status === 'Pago' ? 'default' : 'secondary'}
+                                                className={t.status === 'Pago'
+                                                    ? 'bg-emerald-100/80 text-emerald-700 hover:bg-emerald-200/80 border-emerald-200/50 font-bold px-2.5 py-0.5 shadow-sm'
+                                                    : 'bg-amber-100/80 text-amber-700 hover:bg-amber-200/80 border-amber-200/50 font-bold px-2.5 py-0.5 shadow-sm'}
                                             >
-                                                {t.tipo}
+                                                <div className="flex items-center gap-1.5">
+                                                    {t.status === 'Pago' ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
+                                                    {t.status}
+                                                </div>
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className={`text-right font-bold font-outfit ${t.tipo === 'ENTRADA' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                            {t.tipo === 'SAIDA' ? '- ' : '+ '}
-                                            {formatCurrency(t.valor)}
+                                        <TableCell className="text-right">
+                                            {t.status === 'Em aberto' ? (
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => handleOpenPaymentDialog(t)}
+                                                    className="rounded-xl shadow-md transition-all hover:shadow-lg bg-gradient-to-r from-emerald-500 to-teal-500 border-none text-white font-semibold gap-1.5 hover:scale-[1.02]"
+                                                >
+                                                    <DollarSign className="h-4 w-4" />
+                                                    Pagar
+                                                </Button>
+                                            ) : (
+                                                <div className="flex justify-end pr-2 text-slate-400">
+                                                    <CheckCircle2 className="h-5 w-5 text-emerald-500/50" />
+                                                </div>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -288,141 +252,99 @@ export default function FinancialPage() {
                 </CardContent>
             </Card>
 
-            {/* Nova Transação Dialog */}
+            {/* Modal de Pagamento */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                        <DialogTitle>Nova Transação</DialogTitle>
-                        <DialogDescription>
-                            Preencha os dados abaixo para registrar uma nova movimentação financeira.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-4 bg-white">
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="tipo"
-                                    render={({ field }) => (
-                                        <FormItem className="space-y-1">
-                                            <FormLabel className="text-xs font-bold text-slate-500 uppercase">Tipo</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50/50">
-                                                        <SelectValue placeholder="Selecione o tipo" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="ENTRADA" className="text-emerald-600 font-medium">Entrada</SelectItem>
-                                                    <SelectItem value="SAIDA" className="text-rose-600 font-medium">Saída</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="categoria"
-                                    render={({ field }) => (
-                                        <FormItem className="space-y-1">
-                                            <FormLabel className="text-xs font-bold text-slate-500 uppercase">Categoria</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50/50">
-                                                        <SelectValue placeholder="Selecione a categoria" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="EMPRESTIMO">Empréstimo</SelectItem>
-                                                    <SelectItem value="COMISSAO">Comissão</SelectItem>
-                                                    <SelectItem value="DESPESA_FIXA">Despesa Fixa</SelectItem>
-                                                    <SelectItem value="DESPESA_VARIAVEL">Despesa Variável</SelectItem>
-                                                    <SelectItem value="OUTROS">Outros</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                    <div className="bg-gradient-to-br from-white to-slate-50/50 p-6">
+                        <DialogHeader className="mb-6">
+                            <div className="flex items-center gap-4 mb-2">
+                                <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center shadow-inner">
+                                    <DollarSign className="h-6 w-6 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <DialogTitle className="text-xl font-bold text-slate-800">Pagar Comissão</DialogTitle>
+                                    <DialogDescription className="text-slate-500 font-medium">
+                                        Registrar pagamento para o vendedor.
+                                    </DialogDescription>
+                                </div>
                             </div>
+                        </DialogHeader>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="data"
-                                    render={({ field }) => (
-                                        <FormItem className="space-y-1">
-                                            <FormLabel className="text-xs font-bold text-slate-500 uppercase">Data</FormLabel>
-                                            <FormControl>
-                                                <Input type="date" {...field} className="rounded-xl border-slate-200 bg-slate-50/50" />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="valor"
-                                    render={({ field }) => (
-                                        <FormItem className="space-y-1">
-                                            <FormLabel className="text-xs font-bold text-slate-500 uppercase">Valor (R$)</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" step="0.01" placeholder="0,00" {...field} className="rounded-xl border-slate-200 bg-slate-50/50 font-medium" />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                        {selectedTransaction && (
+                            <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                <p className="text-sm text-slate-500 font-medium mb-1">Valor a ser pago</p>
+                                <p className="text-3xl font-bold text-emerald-600 font-outfit">{formatCurrency(selectedTransaction.valorTotal)}</p>
+                                <div className="mt-3 pt-3 border-t border-slate-200/60 flex justify-between items-center text-sm">
+                                    <span className="text-slate-500 font-medium">Vendedor</span>
+                                    <span className="font-semibold text-slate-700">{selectedTransaction.vendedorNome}</span>
+                                </div>
                             </div>
+                        )}
 
-                            <FormField
-                                control={form.control}
-                                name="descricao"
-                                render={({ field }) => (
-                                    <FormItem className="space-y-1">
-                                        <FormLabel className="text-xs font-bold text-slate-500 uppercase">Descrição</FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                placeholder="Detalhes da transação..."
-                                                className="rounded-xl border-slate-200 bg-slate-50/50 resize-none h-20"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <DialogFooter className="pt-4">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    onClick={() => setIsDialogOpen(false)}
-                                    className="rounded-xl hover:bg-slate-100"
-                                >
-                                    Cancelar
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-200 transition-all hover:scale-[1.02]"
-                                >
-                                    {isSubmitting ? (
-                                        <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Salvando...
-                                        </>
-                                    ) : (
-                                        "Salvar Transação"
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="pagoEm"
+                                    render={({ field }) => (
+                                        <FormItem className="space-y-1.5">
+                                            <FormLabel className="text-sm font-semibold text-slate-700">Data de Pagamento</FormLabel>
+                                            <FormControl>
+                                                <Input type="date" {...field} className="rounded-xl border-slate-200 bg-white shadow-sm focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-colors" />
+                                            </FormControl>
+                                            <FormMessage className="text-xs" />
+                                        </FormItem>
                                     )}
-                                </Button>
-                            </DialogFooter>
-                        </form>
-                    </Form>
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="comprovanteUrl"
+                                    render={({ field }) => (
+                                        <FormItem className="space-y-1.5">
+                                            <FormLabel className="text-sm font-semibold text-slate-700">Link do Comprovante (Opcional)</FormLabel>
+                                            <FormControl>
+                                                <div className="relative">
+                                                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                    <Input
+                                                        placeholder="https://..."
+                                                        {...field}
+                                                        className="pl-9 rounded-xl border-slate-200 bg-white shadow-sm focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-colors"
+                                                    />
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage className="text-xs" />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <DialogFooter className="pt-6 gap-2 sm:gap-0">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setIsDialogOpen(false)}
+                                        className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 font-semibold"
+                                    >
+                                        Cancelar
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-200/50 transition-all hover:scale-[1.02] border-none font-semibold"
+                                    >
+                                        {isSubmitting ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Processando...
+                                            </>
+                                        ) : (
+                                            "Confirmar Pagamento"
+                                        )}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </Form>
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>

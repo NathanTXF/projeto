@@ -1,96 +1,85 @@
 import { prisma } from '../../../lib/prisma';
-import { Transaction, FinancialRepository } from '../domain/entities';
+import { FinancialTransaction, FinancialRepository, FinancialStatus } from '../domain/entities';
 
 export class PrismaFinancialRepository implements FinancialRepository {
-    async findAll(): Promise<Transaction[]> {
+    async findAll(): Promise<FinancialTransaction[]> {
         const records = await prisma.financial.findMany({
             orderBy: { createdAt: 'desc' },
             include: { commission: { include: { loan: true } }, vendedor: true },
         });
-        return records.map(this.mapToTransaction);
+        return records.map(this.mapToFinancialTransaction);
     }
 
-    async findById(id: string): Promise<Transaction | null> {
+    async findById(id: string): Promise<FinancialTransaction | null> {
         const record = await prisma.financial.findUnique({
             where: { id },
-            include: { commission: true, vendedor: true },
+            include: { commission: { include: { loan: true } }, vendedor: true },
         });
-        return record ? this.mapToTransaction(record) : null;
+        return record ? this.mapToFinancialTransaction(record) : null;
     }
 
-    async findByPeriod(start: Date, end: Date): Promise<Transaction[]> {
+    async findByPeriod(mesAno: string): Promise<FinancialTransaction[]> {
         const records = await prisma.financial.findMany({
-            where: {
-                createdAt: { gte: start, lte: end },
-            },
-            orderBy: { createdAt: 'asc' },
-            include: { commission: true, vendedor: true },
+            where: { mesAno },
+            orderBy: { createdAt: 'desc' },
+            include: { commission: { include: { loan: true } }, vendedor: true },
         });
-        return records.map(this.mapToTransaction);
+        return records.map(this.mapToFinancialTransaction);
     }
 
-    async create(data: Transaction): Promise<Transaction> {
+    async findByVendedor(vendedorId: string): Promise<FinancialTransaction[]> {
+        const records = await prisma.financial.findMany({
+            where: { vendedorId },
+            orderBy: { createdAt: 'desc' },
+            include: { commission: { include: { loan: true } }, vendedor: true },
+        });
+        return records.map(this.mapToFinancialTransaction);
+    }
+
+    async create(data: FinancialTransaction): Promise<FinancialTransaction> {
         const record = await prisma.financial.create({
             data: {
-                commissionId: (data as any).commissionId,
-                vendedorId: (data as any).vendedorId,
-                mesAno: (data as any).mesAno || new Date().toLocaleDateString('pt-BR', { month: '2-digit', year: 'numeric' }),
-                valorTotal: (data as any).valor || (data as any).valorTotal || 0,
-                status: (data as any).status || 'Em aberto',
+                commissionId: data.commissionId,
+                vendedorId: data.vendedorId,
+                mesAno: data.mesAno,
+                valorTotal: data.valorTotal,
+                status: data.status,
+                pagoEm: data.pagoEm,
+                comprovanteUrl: data.comprovanteUrl,
             },
-            include: { commission: true, vendedor: true },
+            include: { commission: { include: { loan: true } }, vendedor: true },
         });
-        return this.mapToTransaction(record);
+        return this.mapToFinancialTransaction(record);
     }
 
-    async update(id: string, data: Partial<Transaction>): Promise<Transaction> {
+    async update(id: string, data: Partial<FinancialTransaction>): Promise<FinancialTransaction> {
         const record = await prisma.financial.update({
             where: { id },
             data: {
-                status: (data as any).status,
-                pagoEm: (data as any).pagoEm,
-                comprovanteUrl: (data as any).comprovanteUrl,
+                status: data.status,
+                pagoEm: data.pagoEm,
+                comprovanteUrl: data.comprovanteUrl,
             },
-            include: { commission: true, vendedor: true },
+            include: { commission: { include: { loan: true } }, vendedor: true },
         });
-        return this.mapToTransaction(record);
+        return this.mapToFinancialTransaction(record);
     }
 
-    async delete(id: string): Promise<void> {
-        await prisma.financial.delete({ where: { id } });
-    }
-
-    async getBalance(): Promise<{ totalEntradas: number; totalSaidas: number; saldo: number }> {
-        const total = await prisma.financial.aggregate({
-            _sum: { valorTotal: true },
-        });
-
-        const paid = await prisma.financial.aggregate({
-            _sum: { valorTotal: true },
-            where: { status: 'Pago' },
-        });
-
-        const totalEntradas = Number(paid._sum?.valorTotal || 0);
-        const totalSaidas = 0;
-
-        return {
-            totalEntradas,
-            totalSaidas,
-            saldo: totalEntradas - totalSaidas,
-        };
-    }
-
-    private mapToTransaction(record: any): Transaction {
+    private mapToFinancialTransaction(record: any): FinancialTransaction {
         return {
             id: record.id,
-            tipo: 'ENTRADA',
-            categoria: 'COMISSAO',
-            descricao: `Comissão ${record.mesAno || ''}`,
-            valor: Number(record.valorTotal),
-            data: record.createdAt,
-            status: record.status,
+            commissionId: record.commissionId,
             vendedorId: record.vendedorId,
+            mesAno: record.mesAno,
+            valorTotal: Number(record.valorTotal),
+            status: record.status as FinancialStatus,
+            pagoEm: record.pagoEm,
+            comprovanteUrl: record.comprovanteUrl,
+            createdAt: record.createdAt,
+            // Add extra nested fields for easier UI consumption if needed, like:
             vendedorNome: record.vendedor?.nome,
-        } as unknown as Transaction;
+            vendedorFoto: record.vendedor?.fotoUrl,
+            clienteNome: record.commission?.loan?.cliente?.nome,
+        } as unknown as FinancialTransaction;
     }
 }
