@@ -8,6 +8,10 @@ CREATE TABLE "User" (
     "nivelAcesso" INTEGER NOT NULL,
     "horarioInicio" TEXT,
     "horarioFim" TEXT,
+    "failedAttempts" INTEGER NOT NULL DEFAULT 0,
+    "lockUntil" TIMESTAMP(3),
+    "contato" TEXT,
+    "endereco" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -81,7 +85,7 @@ CREATE TABLE "LoanTable" (
 CREATE TABLE "Loan" (
     "id" TEXT NOT NULL,
     "cod" SERIAL NOT NULL,
-    "dataEmprestimo" TIMESTAMP(3) NOT NULL,
+    "dataInicio" TIMESTAMP(3) NOT NULL,
     "clienteId" TEXT NOT NULL,
     "prazo" INTEGER NOT NULL,
     "valorParcela" DECIMAL(10,2) NOT NULL,
@@ -93,6 +97,8 @@ CREATE TABLE "Loan" (
     "grupoId" INTEGER NOT NULL,
     "tabelaId" INTEGER NOT NULL,
     "vendedorId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ATIVO',
+    "observacao" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
