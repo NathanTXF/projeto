@@ -357,28 +357,30 @@ export default function OverviewPage() {
                         {loading ? (
                             <div className="h-full flex items-center justify-center text-muted-foreground">Processando histórico...</div>
                         ) : (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={loansByMonth} margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="colorLoan" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                                    <XAxis
-                                        dataKey="name"
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{ fill: 'var(--muted-foreground)', fontSize: 12, fontWeight: 700 }}
-                                    />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12, fontWeight: 700 }} />
-                                    <ChartTooltip
-                                        contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                                    />
-                                    <Area type="monotone" dataKey="total" stroke="var(--primary)" strokeWidth={4} fillOpacity={1} fill="url(#colorLoan)" />
-                                </AreaChart>
-                            </ResponsiveContainer>
+                            <div style={{ width: '100%', height: '250px', position: 'relative' }}>
+                                <ResponsiveContainer width="99%" height="100%">
+                                    <AreaChart data={loansByMonth} margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
+                                        <defs>
+                                            <linearGradient id="colorLoan" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                                        <XAxis
+                                            dataKey="name"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: 'var(--muted-foreground)', fontSize: 12, fontWeight: 700 }}
+                                        />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12, fontWeight: 700 }} />
+                                        <ChartTooltip
+                                            contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                                        />
+                                        <Area type="monotone" dataKey="total" stroke="var(--primary)" strokeWidth={4} fillOpacity={1} fill="url(#colorLoan)" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
                         )}
                     </div>
                 </Card>

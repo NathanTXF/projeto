@@ -74,7 +74,11 @@ export async function GET(request: Request) {
             by: ['vendedorId'],
             where: { dataInicio: { gte: thisMonth } },
             _count: true,
-            orderBy: { _count: 'desc' }
+            orderBy: {
+                _count: {
+                    vendedorId: 'desc'
+                }
+            }
         });
 
         const myPosition = sellerRanking.findIndex(r => r.vendedorId === user.id) + 1;
@@ -124,6 +128,7 @@ export async function GET(request: Request) {
         });
 
     } catch (error: any) {
+        console.error("Dashboard ME API Error:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

@@ -8,14 +8,14 @@ export default function AuxiliaryPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
                 <div className="relative flex items-center gap-4">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
-                        <Database className="h-7 w-7 text-white" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                        <Database className="h-8 w-8 text-primary-foreground" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Cadastros Auxiliares</h1>
-                        <p className="mt-1 text-blue-100 font-medium">Gerencie as entidades auxiliares utilizadas em todo o sistema.</p>
+                        <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Cadastros Auxiliares</h1>
+                        <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Gerencie as entidades auxiliares utilizadas em todo o sistema.</p>
                     </div>
                 </div>
             </div>

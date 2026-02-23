@@ -90,20 +90,21 @@ export default function AgendaPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
-                            <CalendarIcon className="h-8 w-8 text-white" />
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                            <CalendarIcon className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Agenda de Compromissos</h1>
-                            <p className="mt-1 text-blue-100 font-medium">Organize suas reuniões, visitas e cobranças.</p>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Agenda de Compromissos</h1>
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Organize suas reuniões, visitas e cobranças.</p>
                         </div>
                     </div>
                     <Button
                         onClick={() => setIsDialogOpen(true)}
-                        className="gap-2 rounded-xl bg-white text-blue-700 font-bold shadow-sm hover:bg-blue-50 transition-all duration-200 active:scale-95 border-none px-6 py-3"
+                        variant="secondary"
+                        className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all active:scale-95"
                     >
                         <Plus className="h-5 w-5" />
                         Novo Compromisso

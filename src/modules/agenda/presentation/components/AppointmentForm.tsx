@@ -37,7 +37,7 @@ const formSchema = z.object({
     hora: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/, "Formato inválido (HH:mm)"),
     tipo: z.string().min(1, "Tipo é obrigatório"),
     observacao: z.string().optional(),
-    visibilidade: z.enum(["PRIVADO", "GLOBAL"]).default("PRIVADO"),
+    visibilidade: z.enum(["PRIVADO", "GLOBAL"]),
     destinatarioId: z.string().optional().nullable(),
 });
 

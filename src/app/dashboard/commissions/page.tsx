@@ -105,15 +105,15 @@ export default function CommissionsPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
-                            <Coins className="h-8 w-8 text-white" />
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                            <Coins className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Comissões</h1>
-                            <p className="mt-1 text-blue-100 font-medium">
+                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Comissões</h1>
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">
                                 Gestão e aprovação de comissões por período e vendedor.
                             </p>
                         </div>
@@ -121,7 +121,7 @@ export default function CommissionsPage() {
                     <Button
                         variant="outline"
                         onClick={() => { setPeriod("all"); setVendedorId("all"); }}
-                        className="gap-2 rounded-xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white transition-all font-bold px-6 py-3 h-auto"
+                        className="gap-2 rounded-xl bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground transition-all font-bold px-6 py-3 h-auto"
                     >
                         <RefreshCcw className="h-5 w-5" />
                         Limpar Filtros
@@ -129,25 +129,25 @@ export default function CommissionsPage() {
                 </div>
                 {/* Mini stats */}
                 <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <div className="flex items-center gap-3 rounded-xl bg-white/10 px-5 py-4 border border-white/10">
-                        <CheckCircle className="h-6 w-6 text-emerald-300" />
+                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                        <CheckCircle className="h-6 w-6 text-emerald-400" />
                         <div>
-                            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest leading-none mb-1">Aprovado</p>
-                            <p className="text-xl font-black text-white leading-none">{formatCurrency(totalAprovado)}</p>
+                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Aprovado</p>
+                            <p className="text-xl font-black text-primary-foreground leading-none">{formatCurrency(totalAprovado)}</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3 rounded-xl bg-white/10 px-5 py-4 border border-white/10">
-                        <Clock className="h-6 w-6 text-amber-300" />
+                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                        <Clock className="h-6 w-6 text-amber-400" />
                         <div>
-                            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest leading-none mb-1">Pendente</p>
-                            <p className="text-xl font-black text-white leading-none">{formatCurrency(totalPendente)}</p>
+                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Pendente</p>
+                            <p className="text-xl font-black text-primary-foreground leading-none">{formatCurrency(totalPendente)}</p>
                         </div>
                     </div>
-                    <div className="hidden sm:flex items-center gap-3 rounded-xl bg-white/10 px-5 py-4 border border-white/10">
-                        <Filter className="h-6 w-6 text-blue-200" />
+                    <div className="hidden sm:flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                        <Filter className="h-6 w-6 text-primary-foreground/60" />
                         <div>
-                            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest leading-none mb-1">Registros</p>
-                            <p className="text-xl font-black text-white leading-none">{loading ? "..." : commissions.length}</p>
+                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Registros</p>
+                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : commissions.length}</p>
                         </div>
                     </div>
                 </div>

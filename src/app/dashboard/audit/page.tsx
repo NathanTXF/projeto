@@ -84,24 +84,24 @@ export default function AuditPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
                 <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
-                            <History className="h-8 w-8 text-white" />
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                            <History className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Auditoria do Sistema</h1>
-                            <p className="mt-1 text-blue-100 font-medium">Rastreamento completo de atividades e mudanças.</p>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Auditoria do Sistema</h1>
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Rastreamento completo de atividades e mudanças.</p>
                         </div>
                     </div>
                     <Button
                         onClick={fetchLogs}
                         variant="outline"
-                        className="gap-2 rounded-xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white transition-all font-bold px-6 py-3 h-auto"
+                        className="gap-2 rounded-xl bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground transition-all font-bold px-6 py-3 h-auto"
                     >
                         <RefreshCcw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-                        Atualizar
+                        Atualizar Logs
                     </Button>
                 </div>
             </div>

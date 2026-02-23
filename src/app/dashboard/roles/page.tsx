@@ -12,8 +12,8 @@ import {
     DialogDescription,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { RoleList } from "./components/RoleList";
-import { RoleForm } from "./components/RoleForm";
+import { RoleList } from "@/app/dashboard/roles/components/RoleList";
+import { RoleForm } from "@/app/dashboard/roles/components/RoleForm";
 import { Role } from "@/modules/roles/domain/entities";
 
 export default function RolesPage() {
@@ -96,15 +96,15 @@ export default function RolesPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-indigo-600 p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
-                            <ShieldAlert className="h-8 w-8 text-white" />
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                            <ShieldAlert className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Perfis e Permissões</h1>
-                            <p className="mt-1 text-indigo-100 font-medium">Controle de acesso granular (RBAC) do sistema.</p>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Perfis e Permissões</h1>
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Controle de acesso granular (RBAC) do sistema.</p>
                         </div>
                     </div>
                     <Button
@@ -112,7 +112,8 @@ export default function RolesPage() {
                             setSelectedRole(null);
                             setIsDialogOpen(true);
                         }}
-                        className="gap-2 rounded-xl bg-white text-indigo-700 font-bold shadow-sm hover:bg-indigo-50 transition-all duration-200 active:scale-95 border-none px-6 py-3"
+                        variant="secondary"
+                        className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all active:scale-95"
                     >
                         <ShieldPlus className="h-5 w-5" />
                         Novo Perfil
@@ -120,11 +121,11 @@ export default function RolesPage() {
                 </div>
                 {/* Mini stats */}
                 <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3 rounded-xl bg-white/10 px-5 py-4 border border-white/10">
-                        <ShieldAlert className="h-6 w-6 text-indigo-200" />
+                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                        <ShieldAlert className="h-6 w-6 text-primary-foreground/60" />
                         <div>
-                            <p className="text-xs font-bold text-indigo-200 uppercase tracking-widest leading-none mb-1">Total de Perfis</p>
-                            <p className="text-xl font-black text-white leading-none">{loading ? "..." : roles.length}</p>
+                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Total de Perfis</p>
+                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : roles.length}</p>
                         </div>
                     </div>
                 </div>
@@ -153,7 +154,7 @@ export default function RolesPage() {
                     ) : (
                         <RoleList
                             roles={filteredRoles}
-                            onEdit={(role) => {
+                            onEdit={(role: Role) => {
                                 setSelectedRole(role);
                                 setIsDialogOpen(true);
                             }}
