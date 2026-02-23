@@ -144,23 +144,23 @@ export default function FinancialPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
-                            <DollarSign className="h-8 w-8 text-white" />
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                            <DollarSign className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Financeiro</h1>
-                            <p className="mt-1 text-blue-100 font-medium">Controle de pagamento de comissões aos vendedores.</p>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Financeiro</h1>
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Controle de liquidação de comissões e fluxo de caixa.</p>
                         </div>
                     </div>
                     <Button
                         variant="outline"
-                        className="gap-2 rounded-xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white transition-all font-bold px-6 py-3 h-auto"
+                        className="gap-2 rounded-xl bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground transition-all font-bold px-6 py-3 h-auto"
                     >
                         <Filter className="h-5 w-5" />
-                        Filtrar por Período
+                        Filtrar Período
                     </Button>
                 </div>
             </div>
@@ -208,7 +208,7 @@ export default function FinancialPage() {
                                             <div className="flex items-center gap-3">
                                                 <Avatar className="h-9 w-9 border-2 border-white shadow-sm">
                                                     <AvatarImage src={t.vendedorFoto || undefined} alt={t.vendedorNome} />
-                                                    <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold">
+                                                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                                                         {t.vendedorNome?.charAt(0).toUpperCase()}
                                                     </AvatarFallback>
                                                 </Avatar>
@@ -264,16 +264,16 @@ export default function FinancialPage() {
             {/* Modal de Pagamento */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
-                    {/* Solid Blue Header */}
-                    <div className="relative bg-emerald-600 px-6 py-5">
+                    {/* Solid Financial Header */}
+                    <div className="relative bg-primary px-6 py-5">
                         <div className="relative flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 shadow-inner">
-                                <DollarSign className="h-5 w-5 text-white" />
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+                                <DollarSign className="h-5 w-5 text-primary-foreground" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-white leading-none">Pagar Comissão</DialogTitle>
-                                <DialogDescription className="text-emerald-50 text-sm mt-1">
-                                    Registrar pagamento para o vendedor.
+                                <DialogTitle className="text-lg font-bold text-primary-foreground leading-none">Pagar Comissão</DialogTitle>
+                                <DialogDescription className="text-primary-foreground/80 text-sm mt-1">
+                                    Registrar liquidação de pagamento para o colaborador.
                                 </DialogDescription>
                             </div>
                         </div>

@@ -100,15 +100,15 @@ export default function UsersPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
-                            <Users className="h-8 w-8 text-white" />
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                            <Users className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Gerenciamento de Usuários</h1>
-                            <p className="mt-1 text-blue-100 font-medium">Administre os acessos e horários dos colaboradores.</p>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Gerenciamento de Usuários</h1>
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Administre os acessos corporativos e permissões do sistema.</p>
                         </div>
                     </div>
                     <Button
@@ -116,7 +116,8 @@ export default function UsersPage() {
                             setSelectedUser(null);
                             setIsDialogOpen(true);
                         }}
-                        className="gap-2 rounded-xl bg-white text-blue-700 font-bold shadow-sm hover:bg-blue-50 transition-all duration-200 active:scale-95 border-none px-6 py-3"
+                        variant="secondary"
+                        className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all active:scale-95"
                     >
                         <UserPlus className="h-5 w-5" />
                         Novo Usuário
@@ -124,25 +125,25 @@ export default function UsersPage() {
                 </div>
                 {/* Mini stats */}
                 <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <div className="flex items-center gap-3 rounded-xl bg-white/10 px-5 py-4 border border-white/10">
-                        <Users className="h-6 w-6 text-blue-200" />
+                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                        <Users className="h-6 w-6 text-primary-foreground/60" />
                         <div>
-                            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest leading-none mb-1">Total</p>
-                            <p className="text-xl font-black text-white leading-none">{loading ? "..." : users.length}</p>
+                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Total</p>
+                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : users.length}</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3 rounded-xl bg-white/10 px-5 py-4 border border-white/10">
-                        <Shield className="h-6 w-6 text-emerald-300" />
+                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                        <Shield className="h-6 w-6 text-emerald-400" />
                         <div>
-                            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest leading-none mb-1">Admins</p>
-                            <p className="text-xl font-black text-white leading-none">{loading ? "..." : users.filter(u => u.nivelAcesso === 1).length}</p>
+                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Admins</p>
+                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : users.filter(u => u.nivelAcesso === 1).length}</p>
                         </div>
                     </div>
-                    <div className="hidden sm:flex items-center gap-3 rounded-xl bg-white/10 px-5 py-4 border border-white/10">
-                        <UserPlus className="h-6 w-6 text-amber-300" />
+                    <div className="hidden sm:flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                        <UserPlus className="h-6 w-6 text-amber-400" />
                         <div>
-                            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest leading-none mb-1">Vendedores</p>
-                            <p className="text-xl font-black text-white leading-none">{loading ? "..." : users.filter(u => u.nivelAcesso !== 1).length}</p>
+                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Vendedores</p>
+                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : users.filter(u => u.nivelAcesso !== 1).length}</p>
                         </div>
                     </div>
                 </div>
@@ -184,20 +185,20 @@ export default function UsersPage() {
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
-                    {/* Solid Blue Header */}
-                    <div className="relative bg-blue-600 px-6 py-5">
+                    {/* Solid Primary Header */}
+                    <div className="relative bg-primary px-6 py-5">
                         <div className="relative flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 shadow-inner">
-                                <Users className="h-5 w-5 text-white" />
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+                                <Users className="h-5 w-5 text-primary-foreground" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-white leading-none">
+                                <DialogTitle className="text-lg font-bold text-primary-foreground leading-none">
                                     {selectedUser ? "Editar Usuário" : "Novo Usuário"}
                                 </DialogTitle>
-                                <DialogDescription className="text-blue-100 text-sm mt-1">
+                                <DialogDescription className="text-primary-foreground/80 text-sm mt-1">
                                     {selectedUser
-                                        ? "Atualize os dados do colaborador abaixo."
-                                        : "Preencha os dados para cadastrar um novo colaborador."}
+                                        ? "Atualize as permissões corporativas do colaborador."
+                                        : "Cadastre um novo colaborador com acesso restrito."}
                                 </DialogDescription>
                             </div>
                         </div>

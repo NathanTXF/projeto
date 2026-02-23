@@ -90,18 +90,18 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
 
             {/* Sidebar Component */}
             <aside className={cn(
-                "fixed inset-y-0 left-0 z-50 w-[260px] bg-slate-50 border-r border-slate-200/60 flex flex-col h-screen transition-transform duration-300 md:sticky md:top-0 md:translate-x-0 block shadow-sm",
+                "fixed inset-y-0 left-0 z-50 w-[260px] bg-sidebar border-r border-sidebar-border flex flex-col h-screen transition-transform duration-300 md:sticky md:top-0 md:translate-x-0 block",
                 isOpen ? "translate-x-0" : "-translate-x-full"
             )}>
-                <div className="h-16 px-6 border-b border-slate-200/60 flex items-center gap-3 bg-white">
-                    <div className="h-9 w-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-sm overflow-hidden shrink-0">
+                <div className="h-16 px-6 border-b border-sidebar-border flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-sm overflow-hidden shrink-0">
                         {company?.logoUrl ? (
                             <img src={company.logoUrl} alt="Logo" className="h-full w-full object-contain p-1" />
                         ) : (
                             <Database className="h-5 w-5" />
                         )}
                     </div>
-                    <h1 className="text-lg font-extrabold text-slate-800 truncate flex-1 tracking-tight">
+                    <h1 className="text-lg font-bold text-foreground border-none outline-none truncate flex-1 tracking-tight">
                         {company?.nome || "Dinheiro Fácil"}
                     </h1>
                 </div>
@@ -142,7 +142,7 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
                             <div key={group.label} className="flex flex-col gap-1">
                                 <button
                                     onClick={() => toggleGroup(group.label)}
-                                    className="flex items-center justify-between w-full px-2 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-600 transition-colors mb-1"
+                                    className="flex items-center justify-between w-full px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors mb-1"
                                 >
                                     {group.label}
                                     <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200 opacity-60", !isExpanded && "-rotate-90")} />
@@ -157,13 +157,13 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
                                                 href={item.href}
                                                 onClick={() => setIsOpen(false)}
                                                 className={cn(
-                                                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold",
+                                                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-sm font-medium",
                                                     isActive
-                                                        ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
-                                                        : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900"
+                                                        ? "bg-primary text-primary-foreground shadow-sm"
+                                                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                                                 )}
                                             >
-                                                <item.icon className={cn("h-[18px] w-[18px]", isActive ? "text-white" : "text-slate-400")} />
+                                                <item.icon className={cn("h-[18px] w-[18px]", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
                                                 {item.label}
                                             </Link>
                                         );
@@ -208,12 +208,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <div className="flex bg-slate-50/50 min-h-screen">
+        <div className="flex bg-background min-h-screen">
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Global TopBar Header */}
-                <header className="flex items-center justify-between px-4 sm:px-6 h-16 bg-white border-b border-slate-200/60 sticky top-0 z-30 shadow-sm transition-all text-slate-700">
+                <header className="flex items-center justify-between px-4 sm:px-6 h-16 bg-card border-b border-border sticky top-0 z-30 shadow-sm transition-all text-foreground">
 
                     {/* Left Side: Mobile Hamburger & Current Page Context */}
                     <div className="flex items-center gap-2 sm:gap-4 w-full max-w-[60%] overflow-hidden">
@@ -247,11 +247,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
                         <button
                             onClick={() => setIsProfileOpen(!isProfileOpen)}
                             className={cn(
-                                "flex items-center gap-2.5 p-1 pr-3 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 border hover:bg-slate-50",
-                                isProfileOpen ? "bg-slate-50 border-slate-200" : "border-transparent"
+                                "flex items-center gap-2.5 p-1 pr-3 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 border hover:bg-muted",
+                                isProfileOpen ? "bg-muted border-border" : "border-transparent"
                             )}
                         >
-                            <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-inner shrink-0 leading-none">
+                            <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-inner shrink-0 leading-none">
                                 {getInitials(userName)}
                             </div>
                             <div className="hidden sm:flex flex-col items-start gap-0.5 max-w-[120px]">

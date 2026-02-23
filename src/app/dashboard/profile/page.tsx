@@ -102,14 +102,14 @@ export default function ProfilePage() {
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
                 <div className="relative flex items-center gap-4">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
-                        <UserCircle className="h-8 w-8 text-white" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                        <UserCircle className="h-8 w-8 text-primary-foreground" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Meu Perfil</h1>
-                        <p className="mt-1 text-blue-100 font-medium">Gerencie suas informações pessoais e segurança.</p>
+                        <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Meu Perfil</h1>
+                        <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Gerencie suas informações pessoais e segurança corporativa.</p>
                     </div>
                 </div>
             </div>
@@ -134,25 +134,25 @@ export default function ProfilePage() {
 
                         <div className="mt-6 flex flex-wrap justify-center gap-2">
                             {profile?.roleName ? (
-                                <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 border-none font-bold text-[10px] uppercase tracking-wider px-3">
+                                <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold text-[10px] uppercase tracking-wider px-3">
                                     <Shield className="h-3 w-3 mr-1" />
                                     {profile.roleName}
                                 </Badge>
                             ) : (
-                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-100 uppercase tracking-widest text-[10px] font-bold">
+                                <Badge variant="outline" className="bg-muted text-muted-foreground border-border uppercase tracking-widest text-[10px] font-bold">
                                     {profile?.nivelAcesso === 1 ? 'ADMINISTRADOR' : profile?.nivelAcesso === 2 ? 'VENDEDOR+' : 'VENDEDOR (VISUALIZAÇÃO)'}
                                 </Badge>
                             )}
                         </div>
 
-                        <div className="mt-8 w-full space-y-4 pt-6 border-t border-slate-100 text-left">
-                            <div className="flex items-center gap-3 text-sm text-slate-600 font-medium group">
-                                <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-100 transition-colors">
+                        <div className="mt-8 w-full space-y-4 pt-6 border-t border-border/50 text-left">
+                            <div className="flex items-center gap-3 text-sm text-foreground font-medium group">
+                                <div className="h-8 w-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary/10 transition-colors">
                                     <Clock className="h-4 w-4" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Expediente Atual</span>
-                                    <span className="text-slate-700"><strong>{profile?.horarioInicio || '08:00'}</strong> às <strong>{profile?.horarioFim || '18:00'}</strong></span>
+                                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Expediente Atual</span>
+                                    <span className="text-foreground"><strong>{profile?.horarioInicio || '08:00'}</strong> às <strong>{profile?.horarioFim || '18:00'}</strong></span>
                                 </div>
                             </div>
 
@@ -278,7 +278,7 @@ export default function ProfilePage() {
                                 <Button
                                     type="submit"
                                     disabled={saving}
-                                    className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm px-8 py-6 gap-2 transition-all active:scale-95"
+                                    className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-sm px-8 py-6 gap-2 transition-all active:scale-95"
                                 >
                                     {saving ? <RefreshCcw className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
                                     Salvar Alterações
