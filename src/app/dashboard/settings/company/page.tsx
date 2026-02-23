@@ -53,32 +53,39 @@ export default function CompanySettingsPage() {
 
     if (loading) {
         return (
-            <div className="h-[400px] flex flex-col items-center justify-center gap-3 text-slate-400">
-                <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-                <span>Carregando configurações...</span>
+            <div className="h-[400px] flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="font-medium">Carregando configurações...</span>
             </div>
         );
     }
 
     return (
-        <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex flex-col gap-1">
-                <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
-                    <Building2 className="h-8 w-8 text-indigo-600" />
-                    Dados da Empresa
-                </h1>
-                <p className="text-slate-500">Configure as informações institucionais e identidade visual.</p>
+        <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* ── Enterprise Hero Banner ── */}
+            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+                <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                            <Building2 className="h-8 w-8 text-primary-foreground" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Configurações da Empresa</h1>
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Gerencie a identidade visual e dados institucionais da plataforma.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <Card className="border-none shadow-xl rounded-2xl overflow-hidden bg-white">
-                <CardHeader className="bg-slate-50 border-b border-slate-100">
+            <Card className="border border-border shadow-md rounded-2xl overflow-hidden bg-card">
+                <CardHeader className="bg-muted/30 border-b border-border p-6">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+                        <div className="p-2 bg-primary/10 rounded-xl text-primary">
                             <ShieldCheck className="h-5 w-5" />
                         </div>
                         <div>
-                            <CardTitle className="text-lg">Informações Gerais</CardTitle>
-                            <CardDescription>Estes dados serão usados em cabeçalhos e relatórios.</CardDescription>
+                            <CardTitle className="text-lg font-bold">Informações Institucionais</CardTitle>
+                            <CardDescription className="text-muted-foreground font-medium text-xs">Dados utilizados em cabeçalhos, contratos e relatórios.</CardDescription>
                         </div>
                     </div>
                 </CardHeader>

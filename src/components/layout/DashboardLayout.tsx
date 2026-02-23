@@ -18,7 +18,8 @@ import {
     ChevronDown,
     Menu,
     Bell,
-    ShieldAlert
+    ShieldAlert,
+    Building2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ const menuGroups = [
             { icon: Users, label: "Acessos (Usuários)", href: "/dashboard/users", permission: 'manage_users' },
             { icon: ShieldAlert, label: "Perfis de Acesso", href: "/dashboard/roles", permission: 'manage_roles' },
             { icon: LucideHistory, label: "Auditoria", href: "/dashboard/audit", permission: 'view_audit' },
+            { icon: Building2, label: "Dados da Empresa", href: "/dashboard/settings/company", permission: 'manage_settings' },
         ]
     }
 ];

@@ -27,7 +27,8 @@ export async function POST(request: Request) {
         const data = await request.json();
         const validatedData = CompanySchema.partial().parse(data);
 
-        const settings = await useCases.updateSettings(validatedData);
+        const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+        const settings = await useCases.updateSettings(validatedData, currentUser.id, ip);
         return NextResponse.json(settings);
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });

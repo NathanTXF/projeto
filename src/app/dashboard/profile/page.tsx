@@ -18,6 +18,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
 
 interface UserProfile {
     id: string;
@@ -37,6 +45,8 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [newPassword, setNewPassword] = useState("");
+    const [isPhotoDialogOpen, setIsPhotoDialogOpen] = useState(false);
+    const [tempPhotoUrl, setTempPhotoUrl] = useState("");
 
     useEffect(() => {
         fetchProfile();
@@ -97,7 +107,30 @@ export default function ProfilePage() {
         }
     };
 
-    if (loading) return <div className="p-8 text-center text-slate-500">Carregando perfil...</div>;
+    const handleUpdatePhoto = async () => {
+        if (!profile) return;
+        try {
+            setSaving(true);
+            const response = await fetch('/api/profile', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fotoUrl: tempPhotoUrl })
+            });
+
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+
+            setProfile(p => p ? ({ ...p, fotoUrl: tempPhotoUrl }) : null);
+            toast.success("Foto de perfil atualizada!");
+            setIsPhotoDialogOpen(false);
+        } catch (error: any) {
+            toast.error("Erro ao atualizar foto: " + error.message);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) return <div className="p-8 text-center text-muted-foreground font-medium animate-pulse">Carregando perfil...</div>;
 
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -118,14 +151,20 @@ export default function ProfilePage() {
                 <Card className="md:col-span-1 border border-slate-100 shadow-sm overflow-hidden rounded-2xl bg-white">
                     <CardContent className="p-6 flex flex-col items-center text-center">
                         <div className="relative group">
-                            <div className="w-32 h-32 rounded-full bg-slate-50 flex items-center justify-center border-4 border-white shadow-sm overflow-hidden">
+                            <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-4 border-card shadow-sm overflow-hidden">
                                 {profile?.fotoUrl ? (
                                     <img src={profile.fotoUrl} alt="Foto" className="w-full h-full object-cover" />
                                 ) : (
-                                    <UserCircle className="h-16 w-16 text-slate-300" />
+                                    <UserCircle className="h-16 w-16 text-muted-foreground/30" />
                                 )}
                             </div>
-                            <button className="absolute bottom-1 right-1 bg-blue-600 text-white p-2 rounded-full shadow-md hover:bg-blue-700 transition-colors">
+                            <button
+                                onClick={() => {
+                                    setTempPhotoUrl(profile?.fotoUrl || "");
+                                    setIsPhotoDialogOpen(true);
+                                }}
+                                className="absolute bottom-1 right-1 bg-primary text-primary-foreground p-2 rounded-full shadow-md hover:bg-primary/90 transition-all active:scale-95"
+                            >
                                 <Camera className="h-4 w-4" />
                             </button>
                         </div>
@@ -139,7 +178,7 @@ export default function ProfilePage() {
                                     {profile.roleName}
                                 </Badge>
                             ) : (
-                                <Badge variant="outline" className="bg-muted text-muted-foreground border-border uppercase tracking-widest text-[10px] font-bold">
+                                <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold text-[10px] uppercase tracking-wider px-3">
                                     {profile?.nivelAcesso === 1 ? 'ADMINISTRADOR' : profile?.nivelAcesso === 2 ? 'VENDEDOR+' : 'VENDEDOR (VISUALIZAÇÃO)'}
                                 </Badge>
                             )}
@@ -288,6 +327,67 @@ export default function ProfilePage() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Modal de Upload de Foto */}
+            <Dialog open={isPhotoDialogOpen} onOpenChange={setIsPhotoDialogOpen}>
+                <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                    <DialogHeader className="bg-primary p-6 text-primary-foreground">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
+                                <Camera className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-lg font-bold">Alterar Foto de Perfil</DialogTitle>
+                                <DialogDescription className="text-primary-foreground/80 text-xs">
+                                    Insira a URL da sua nova imagem de perfil.
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </DialogHeader>
+
+                    <div className="p-6 space-y-6">
+                        <div className="flex flex-col items-center gap-4 py-6 border-2 border-dashed border-border rounded-2xl bg-muted/30">
+                            <div className="h-24 w-24 rounded-full bg-card border border-border flex items-center justify-center overflow-hidden shadow-sm">
+                                {tempPhotoUrl ? (
+                                    <img src={tempPhotoUrl} alt="Preview" className="h-full w-full object-cover" />
+                                ) : (
+                                    <UserCircle className="h-12 w-12 text-muted-foreground/30" />
+                                )}
+                            </div>
+                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">Pré-visualização</p>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="photoUrl" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">URL da Imagem</Label>
+                            <Input
+                                id="photoUrl"
+                                placeholder="https://exemplo.com/sua-foto.jpg"
+                                value={tempPhotoUrl}
+                                onChange={(e) => setTempPhotoUrl(e.target.value)}
+                                className="rounded-xl border-border focus:ring-primary h-12"
+                            />
+                        </div>
+                    </div>
+
+                    <DialogFooter className="p-6 pt-0 flex gap-3 sm:justify-end">
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsPhotoDialogOpen(false)}
+                            className="rounded-xl font-bold px-6 border-border"
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleUpdatePhoto}
+                            disabled={saving}
+                            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 shadow-sm"
+                        >
+                            {saving && <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />}
+                            Confirmar Alteração
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
