@@ -30,7 +30,7 @@ const menuGroups = [
         label: "Home",
         items: [
             { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", permission: 'view_dashboard' },
-            { icon: TrendingUp, label: "Visão Geral (Gestor)", href: "/dashboard/overview", permission: 'manage_settings' }
+            { icon: TrendingUp, label: "Visão Geral (Gestor)", href: "/dashboard/overview", permission: 'view_dashboard' }
         ]
     },
     {
@@ -153,7 +153,9 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
 
                                 <div className={cn("flex flex-col gap-1 overflow-hidden transition-all", isExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0")}>
                                     {displayItems.map((item) => {
-                                        const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                                        const isActive = item.href === '/dashboard'
+                                            ? pathname === '/dashboard'
+                                            : pathname === item.href || pathname.startsWith(item.href + '/');
                                         return (
                                             <Link
                                                 key={item.href}
