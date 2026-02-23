@@ -186,9 +186,9 @@ export default function AgendaPage() {
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl max-h-[90vh] flex flex-col">
                     {/* Solid Blue Header */}
-                    <div className="relative bg-blue-600 px-6 py-5">
+                    <div className="relative bg-blue-600 px-6 py-5 shrink-0">
                         <div className="relative flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 shadow-inner">
                                 <CalendarIcon className="h-5 w-5 text-white" />
@@ -204,7 +204,7 @@ export default function AgendaPage() {
                         </div>
                     </div>
                     {/* Form Body */}
-                    <div className="px-6 py-4">
+                    <div className="px-6 py-4 overflow-y-auto flex-1">
                         <AppointmentForm
                             initialDate={date}
                             onSubmit={handleCreate}

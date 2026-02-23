@@ -142,7 +142,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                             <TableRow>
                                 <TableCell colSpan={3} className="text-center h-40">
                                     <div className="flex flex-col items-center justify-center gap-3 text-slate-400">
-                                        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+                                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                                         <span className="font-medium">Carregando {title.toLowerCase()}...</span>
                                     </div>
                                 </TableCell>
@@ -172,7 +172,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                className="h-8 w-8 p-0 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"
+                                                className="h-8 w-8 p-0 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50"
                                                 onClick={() => {
                                                     setSelectedItem(item);
                                                     setNome(item.nome);
@@ -203,7 +203,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
                     {/* Gradient Header */}
-                    <div className="relative overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-5">
+                    <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-5">
                         <div className="pointer-events-none absolute inset-0">
                             <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-xl" />
                             <div className="absolute -left-4 -bottom-4 h-20 w-20 rounded-full bg-white/5 blur-lg" />
@@ -220,7 +220,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                                 <DialogTitle className="text-lg font-bold text-white">
                                     {selectedItem ? "Editar" : "Novo"} {title.endsWith('s') ? title.slice(0, -1) : title}
                                 </DialogTitle>
-                                <DialogDescription className="text-emerald-100/80 text-sm mt-0.5">
+                                <DialogDescription className="text-blue-100/80 text-sm mt-0.5">
                                     {selectedItem ? "Altere a descrição do registro." : "Adicione um novo registro ao sistema."}
                                 </DialogDescription>
                             </div>
@@ -238,7 +238,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                                         value={nome}
                                         onChange={(e) => setNome(e.target.value)}
                                         placeholder={`Ex: ${title === 'Órgãos' ? 'INSS' : title === 'Bancos' ? 'Banco do Brasil' : 'Digite o nome...'}`}
-                                        className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:bg-white transition-colors"
+                                        className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-blue-500 focus-visible:bg-white transition-colors"
                                         autoFocus
                                     />
                                 </div>
@@ -256,7 +256,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                             <Button
                                 onClick={handleSave}
                                 disabled={submitting || !nome.trim()}
-                                className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-200/50 transition-all hover:scale-[1.02] border-none font-semibold h-10 px-6 active:scale-[0.98] gap-2"
+                                className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-200/50 transition-all hover:scale-[1.02] border-none font-semibold h-10 px-6 active:scale-[0.98] gap-2"
                             >
                                 {submitting ? (
                                     <><Loader2 className="h-4 w-4 animate-spin" />Salvando...</>
