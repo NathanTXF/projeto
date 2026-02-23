@@ -15,7 +15,9 @@ export async function GET() {
         }
 
         const profile = await useCases.getProfile(authUser.id);
-        return NextResponse.json(profile);
+
+        // Retorna o perfil atualizado, incluindo as permissões obtidas pelo JWT (Middleware-safe)
+        return NextResponse.json({ ...profile, permissions: authUser.permissions || [], roleName: authUser.role });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }

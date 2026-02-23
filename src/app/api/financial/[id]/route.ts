@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { PrismaFinancialRepository } from '@/modules/financial/infrastructure/repositories';
 import { FinancialUseCases } from '@/modules/financial/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
 const repository = new PrismaFinancialRepository();
 const useCases = new FinancialUseCases(repository);
@@ -11,10 +12,11 @@ export async function PATCH(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+
         const { id } = await params;
         const user = await getAuthUser();
-        // Apenas admin (nivelAcesso 1) pode realizar pagamento de comissão
-        if (!user || user.nivelAcesso !== 1) {
+        // Apenas com permissão financeira pode realizar pagamento de comissão
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.MANAGE_FINANCIAL)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 

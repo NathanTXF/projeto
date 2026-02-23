@@ -3,13 +3,15 @@ import { PrismaAuditRepository } from '@/modules/audit/infrastructure/repositori
 import { AuditUseCases } from '@/modules/audit/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+
 const repository = new PrismaAuditRepository();
 const useCases = new AuditUseCases(repository);
 
 export async function GET(request: Request) {
     try {
         const user = await getAuthUser();
-        if (!user || user.nivelAcesso !== 1) { // Apenas Admin Máster (Nível 1) pode ver auditoria
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.VIEW_AUDIT)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
         }
 

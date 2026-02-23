@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { PrismaCommissionRepository } from '@/modules/commissions/infrastructure/repositories';
 import { CommissionUseCases } from '@/modules/commissions/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
 const repository = new PrismaCommissionRepository();
 const useCases = new CommissionUseCases(repository);
@@ -27,7 +28,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const user = await getAuthUser();
-        if (!user || user.nivelAcesso !== 1) {
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.MANAGE_COMMISSIONS)) {
             return NextResponse.json({ error: 'Apenas administradores podem gerar comissões manualmente' }, { status: 403 });
         }
 

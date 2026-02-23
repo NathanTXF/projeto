@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/core/auth/getUser';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
 export async function GET() {
     try {
@@ -14,7 +15,7 @@ export async function GET() {
         const startOfYear = new Date(now.getFullYear(), 0, 1);
         const lastYearStart = new Date(now.getFullYear() - 1, 0, 1);
 
-        const isAdmin = user.nivelAcesso === 1;
+        const isAdmin = hasPermission(user.permissions || [], PERMISSIONS.VIEW_DASHBOARD) && hasPermission(user.permissions || [], PERMISSIONS.VIEW_FINANCIAL);
         const whereVendedor = isAdmin ? {} : { vendedorId: user.id };
 
         const [

@@ -3,6 +3,7 @@ import { PrismaCompanyRepository } from '@/modules/company/infrastructure/reposi
 import { CompanyUseCases } from '@/modules/company/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 import { CompanySchema } from '@/modules/company/domain/entities';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
 const repository = new PrismaCompanyRepository();
 const useCases = new CompanyUseCases(repository);
@@ -19,7 +20,7 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const currentUser = await getAuthUser();
-        if (!currentUser || currentUser.nivelAcesso !== 1) {
+        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_SETTINGS)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 

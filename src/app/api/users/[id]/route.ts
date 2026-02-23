@@ -7,13 +7,15 @@ import { UserSchema } from '@/modules/users/domain/entities';
 const repository = new PrismaUserRepository();
 const useCases = new UserUseCases(repository);
 
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+
 export async function PUT(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const currentUser = await getAuthUser();
-        if (!currentUser || currentUser.nivelAcesso !== 1) {
+        if (!currentUser || (!hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_USERS) && currentUser.id !== (await params).id)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
@@ -36,7 +38,7 @@ export async function DELETE(
 ) {
     try {
         const currentUser = await getAuthUser();
-        if (!currentUser || currentUser.nivelAcesso !== 1) {
+        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_USERS)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 

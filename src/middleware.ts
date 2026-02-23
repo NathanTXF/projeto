@@ -21,20 +21,35 @@ export async function middleware(request: NextRequest) {
 
     try {
         const { payload } = await jwtVerify(token, JWT_SECRET);
-        const level = payload.nivelAcesso as number;
+        const permissions = (payload.permissions as string[]) || [];
+        const nivelAcesso = payload.nivelAcesso as number;
 
-        // Regras de Acesso por Nível (Middleware)
-        const adminOnlyPaths = [
-            '/dashboard/users',
-            '/dashboard/audit',
-            '/dashboard/settings',
-            '/dashboard/financial',
-            '/dashboard/commissions',
-            '/dashboard/auxiliary'
-        ];
+        // Mapa de rotas do Dashboard para permissões obrigatórias
+        const routePermissions: Record<string, string> = {
+            '/dashboard/users': 'manage_users',
+            '/dashboard/roles': 'manage_roles',
+            '/dashboard/audit': 'view_audit',
+            '/dashboard/settings': 'manage_settings',
+            '/dashboard/financial': 'view_financial',
+            '/dashboard/commissions': 'view_commissions',
+            '/dashboard/auxiliary': 'manage_auxiliary',
+            '/dashboard/clients': 'view_clients',
+            '/dashboard/loans': 'view_loans',
+            '/dashboard/agenda': 'view_agenda',
+        };
 
-        if (adminOnlyPaths.some(path => pathname.startsWith(path)) && level !== 1) {
-            return NextResponse.redirect(new URL('/dashboard', request.url));
+        // Verifica se a rota requisitada requer alguma permissão específica
+        for (const [route, requiredPermission] of Object.entries(routePermissions)) {
+            if (pathname.startsWith(route)) {
+                // Backward compatibility: Se não tem permissions array mas é nivelAcesso 1, deixa passar
+                const isLegacyAdmin = permissions.length === 0 && nivelAcesso === 1;
+
+                if (!permissions.includes(requiredPermission) && !isLegacyAdmin) {
+                    // Usuário não tem permissão para acessar este módulo
+                    return NextResponse.redirect(new URL('/dashboard', request.url));
+                }
+                break; // Se encontrou e tem permissão (ou é legacy admin), pode parar a verificação
+            }
         }
 
         return NextResponse.next();

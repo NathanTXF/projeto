@@ -3,6 +3,7 @@ import { PrismaLoanRepository } from '@/modules/loans/infrastructure/repositorie
 import { LoanUseCases } from '@/modules/loans/application/useCases';
 import { LoanSchema } from '@/modules/loans/domain/entities';
 import { getAuthUser } from '@/core/auth/getUser';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
 const repository = new PrismaLoanRepository();
 const useCases = new LoanUseCases(repository);
@@ -30,8 +31,9 @@ export async function POST(request: Request) {
             body.dataInicio = new Date(body.dataInicio);
         }
 
-        // Auto-fill seller if not provided or if requester is not admin
-        if (!body.vendedorId || user.nivelAcesso !== 1) {
+
+        // Auto-fill seller if not provided or if requester does not have full edit rights
+        if (!body.vendedorId || !hasPermission(user.permissions || [], PERMISSIONS.EDIT_LOANS)) {
             body.vendedorId = user.id;
         }
 

@@ -4,21 +4,48 @@ import { prisma } from '@/lib/prisma';
 export class PrismaUserRepository implements UserRepository {
     async findById(id: string): Promise<User | null> {
         const user = await prisma.user.findUnique({
-            where: { id }
+            where: { id },
+            include: {
+                role: {
+                    include: {
+                        permissions: {
+                            include: { permission: true }
+                        }
+                    }
+                }
+            }
         });
         return user as any;
     }
 
     async findByUsername(username: string): Promise<User | null> {
         const user = await prisma.user.findUnique({
-            where: { usuario: username }
+            where: { usuario: username },
+            include: {
+                role: {
+                    include: {
+                        permissions: {
+                            include: { permission: true }
+                        }
+                    }
+                }
+            }
         });
         return user as any;
     }
 
     async findAll(): Promise<User[]> {
         const users = await prisma.user.findMany({
-            orderBy: { nome: 'asc' }
+            orderBy: { nome: 'asc' },
+            include: {
+                role: {
+                    include: {
+                        permissions: {
+                            include: { permission: true }
+                        }
+                    }
+                }
+            }
         });
         return users as any;
     }

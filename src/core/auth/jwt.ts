@@ -9,6 +9,8 @@ export interface AuthUser {
     nome: string;
     usuario: string;
     nivelAcesso: number;
+    role?: string;
+    permissions?: string[];
 }
 
 export const signToken = async (user: AuthUser): Promise<string> => {

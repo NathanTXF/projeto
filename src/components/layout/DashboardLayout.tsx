@@ -17,7 +17,8 @@ import {
     Calendar,
     ChevronDown,
     Menu,
-    Bell
+    Bell,
+    ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,26 +27,27 @@ const menuGroups = [
     {
         label: "Home",
         items: [
-            { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", roles: [1, 2, 3] }
+            { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", permission: 'view_dashboard' }
         ]
     },
     {
         label: "Gestão Corporativa",
         items: [
-            { icon: Users, label: "Clientes", href: "/dashboard/clients", roles: [1, 2, 3] },
-            { icon: HandCoins, label: "Empréstimos", href: "/dashboard/loans", roles: [1, 2, 3] },
-            { icon: FileText, label: "Comissões", href: "/dashboard/commissions", roles: [1] },
+            { icon: Users, label: "Clientes", href: "/dashboard/clients", permission: 'view_clients' },
+            { icon: HandCoins, label: "Empréstimos", href: "/dashboard/loans", permission: 'view_loans' },
+            { icon: FileText, label: "Comissões", href: "/dashboard/commissions", permission: 'view_commissions' },
         ]
     },
     {
         label: "Administração",
-        roles: [1], // If the entire group requires specific role
+        roleBased: true, // Marker to indicate careful permission checks
         items: [
-            { icon: Database, label: "Cadastros Auxiliares", href: "/dashboard/auxiliary", roles: [1] },
-            { icon: FileText, label: "Financeiro", href: "/dashboard/financial", roles: [1] },
-            { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", roles: [1, 2, 3] },
-            { icon: Users, label: "Acessos (Usuários)", href: "/dashboard/users", roles: [1] },
-            { icon: LucideHistory, label: "Auditoria", href: "/dashboard/audit", roles: [1] },
+            { icon: Database, label: "Cadastros Auxiliares", href: "/dashboard/auxiliary", permission: 'manage_auxiliary' },
+            { icon: FileText, label: "Financeiro", href: "/dashboard/financial", permission: 'view_financial' },
+            { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", permission: 'view_agenda' },
+            { icon: Users, label: "Acessos (Usuários)", href: "/dashboard/users", permission: 'manage_users' },
+            { icon: ShieldAlert, label: "Perfis de Acesso", href: "/dashboard/roles", permission: 'manage_roles' },
+            { icon: LucideHistory, label: "Auditoria", href: "/dashboard/audit", permission: 'view_audit' },
         ]
     }
 ];
@@ -54,6 +56,7 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
     const pathname = usePathname();
     const [company, setCompany] = useState<{ nome: string, logoUrl?: string } | null>(null);
     const [userLevel, setUserLevel] = useState<number | null>(null);
+    const [userPermissions, setUserPermissions] = useState<string[]>([]);
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
         "Home": true,
         "Gestão Corporativa": true,
@@ -62,7 +65,10 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
 
     useEffect(() => {
         fetch('/api/company').then(res => res.json()).then(data => { if (data.nome) setCompany(data); }).catch(() => { });
-        fetch('/api/profile').then(res => res.json()).then(data => { if (data.nivelAcesso) setUserLevel(data.nivelAcesso); }).catch(() => { });
+        fetch('/api/profile').then(res => res.json()).then(data => {
+            if (data.nivelAcesso) setUserLevel(data.nivelAcesso);
+            if (data.permissions) setUserPermissions(data.permissions);
+        }).catch(() => { });
     }, []);
 
     const toggleGroup = (groupLabel: string) => {
@@ -102,13 +108,33 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
 
                 <nav className="flex-1 p-4 space-y-6 overflow-y-auto overflow-x-hidden stylized-scrollbar">
                     {menuGroups.map((group) => {
-                        // Check group-level permissions
-                        if (group.roles && userLevel !== null && !group.roles.includes(userLevel)) return null;
+                        // Filter items inside group based on user level or permissions
+                        // Se o array de permissões estiver vazio (não logou de novo ainda) fallback pro admin
+                        const accessibleItems = group.items.filter(item => {
+                            if (userPermissions && userPermissions.length > 0) {
+                                return userPermissions.includes(item.permission);
+                            } else {
+                                // Fallback para usuários antigos s/ relogar
+                                return userLevel === 1; // Simplificado: Mostra se for master admin
+                            }
+                        });
 
-                        // Filter items inside group based on user level
-                        const accessibleItems = group.items.filter(item => userLevel !== null && item.roles.includes(userLevel));
+                        // Força todos menus liberados para backward compatibility até relogar
+                        const displayItems = (accessibleItems.length > 0) ? accessibleItems : userLevel === 1 ? group.items : [];
 
-                        if (accessibleItems.length === 0) return null;
+                        // Permite acesso irrestrito visual para Dash/Clients/Loans se nível 2/3 (Fallback)
+                        if (userPermissions.length === 0 && userLevel !== null && userLevel > 1) {
+                            if (group.label === "Home" || group.label === "Gestão Corporativa") {
+                                // Add all except commissions
+                                displayItems.push(...group.items.filter(i => i.label !== 'Comissões' && !displayItems.some(di => di.label === i.label)));
+                            }
+                            if (group.label === "Administração") {
+                                // Add only agenda
+                                displayItems.push(...group.items.filter(i => i.label === 'Agenda' && !displayItems.some(di => di.label === i.label)));
+                            }
+                        }
+
+                        if (displayItems.length === 0) return null;
 
                         const isExpanded = expandedGroups[group.label] !== false;
 
@@ -123,7 +149,7 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
                                 </button>
 
                                 <div className={cn("flex flex-col gap-1 overflow-hidden transition-all", isExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0")}>
-                                    {accessibleItems.map((item) => {
+                                    {displayItems.map((item) => {
                                         const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                                         return (
                                             <Link

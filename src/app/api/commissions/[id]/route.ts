@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { PrismaCommissionRepository } from '@/modules/commissions/infrastructure/repositories';
 import { CommissionUseCases } from '@/modules/commissions/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
 import { PrismaFinancialRepository } from '@/modules/financial/infrastructure/repositories';
 import { FinancialUseCases } from '@/modules/financial/application/useCases';
@@ -16,9 +17,10 @@ export async function PATCH(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+
         const { id } = await params;
         const user = await getAuthUser();
-        if (!user || user.nivelAcesso !== 1) {
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.MANAGE_COMMISSIONS)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 

@@ -19,7 +19,8 @@ model User {
   usuario      String   @unique
   senha        String
   fotoUrl      String?
-  nivelAcesso  Int      // 1: Admin/Gestor, 2: Vendedor+, 3: Vendedor Visualização
+  nivelAcesso  Int      // 1: Admin/Gestor, 2: Vendedor+, 3: Vendedor Visualização (Deprecated soon)
+  roleId       String?  // ID do Perfil de Acesso
   horarioInicio String? // HH:mm
   horarioFim    String? // HH:mm
   failedAttempts Int      @default(0)
@@ -29,11 +30,44 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  role         Role?          @relation(fields: [roleId], references: [id])
   loans        Loan[]         @relation("SellerLoans")
   audits       Audit[]
   appointments Appointment[]
   commissions  Commission[]
   financials   Financial[]
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique // ex: "Administrador", "Vendedor"
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+  permissions RolePermission[]
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  name        String   @unique // ex: "view_financial", "edit_users"
+  description String?
+  module      String   // ex: "FINANCIAL", "USERS", "CLIENTS"
+  createdAt   DateTime @default(now())
+
+  roles       RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  assignedAt   DateTime @default(now())
+
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
 }
 
 model Customer {

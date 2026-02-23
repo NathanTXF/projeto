@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { PrismaUserRepository } from '@/modules/users/infrastructure/repositories';
 import { UserUseCases } from '@/modules/users/application/useCases';
 import { SignJWT } from 'jose';
+import { PERMISSIONS } from '@/lib/permissions';
 
 const JWT_SECRET = new TextEncoder().encode(
     process.env.JWT_SECRET || 'secret-previna-se-em-producao'
@@ -26,11 +27,34 @@ export async function POST(request: Request) {
 
         const user = result.user;
 
+        // Extract permissions if the user has a linked role
+        let permissions: string[] = user.role?.permissions?.map((rp: any) => rp.permission.name) || [];
+
+        // Fallback para usuários legado (sem Role vinculada no banco)
+        if (permissions.length === 0) {
+            if (user.nivelAcesso === 1) {
+                // Admins ganham todas as permissões
+                permissions = Object.values(PERMISSIONS);
+            } else {
+                // Vendedores/Usuários comuns ganham as permissões básicas
+                permissions = [
+                    PERMISSIONS.VIEW_DASHBOARD,
+                    PERMISSIONS.VIEW_CLIENTS,
+                    PERMISSIONS.VIEW_LOANS,
+                    PERMISSIONS.VIEW_AGENDA
+                ];
+            }
+        }
+
+        const roleName = user.role?.name || (user.nivelAcesso === 1 ? 'Administrador' : 'Vendedor');
+
         const token = await new SignJWT({
             id: user.id,
             nome: user.nome,
             usuario: user.usuario,
-            nivelAcesso: user.nivelAcesso,
+            role: roleName,
+            permissions: permissions,
+            nivelAcesso: user.nivelAcesso, // Backward compatibility
         })
             .setProtectedHeader({ alg: 'HS256' })
             .setExpirationTime('8h')
@@ -42,6 +66,8 @@ export async function POST(request: Request) {
                 id: user.id,
                 nome: user.nome,
                 usuario: user.usuario,
+                role: roleName,
+                permissions: permissions,
                 nivelAcesso: user.nivelAcesso
             }
         });
