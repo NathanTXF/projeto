@@ -35,7 +35,7 @@ import {
     Eye,
     EyeOff,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const userFormSchema = UserSchema.extend({
     senha: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").optional().or(z.literal("")),
@@ -146,13 +146,21 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                             name="roleId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        Perfil de Acesso (RBAC)
-                                    </FormLabel>
+                                    <div className="flex justify-between items-center mb-1">
+                                        <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                            Perfil de Acesso (RBAC)
+                                        </FormLabel>
+                                        <a
+                                            href="/dashboard/roles"
+                                            target="_blank"
+                                            className="text-[10px] text-indigo-600 hover:underline font-bold bg-indigo-50 px-2 py-0.5 rounded"
+                                        >
+                                            + Gerenciar Perfis
+                                        </a>
+                                    </div>
                                     <Select
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value || ""}
-                                        value={field.value || ""}
+                                        onValueChange={(val) => field.onChange(val === "none" ? null : val)}
+                                        value={field.value || "none"}
                                     >
                                         <FormControl>
                                             <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
@@ -160,19 +168,25 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="">Sem Perfil (Usa Nível Legado)</SelectItem>
-                                            {roles.map((role) => (
-                                                <SelectItem key={role.id} value={role.id}>
-                                                    <span className="flex items-center gap-2">
-                                                        <Shield className="h-3 w-3 text-indigo-500" />
-                                                        {role.name}
-                                                    </span>
-                                                </SelectItem>
-                                            ))}
+                                            <SelectItem value="none">Sem Perfil (Usa Nível Legado)</SelectItem>
+                                            {roles.length > 0 ? (
+                                                roles.map((role) => (
+                                                    <SelectItem key={role.id} value={role.id}>
+                                                        <span className="flex items-center gap-2 text-indigo-700 font-medium">
+                                                            <Shield className="h-3.5 w-3.5" />
+                                                            {role.name}
+                                                        </span>
+                                                    </SelectItem>
+                                                ))
+                                            ) : (
+                                                <div className="p-2 text-xs text-slate-400 text-center">
+                                                    Nenhum perfil cadastrado
+                                                </div>
+                                            )}
                                         </SelectContent>
                                     </Select>
-                                    <FormDescription className="text-[10px]">
-                                        O perfil define as permissões granulares do usuário.
+                                    <FormDescription className="text-[10px] leading-relaxed">
+                                        Para escolher quais páginas o usuário acessa, crie um **Perfil** e o escolha aqui.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -379,6 +393,6 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                     )}
                 </Button>
             </form>
-        </Form>
+        </Form >
     );
 }

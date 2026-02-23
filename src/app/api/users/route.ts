@@ -3,6 +3,7 @@ import { PrismaUserRepository } from '@/modules/users/infrastructure/repositorie
 import { UserUseCases } from '@/modules/users/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 import { UserSchema } from '@/modules/users/domain/entities';
+import { z } from 'zod';
 
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
@@ -36,6 +37,13 @@ export async function POST(request: Request) {
         const user = await useCases.createUser(validatedData as any);
         return NextResponse.json(user);
     } catch (error: any) {
+        console.error('Error creating user:', error);
+        if (error instanceof z.ZodError) {
+            return NextResponse.json({
+                error: 'Dados inválidos',
+                details: error.issues.map((e: z.ZodIssue) => `${e.path.join('.')}: ${e.message}`)
+            }, { status: 400 });
+        }
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

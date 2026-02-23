@@ -28,6 +28,7 @@ export async function PUT(
         const user = await useCases.updateProfile(id, validatedData);
         return NextResponse.json(user);
     } catch (error: any) {
+        console.error('Error updating user:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

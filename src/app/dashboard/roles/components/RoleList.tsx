@@ -3,7 +3,7 @@
 import { Role } from "@/modules/roles/domain/entities";
 import { Edit2, ShieldX, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/Badge";
 
 interface RoleListProps {
     roles: Role[];
