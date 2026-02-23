@@ -46,7 +46,8 @@ export async function PATCH(request: Request) {
             entidadeId: authUser.id
         });
 
-        return NextResponse.json({ message: 'Perfil atualizado com sucesso' });
+        const { senha: _, ...userWithoutPassword } = updatedUser as any;
+        return NextResponse.json(userWithoutPassword);
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }

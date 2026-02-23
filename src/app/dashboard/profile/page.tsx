@@ -29,6 +29,7 @@ interface UserProfile {
     fotoUrl?: string;
     contato?: string;
     endereco?: string;
+    roleName?: string; // New field from RBAC
 }
 
 export default function ProfilePage() {
@@ -64,7 +65,9 @@ export default function ProfilePage() {
                 nome: profile.nome,
                 usuario: profile.usuario,
                 contato: profile.contato,
-                endereco: profile.endereco
+                endereco: profile.endereco,
+                horarioInicio: profile.horarioInicio,
+                horarioFim: profile.horarioFim
             };
 
             if (newPassword) {
@@ -84,6 +87,7 @@ export default function ProfilePage() {
             const data = await response.json();
             if (data.error) throw new Error(data.error);
 
+            setProfile(p => ({ ...p, ...data }));
             toast.success("Perfil atualizado com sucesso!");
             setNewPassword("");
         } catch (error: any) {
@@ -129,31 +133,47 @@ export default function ProfilePage() {
                         <p className="text-sm text-slate-500 font-medium">@{profile?.usuario}</p>
 
                         <div className="mt-6 flex flex-wrap justify-center gap-2">
-                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-100 uppercase tracking-widest text-[10px] font-bold">
-                                {profile?.nivelAcesso === 1 ? 'ADMINISTRADOR' : profile?.nivelAcesso === 2 ? 'VENDEDOR+' : 'VENDEDOR (VISUALIZAÇÃO)'}
-                            </Badge>
+                            {profile?.roleName ? (
+                                <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 border-none font-bold text-[10px] uppercase tracking-wider px-3">
+                                    <Shield className="h-3 w-3 mr-1" />
+                                    {profile.roleName}
+                                </Badge>
+                            ) : (
+                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-100 uppercase tracking-widest text-[10px] font-bold">
+                                    {profile?.nivelAcesso === 1 ? 'ADMINISTRADOR' : profile?.nivelAcesso === 2 ? 'VENDEDOR+' : 'VENDEDOR (VISUALIZAÇÃO)'}
+                                </Badge>
+                            )}
                         </div>
 
-                        <div className="mt-8 w-full space-y-3 pt-6 border-t border-slate-100 text-left">
-                            <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
-                                <Clock className="h-4 w-4 text-slate-400" />
-                                <span>Turno: <strong>{profile?.horarioInicio || '08:00'} - {profile?.horarioFim || '18:00'}</strong></span>
+                        <div className="mt-8 w-full space-y-4 pt-6 border-t border-slate-100 text-left">
+                            <div className="flex items-center gap-3 text-sm text-slate-600 font-medium group">
+                                <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-100 transition-colors">
+                                    <Clock className="h-4 w-4" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Expediente Atual</span>
+                                    <span className="text-slate-700"><strong>{profile?.horarioInicio || '08:00'}</strong> às <strong>{profile?.horarioFim || '18:00'}</strong></span>
+                                </div>
                             </div>
-                            {profile?.contato && (
-                                <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
-                                    <Phone className="h-4 w-4 text-slate-400" />
-                                    <span>{profile.contato}</span>
+
+                            <div className="flex items-center gap-3 text-sm text-slate-600 font-medium group">
+                                <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
+                                    <Phone className="h-4 w-4" />
                                 </div>
-                            )}
-                            {profile?.endereco && (
-                                <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
-                                    <MapPin className="h-4 w-4 text-slate-400" />
-                                    <span className="truncate">{profile.endereco}</span>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Contato</span>
+                                    <span className="text-slate-700">{profile?.contato || 'Não informado'}</span>
                                 </div>
-                            )}
-                            <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
-                                <Shield className="h-4 w-4 text-emerald-500" />
-                                <span className="text-emerald-700 font-bold">Segurança Ativa</span>
+                            </div>
+
+                            <div className="flex items-center gap-3 text-sm text-slate-600 font-medium group">
+                                <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-100 transition-colors">
+                                    <MapPin className="h-4 w-4" />
+                                </div>
+                                <div className="flex flex-col flex-1 min-w-0">
+                                    <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Localização</span>
+                                    <span className="text-slate-700 truncate">{profile?.endereco || 'Não informado'}</span>
+                                </div>
                             </div>
                         </div>
                     </CardContent>
@@ -205,6 +225,33 @@ export default function ProfilePage() {
                                         placeholder="Rua, Número, Bairro"
                                         value={profile?.endereco || ""}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, endereco: e.target.value }) : null)}
+                                        className="rounded-xl border-slate-200 focus:ring-blue-500 bg-slate-50/50 h-12 font-medium"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="horarioInicio" className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                        <Clock className="h-3 w-3" /> Início do Expediente
+                                    </Label>
+                                    <Input
+                                        id="horarioInicio"
+                                        type="time"
+                                        value={profile?.horarioInicio || "08:00"}
+                                        onChange={(e) => setProfile(p => p ? ({ ...p, horarioInicio: e.target.value }) : null)}
+                                        className="rounded-xl border-slate-200 focus:ring-blue-500 bg-slate-50/50 h-12 font-medium"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="horarioFim" className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                        <Clock className="h-3 w-3" /> Fim do Expediente
+                                    </Label>
+                                    <Input
+                                        id="horarioFim"
+                                        type="time"
+                                        value={profile?.horarioFim || "18:00"}
+                                        onChange={(e) => setProfile(p => p ? ({ ...p, horarioFim: e.target.value }) : null)}
                                         className="rounded-xl border-slate-200 focus:ring-blue-500 bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
