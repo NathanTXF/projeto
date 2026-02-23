@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
         if (dateStr) {
             const date = new Date(dateStr);
-            const appointments = await useCases.getDailyAppointments(date);
+            const appointments = await useCases.getDailyAppointments(date, currentUser.id);
             return NextResponse.json(appointments);
         }
 
@@ -44,7 +44,9 @@ export async function POST(request: Request) {
         const validatedData = AppointmentSchema.parse({
             ...data,
             data: new Date(data.data),
-            criadorId: currentUser.id
+            criadorId: currentUser.id,
+            destinatarioId: data.destinatarioId === 'all' ? null : data.destinatarioId,
+            visibilidade: data.visibilidade || 'PRIVADO'
         });
 
         const appointment = await useCases.scheduleAppointment(validatedData as any);

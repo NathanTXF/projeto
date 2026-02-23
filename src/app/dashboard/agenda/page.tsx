@@ -165,7 +165,7 @@ export default function AgendaPage() {
                                                 <Badge className="mb-2 bg-indigo-100 text-indigo-700 hover:bg-indigo-100 border-none font-semibold">
                                                     {apt.tipo}
                                                 </Badge>
-                                                <h4 className="font-bold text-slate-800 text-lg mb-1">{apt.tipo}</h4>
+
                                                 <p className="text-slate-500 text-sm">{apt.observacao || "Sem observações."}</p>
                                             </div>
                                         </div>

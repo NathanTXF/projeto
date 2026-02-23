@@ -23,12 +23,22 @@ import {
     Save,
     CalendarPlus,
 } from "lucide-react";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { useEffect, useState } from "react";
 
 const formSchema = z.object({
     data: z.string().min(1, "Data é obrigatória"),
     hora: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/, "Formato inválido (HH:mm)"),
     tipo: z.string().min(1, "Tipo é obrigatório"),
     observacao: z.string().optional(),
+    visibilidade: z.enum(["PRIVADO", "GLOBAL"]).default("PRIVADO"),
+    destinatarioId: z.string().optional().nullable(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -40,6 +50,8 @@ interface AppointmentFormProps {
 }
 
 export function AppointmentForm({ initialDate, onSubmit, isLoading }: AppointmentFormProps) {
+    const [users, setUsers] = useState<{ id: string, nome: string }[]>([]);
+
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -47,8 +59,19 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
             hora: "09:00",
             tipo: "",
             observacao: "",
+            visibilidade: "PRIVADO",
+            destinatarioId: null,
         },
     });
+
+    useEffect(() => {
+        fetch('/api/users/list')
+            .then(res => res.json())
+            .then(data => setUsers(data))
+            .catch(err => console.error("Erro ao carregar usuários:", err));
+    }, []);
+
+    const visibilidade = form.watch("visibilidade");
 
     return (
         <Form {...form}>
@@ -109,6 +132,86 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                                 </FormItem>
                             )}
                         />
+                    </div>
+                </div>
+
+                {/* ── Seção: Visibilidade ── */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50">
+                            <Save className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                            Visibilidade
+                        </h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="visibilidade"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Tipo de Visibilidade
+                                    </FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50">
+                                                <SelectValue placeholder="Selecione a visibilidade" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="PRIVADO">Privado (Somente Eu)</SelectItem>
+                                            <SelectItem value="GLOBAL">Para Todos (Global)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {visibilidade === "GLOBAL" ? (
+                            <FormItem>
+                                <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider opacity-50">
+                                    Destinatário
+                                </FormLabel>
+                                <Input disabled value="Todos do Sistema" className="h-10 rounded-xl border-slate-200 bg-slate-100/50 italic text-slate-400" />
+                                <FormMessage />
+                            </FormItem>
+                        ) : (
+                            <FormField
+                                control={form.control}
+                                name="destinatarioId"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                            Encaminhar para (Opcional)
+                                        </FormLabel>
+                                        <Select
+                                            onValueChange={(val) => field.onChange(val === "none" ? null : val)}
+                                            defaultValue={field.value || "none"}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50">
+                                                    <SelectValue placeholder="Selecione um usuário" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="none">Ninguém (Apenas Eu)</SelectItem>
+                                                {users.map(u => (
+                                                    <SelectItem key={u.id} value={u.id}>{u.nome}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )}
                     </div>
                 </div>
 

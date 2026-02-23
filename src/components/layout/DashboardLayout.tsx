@@ -19,7 +19,8 @@ import {
     Menu,
     Bell,
     ShieldAlert,
-    Building2
+    Building2,
+    TrendingUp
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,8 @@ const menuGroups = [
     {
         label: "Home",
         items: [
-            { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", permission: 'view_dashboard' }
+            { icon: TrendingUp, label: "Meus Resultados", href: "/dashboard/next", permission: 'view_dashboard' },
+            { icon: LayoutDashboard, label: "Visão Geral", href: "/dashboard", permission: 'view_dashboard' }
         ]
     },
     {

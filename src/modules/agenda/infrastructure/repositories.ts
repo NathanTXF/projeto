@@ -5,27 +5,38 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
     async findById(id: string): Promise<Appointment | null> {
         const appointment = await prisma.appointment.findUnique({
             where: { id },
-            include: { criador: true }
+            include: { criador: true, destinatario: true }
         });
         return appointment as any;
     }
 
-    async findAllByDate(date: Date): Promise<Appointment[]> {
+    async findAllByDate(date: Date, userId?: string): Promise<Appointment[]> {
         // Obter início e fim do dia
         const start = new Date(date);
         start.setHours(0, 0, 0, 0);
         const end = new Date(date);
         end.setHours(23, 59, 59, 999);
 
+        const where: any = {
+            data: {
+                gte: start,
+                lte: end
+            }
+        };
+
+        // Regra de Visibilidade: Criador OR Destinatário OR GLOBAL
+        if (userId) {
+            where.OR = [
+                { criadorId: userId },
+                { destinatarioId: userId },
+                { visibilidade: "GLOBAL" }
+            ];
+        }
+
         const appointments = await prisma.appointment.findMany({
-            where: {
-                data: {
-                    gte: start,
-                    lte: end
-                }
-            },
+            where,
             orderBy: { hora: 'asc' },
-            include: { criador: true }
+            include: { criador: true, destinatario: true }
         });
         return appointments as any;
     }
@@ -46,7 +57,9 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
                 hora: data.hora,
                 tipo: data.tipo,
                 observacao: data.observacao,
-                criadorId: data.criadorId
+                criadorId: data.criadorId,
+                destinatarioId: data.destinatarioId,
+                visibilidade: data.visibilidade || "PRIVADO"
             }
         });
         return appointment as any;
@@ -59,7 +72,9 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
                 data: data.data,
                 hora: data.hora,
                 tipo: data.tipo,
-                observacao: data.observacao
+                observacao: data.observacao,
+                destinatarioId: data.destinatarioId,
+                visibilidade: data.visibilidade
             }
         });
         return appointment as any;

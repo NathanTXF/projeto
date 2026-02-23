@@ -33,7 +33,9 @@ model User {
   role         Role?          @relation(fields: [roleId], references: [id])
   loans        Loan[]         @relation("SellerLoans")
   audits       Audit[]
-  appointments Appointment[]
+  appointmentsCreated Appointment[] @relation("CreatedAppointments")
+  appointmentsReceived Appointment[] @relation("ReceivedAppointments")
+  customers   Customer[]    @relation("SellerCustomers")
   commissions  Commission[]
   financials   Financial[]
 }
@@ -88,8 +90,10 @@ model Customer {
   observacao   String?  @db.Text
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  vendedorId   String?  // Vendedor que cadastrou o cliente
 
   loans        Loan[]
+  vendedor     User?    @relation("SellerCustomers", fields: [vendedorId], references: [id])
 }
 
 model Organ {
@@ -204,9 +208,12 @@ model Appointment {
   tipo       String
   observacao String?  @db.Text
   criadorId  String
+  destinatarioId String? // Se null e visibilidade=GLOBAL, é para todos
+  visibilidade String   @default("PRIVADO") // PRIVADO | GLOBAL
   createdAt  DateTime @default(now())
 
-  criador    User     @relation(fields: [criadorId], references: [id])
+  criador      User     @relation("CreatedAppointments", fields: [criadorId], references: [id])
+  destinatario User?    @relation("ReceivedAppointments", fields: [destinatarioId], references: [id])
 }
 
 model Company {

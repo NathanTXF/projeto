@@ -3,8 +3,8 @@ import { Appointment, AppointmentRepository } from '../domain/entities';
 export class AgendaUseCases {
     constructor(private repository: AppointmentRepository) { }
 
-    async getDailyAppointments(date: Date) {
-        return await this.repository.findAllByDate(date);
+    async getDailyAppointments(date: Date, userId?: string) {
+        return await this.repository.findAllByDate(date, userId);
     }
 
     async getUserAppointments(userId: string) {

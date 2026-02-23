@@ -7,6 +7,8 @@ export const AppointmentSchema = z.object({
     tipo: z.string().min(1, "Tipo é obrigatório"),
     observacao: z.string().optional().nullable(),
     criadorId: z.string(),
+    destinatarioId: z.string().optional().nullable(),
+    visibilidade: z.enum(["PRIVADO", "GLOBAL"]).default("PRIVADO"),
     createdAt: z.date().optional(),
 });
 
@@ -14,7 +16,7 @@ export type Appointment = z.infer<typeof AppointmentSchema>;
 
 export interface AppointmentRepository {
     findById(id: string): Promise<Appointment | null>;
-    findAllByDate(date: Date): Promise<Appointment[]>;
+    findAllByDate(date: Date, userId?: string): Promise<Appointment[]>;
     findAllByUser(userId: string): Promise<Appointment[]>;
     create(data: Appointment): Promise<Appointment>;
     update(id: string, data: Partial<Appointment>): Promise<Appointment>;
