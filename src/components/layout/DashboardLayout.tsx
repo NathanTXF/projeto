@@ -29,8 +29,8 @@ const menuGroups = [
     {
         label: "Home",
         items: [
-            { icon: TrendingUp, label: "Meus Resultados", href: "/dashboard/next", permission: 'view_dashboard' },
-            { icon: LayoutDashboard, label: "Visão Geral", href: "/dashboard", permission: 'view_dashboard' }
+            { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", permission: 'view_dashboard' },
+            { icon: TrendingUp, label: "Visão Geral (Gestor)", href: "/dashboard/overview", permission: 'manage_settings' }
         ]
     },
     {
