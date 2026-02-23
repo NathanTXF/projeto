@@ -59,6 +59,7 @@ interface DashboardStats {
     pendingCommissions: number;
     ticketMedio: number;
     forecastVolume: number;
+    metaGlobal: number;
 }
 
 interface TopSeller {
@@ -394,7 +395,9 @@ export default function OverviewPage() {
                                 "O sucesso é a soma de pequenos esforços repetidos dia após dia." - Transforme dados em decisões agora.
                             </p>
                             <div className="flex gap-4">
-                                <Button className="bg-white text-primary hover:bg-white/90 font-black rounded-2xl px-8 h-12 shadow-xl">Configurar Metas</Button>
+                                <Link href="/dashboard/admin/goals">
+                                    <Button className="bg-white text-primary hover:bg-white/90 font-black rounded-2xl px-8 h-12 shadow-xl">Configurar Metas</Button>
+                                </Link>
                                 <Badge className="bg-white/10 text-white border-white/20 px-4 py-2 text-sm justify-center rounded-xl">Alpha 1.2</Badge>
                             </div>
                         </div>

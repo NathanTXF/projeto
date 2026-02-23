@@ -32,62 +32,37 @@ export async function GET() {
             loansThisYear,
             loansByBankRaw,
             loansByTypeRaw,
-            volumeMonthRaw
+            volumeMonthRaw,
+            company
         ] = await Promise.all([
-            // 1. Total de Clientes
-            prisma.customer.count({
-                where: isAdmin ? {} : {
-                    loans: { some: { vendedorId: user.id } }
-                }
-            }),
-            // 2. Clientes ano passado (para crescimento)
+            prisma.customer.count({ where: isAdmin ? {} : { loans: { some: { vendedorId: user.id } } } }),
             prisma.customer.count({
                 where: {
                     ...(isAdmin ? {} : { loans: { some: { vendedorId: user.id } } }),
                     createdAt: { lt: startOfYear }
                 }
             }),
-            // 3. Contratos Ativos
-            prisma.loan.count({
-                where: { ...whereVendedor, status: 'ATIVO' }
-            }),
-            // 4. Comissões do Mês
+            prisma.loan.count({ where: { ...whereVendedor, status: 'ATIVO' } }),
             prisma.commission.aggregate({
                 _sum: { valorCalculado: true },
                 where: { ...whereVendedor, createdAt: { gte: startOfMonth } }
             }),
-            // 5. Comissões Mês Passado
             prisma.commission.aggregate({
                 _sum: { valorCalculado: true },
                 where: { ...whereVendedor, createdAt: { gte: startOfLastMonth, lt: startOfMonth } }
             }),
-            // 6. Comissões Pendentes
-            prisma.commission.count({
-                where: { ...whereVendedor, status: 'Em aberto' }
-            }),
-            // 7. Top Vendedores
+            prisma.commission.count({ where: { ...whereVendedor, status: 'Em aberto' } }),
             prisma.user.findMany({
-                select: {
-                    id: true,
-                    nome: true,
-                    fotoUrl: true,
-                    _count: { select: { loans: true } }
-                },
+                select: { id: true, nome: true, fotoUrl: true, _count: { select: { loans: true } } },
                 take: 5,
                 orderBy: { loans: { _count: 'desc' } }
             }),
-            // 8. Distribuição Sexo
             prisma.customer.groupBy({
                 by: ['sexo'],
                 _count: true,
                 where: isAdmin ? {} : { loans: { some: { vendedorId: user.id } } }
             }),
-            // 9. Empréstimos do Ano
-            prisma.loan.findMany({
-                where: { ...whereVendedor, dataInicio: { gte: startOfYear } },
-                select: { dataInicio: true }
-            }),
-            // 10. Ranking de Bancos (Senior)
+            prisma.loan.findMany({ where: { ...whereVendedor, dataInicio: { gte: startOfYear } }, select: { dataInicio: true } }),
             prisma.loan.groupBy({
                 by: ['bancoId'],
                 _count: true,
@@ -96,18 +71,17 @@ export async function GET() {
                 orderBy: { _sum: { valorBruto: 'desc' } },
                 take: 5
             }),
-            // 11. Mix de Produtos (Senior)
             prisma.loan.groupBy({
                 by: ['tipoId'],
                 _count: true,
                 where: { ...whereVendedor, dataInicio: { gte: startOfMonth } }
             }),
-            // 12. Volume Bruto Mensal (Senior)
             prisma.loan.aggregate({
                 _sum: { valorBruto: true },
                 _count: true,
                 where: { ...whereVendedor, dataInicio: { gte: startOfMonth } }
-            })
+            }),
+            prisma.company.findFirst() // Buscar meta global
         ]);
 
         // Carregar nomes de Bancos e Tipos
@@ -121,7 +95,6 @@ export async function GET() {
 
         // Cálculos de Crescimento e Projeção
         const growthClients = lastYearClients === 0 ? 100 : ((totalClients - lastYearClients) / lastYearClients) * 100;
-
         const currentComm = Number(totalCommissionsMonth._sum?.valorCalculado || 0);
         const lastComm = Number(lastMonthCommissions._sum?.valorCalculado || 0);
         const growthComm = lastComm === 0 ? (currentComm > 0 ? 100 : 0) : ((currentComm - lastComm) / lastComm) * 100;
@@ -131,21 +104,10 @@ export async function GET() {
         const totalLoansMonth = volumeMonthRaw._count || 0;
         const ticketMedio = totalLoansMonth === 0 ? 0 : totalVolumeMonth / totalLoansMonth;
 
-        // Forecast (Previsão de Fim de Mês)
+        // Forecast
         const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
         const currentDay = now.getDate();
         const forecastVolume = currentDay === 0 ? 0 : (totalVolumeMonth / currentDay) * daysInMonth;
-
-        // Formatar dados do gráfico mensal (Histórico)
-        const monthlyData = Array.from({ length: 12 }, (_, i) => ({
-            name: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(new Date(now.getFullYear(), i, 1)),
-            total: 0
-        }));
-
-        loansThisYear.forEach(loan => {
-            const month = new Date(loan.dataInicio).getMonth();
-            monthlyData[month].total++;
-        });
 
         return NextResponse.json({
             stats: {
@@ -156,7 +118,8 @@ export async function GET() {
                 commissionsGrowth: growthComm.toFixed(1),
                 pendingCommissions,
                 ticketMedio,
-                forecastVolume
+                forecastVolume,
+                metaGlobal: Number(company?.metaMensal || 50000)
             },
             topSellers: topSellers.map(s => ({
                 id: s.id,
@@ -168,7 +131,10 @@ export async function GET() {
                 name: c.sexo === 'masculino' ? 'Masculino' : 'Feminino',
                 value: c._count
             })),
-            loansByMonth: monthlyData,
+            loansByMonth: Array.from({ length: 12 }, (_, i) => ({
+                name: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(new Date(now.getFullYear(), i, 1)),
+                total: loansThisYear.filter(l => new Date(l.dataInicio).getMonth() === i).length
+            })),
             loansByBank: loansByBankRaw.map(b => ({
                 name: bankMap.get(b.bancoId) || 'Outros',
                 value: Number(b._sum.valorBruto || 0)

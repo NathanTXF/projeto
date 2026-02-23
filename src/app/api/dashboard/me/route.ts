@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/core/auth/getUser';
-import { startOfDay, startOfMonth, startOfYear, endOfDay } from 'date-fns';
+import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
 
 export async function GET(request: Request) {
     try {
@@ -9,6 +9,12 @@ export async function GET(request: Request) {
         if (!user) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
         }
+
+        // Fetch user from DB to get the specific metaMensal
+        const dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { metaMensal: true }
+        });
 
         const now = new Date();
         const today = startOfDay(now);
@@ -30,22 +36,50 @@ export async function GET(request: Request) {
 
         // 2. Comissões (Dashboard Pessoal)
         const commissions = await prisma.commission.findMany({
-            where: { vendedorId: user.id },
+            where: { vendedorId: user.id, createdAt: { gte: thisMonth } },
             select: {
                 valorCalculado: true,
                 status: true
             }
         });
 
-        const totalReceived = commissions
-            .filter(c => c.status === 'Pago' || c.status === 'Aprovado') // Adaptar conforme status real
+        const totalReceivedMonth = commissions
+            .filter(c => c.status === 'Pago' || c.status === 'Aprovado')
             .reduce((acc, c) => acc + Number(c.valorCalculado), 0);
 
-        const totalPending = commissions
+        const totalPendingMonth = commissions
             .filter(c => c.status === 'Em aberto')
             .reduce((acc, c) => acc + Number(c.valorCalculado), 0);
 
-        // 3. Próximos Compromissos (Privados + Globais)
+        // 3. Pipeline de Vendas (Mês)
+        const pipelineRaw = await prisma.loan.groupBy({
+            by: ['status'],
+            where: { vendedorId: user.id, dataInicio: { gte: thisMonth } },
+            _count: true,
+            _sum: { valorLiquido: true }
+        });
+
+        const pipeline = {
+            digitacao: pipelineRaw.find(p => p.status === 'DIGITACAO')?._count || 0,
+            analise: pipelineRaw.find(p => p.status === 'ANALISE')?._count || 0,
+            averbacao: pipelineRaw.find(p => p.status === 'AVERBACAO')?._count || 0,
+            pagos: pipelineRaw.find(p => p.status === 'PAGO' || p.status === 'ATIVO')?._count || 0,
+            volumePendente: pipelineRaw
+                .filter(p => !['PAGO', 'CANCELADO'].includes(p.status))
+                .reduce((acc, p) => acc + Number(p._sum.valorLiquido || 0), 0)
+        };
+
+        // 4. Ranking
+        const sellerRanking = await prisma.loan.groupBy({
+            by: ['vendedorId'],
+            where: { dataInicio: { gte: thisMonth } },
+            _count: true,
+            orderBy: { _count: 'desc' }
+        });
+
+        const myPosition = sellerRanking.findIndex(r => r.vendedorId === user.id) + 1;
+
+        // 5. Próximos Compromissos
         const appointments = await prisma.appointment.findMany({
             where: {
                 OR: [
@@ -55,17 +89,12 @@ export async function GET(request: Request) {
                 ],
                 data: { gte: today }
             },
-            orderBy: [
-                { data: 'asc' },
-                { hora: 'asc' }
-            ],
+            orderBy: [{ data: 'asc' }, { hora: 'asc' }],
             take: 5,
-            include: {
-                criador: { select: { nome: true } }
-            }
+            include: { criador: { select: { nome: true } } }
         });
 
-        // 4. Histórico de Cadastros (Últimos 12 meses) para o gráfico
+        // 6. Histórico de Cadastros (12 meses)
         const history = [];
         for (let i = 11; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -73,15 +102,11 @@ export async function GET(request: Request) {
             const end = i === 0 ? now : new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
 
             const count = await prisma.customer.count({
-                where: {
-                    vendedorId: user.id,
-                    createdAt: { gte: start, lte: end }
-                }
+                where: { vendedorId: user.id, createdAt: { gte: start, lte: end } }
             });
 
             history.push({
                 month: date.toLocaleString('pt-BR', { month: 'short' }),
-                year: date.getFullYear(),
                 count
             });
         }
@@ -89,8 +114,11 @@ export async function GET(request: Request) {
         return NextResponse.json({
             metrics: {
                 customers: { today: todayCount, month: monthCount, year: yearCount },
-                commissions: { received: totalReceived, pending: totalPending }
+                commissions: { received: totalReceivedMonth, pending: totalPendingMonth },
+                metaMensal: Number(dbUser?.metaMensal || 5000),
+                rankingPosition: myPosition || '-'
             },
+            pipeline,
             appointments,
             history
         });

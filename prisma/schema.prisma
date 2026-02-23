@@ -27,6 +27,7 @@ model User {
   lockUntil      DateTime?
   contato        String?
   endereco       String?
+  metaMensal     Decimal? @db.Decimal(10, 2) @default(5000)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -223,4 +224,5 @@ model Company {
   contato  String
   endereco String
   logoUrl  String?
+  metaMensal Decimal @db.Decimal(15, 2) @default(50000)
 }

@@ -20,7 +20,8 @@ import {
     Bell,
     ShieldAlert,
     Building2,
-    TrendingUp
+    TrendingUp,
+    Target
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,7 @@ const menuGroups = [
             { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", permission: 'view_agenda' },
             { icon: Users, label: "Acessos (Usuários)", href: "/dashboard/users", permission: 'manage_users' },
             { icon: ShieldAlert, label: "Perfis de Acesso", href: "/dashboard/roles", permission: 'manage_roles' },
+            { icon: Target, label: "Gestão de Metas", href: "/dashboard/admin/goals", permission: 'manage_settings' },
             { icon: LucideHistory, label: "Auditoria", href: "/dashboard/audit", permission: 'view_audit' },
         ]
     }
