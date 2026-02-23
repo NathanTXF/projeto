@@ -127,12 +127,12 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         </h3>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3">
                         <FormField
                             control={form.control}
                             name="nome"
                             render={({ field }) => (
-                                <FormItem className="sm:col-span-2">
+                                <FormItem className="md:col-span-3">
                                     <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
                                         Nome Completo
                                     </FormLabel>
@@ -279,7 +279,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         </h3>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
                         <FormField
                             control={form.control}
                             name="email"
@@ -363,7 +363,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         )}
                     />
 
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <FormField
                             control={form.control}
                             name="cidade"
@@ -425,79 +425,81 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                     </div>
                 </div>
 
-                {/* ── Seção: Segurança & Observações ── */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-50">
-                            <KeyRound className="h-4 w-4 text-violet-600" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* ── Seção: Segurança & Observações ── */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-50">
+                                <KeyRound className="h-4 w-4 text-violet-600" />
+                            </div>
+                            <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                                Informações Adicionais
+                            </h3>
                         </div>
-                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
-                            Informações Adicionais
-                        </h3>
+
+                        <FormField
+                            control={form.control}
+                            name="senha"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Senha do Cliente
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                placeholder="Armazene a senha do cliente"
+                                                className="pl-10 pr-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                type={showPassword ? "text" : "password"}
+                                                {...field}
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-slate-400 hover:text-slate-600"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                {showPassword ? (
+                                                    <EyeOff className="h-4 w-4" />
+                                                ) : (
+                                                    <Eye className="h-4 w-4" />
+                                                )}
+                                            </Button>
+                                        </div>
+                                    </FormControl>
+                                    <FormDescription className="text-[11px] text-slate-400">
+                                        Campo para guardar a senha já existente do cliente. Sem regras de complexidade.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="observacao"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Observações
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                                            <Textarea
+                                                placeholder="Informações adicionais sobre o cliente..."
+                                                className="pl-10 min-h-[80px] resize-none rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                {...field}
+                                            />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </div>
-
-                    <FormField
-                        control={form.control}
-                        name="senha"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                    Senha do Cliente
-                                </FormLabel>
-                                <FormControl>
-                                    <div className="relative">
-                                        <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                        <Input
-                                            placeholder="Armazene a senha do cliente"
-                                            className="pl-10 pr-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
-                                            type={showPassword ? "text" : "password"}
-                                            {...field}
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-slate-400 hover:text-slate-600"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                        >
-                                            {showPassword ? (
-                                                <EyeOff className="h-4 w-4" />
-                                            ) : (
-                                                <Eye className="h-4 w-4" />
-                                            )}
-                                        </Button>
-                                    </div>
-                                </FormControl>
-                                <FormDescription className="text-[11px] text-slate-400">
-                                    Campo para guardar a senha já existente do cliente. Sem regras de complexidade.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="observacao"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                    Observações
-                                </FormLabel>
-                                <FormControl>
-                                    <div className="relative">
-                                        <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                                        <Textarea
-                                            placeholder="Informações adicionais sobre o cliente..."
-                                            className="pl-10 min-h-[80px] resize-none rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
-                                            {...field}
-                                        />
-                                    </div>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
                 </div>
 
                 {/* ── Botão Salvar ── */}
