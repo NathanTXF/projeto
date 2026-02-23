@@ -10,6 +10,11 @@ const useCases = new LoanUseCases(repository);
 
 export async function GET() {
     try {
+        const user = await getAuthUser();
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.VIEW_LOANS)) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
+        }
+
         const loans = await useCases.listAll();
         return NextResponse.json(loans);
     } catch (error: any) {

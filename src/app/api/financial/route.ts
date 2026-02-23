@@ -1,15 +1,27 @@
 import { NextResponse } from 'next/server';
 import { PrismaFinancialRepository } from '@/modules/financial/infrastructure/repositories';
 import { FinancialUseCases } from '@/modules/financial/application/useCases';
+import { getAuthUser } from '@/core/auth/getUser';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
 const repository = new PrismaFinancialRepository();
 const useCases = new FinancialUseCases(repository);
 
 export async function GET(request: Request) {
     try {
+        const user = await getAuthUser();
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.VIEW_FINANCIAL)) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
+        }
+
         const { searchParams } = new URL(request.url);
-        const mesAno = searchParams.get('mesAno') || undefined;
-        const vendedorId = searchParams.get('vendedorId') || undefined;
+        let mesAno = searchParams.get('mesAno') || undefined;
+        let vendedorId = searchParams.get('vendedorId') || undefined;
+
+        // Regra Senior: Vendedores só veem o próprio financeiro
+        if (!hasPermission(user.permissions || [], PERMISSIONS.MANAGE_FINANCIAL)) {
+            vendedorId = user.id;
+        }
 
         let transactions;
         if (vendedorId) {

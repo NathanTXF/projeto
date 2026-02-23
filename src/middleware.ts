@@ -46,21 +46,33 @@ export async function middleware(request: NextRequest) {
 
                 if (!permissions.includes(requiredPermission) && !isLegacyAdmin) {
                     // Usuário não tem permissão para acessar este módulo
+                    // Se for uma chamada de API, retorna 401 em vez de redirecionar para o dashboard
+                    if (pathname.startsWith('/api')) {
+                        return NextResponse.json({ error: 'Permissões insuficientes' }, { status: 403 });
+                    }
                     return NextResponse.redirect(new URL('/dashboard', request.url));
                 }
-                break; // Se encontrou e tem permissão (ou é legacy admin), pode parar a verificação
+                break;
+            }
+        }
+
+        // Bloqueio genérico para qualquer outra rota /api que não seja auth
+        if (pathname.startsWith('/api') && !pathname.startsWith('/api/auth')) {
+            if (!payload) {
+                return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
             }
         }
 
         return NextResponse.next();
     } catch (err: any) {
         console.error('Middleware: JWT verification failed:', err.message);
+        if (pathname.startsWith('/api')) {
+            return NextResponse.json({ error: 'Token inválido ou expirado' }, { status: 401 });
+        }
         return NextResponse.redirect(new URL('/login', request.url));
     }
 }
 
 export const config = {
-    matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
-    ],
+    matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

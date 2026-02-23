@@ -9,9 +9,19 @@ const useCases = new CommissionUseCases(repository);
 
 export async function GET(request: Request) {
     try {
+        const user = await getAuthUser();
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.VIEW_COMMISSIONS)) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
+        }
+
         const { searchParams } = new URL(request.url);
-        const mesAno = searchParams.get('mesAno') || undefined;
-        const vendedorId = searchParams.get('vendedorId') || undefined;
+        let mesAno = searchParams.get('mesAno') || undefined;
+        let vendedorId = searchParams.get('vendedorId') || undefined;
+
+        // Regra Senior: Se não for gestor, só pode ver as próprias comissões
+        if (!hasPermission(user.permissions || [], PERMISSIONS.MANAGE_COMMISSIONS)) {
+            vendedorId = user.id;
+        }
 
         if (mesAno || vendedorId) {
             const commissions = await useCases.getByFilters({ mesAno, vendedorId });
