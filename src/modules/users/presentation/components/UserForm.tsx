@@ -39,6 +39,7 @@ import { useState } from "react";
 
 const userFormSchema = UserSchema.extend({
     senha: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").optional().or(z.literal("")),
+    roleId: z.string().uuid().optional().nullable(),
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
@@ -51,6 +52,16 @@ interface UserFormProps {
 
 export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
     const [showPassword, setShowPassword] = useState(false);
+    const [roles, setRoles] = useState<{ id: string, name: string }[]>([]);
+
+    useEffect(() => {
+        fetch('/api/roles')
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) setRoles(data);
+            })
+            .catch(console.error);
+    }, []);
 
     const form = useForm<UserFormValues>({
         resolver: zodResolver(userFormSchema),
@@ -132,11 +143,49 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
 
                         <FormField
                             control={form.control}
+                            name="roleId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Perfil de Acesso (RBAC)
+                                    </FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value || ""}
+                                        value={field.value || ""}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                                <SelectValue placeholder="Selecione o perfil" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="">Sem Perfil (Usa Nível Legado)</SelectItem>
+                                            {roles.map((role) => (
+                                                <SelectItem key={role.id} value={role.id}>
+                                                    <span className="flex items-center gap-2">
+                                                        <Shield className="h-3 w-3 text-indigo-500" />
+                                                        {role.name}
+                                                    </span>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription className="text-[10px]">
+                                        O perfil define as permissões granulares do usuário.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
                             name="nivelAcesso"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        Nível de Acesso
+                                        Nível de Acesso (Legado)
                                     </FormLabel>
                                     <Select
                                         onValueChange={(val) => field.onChange(parseInt(val))}
@@ -148,24 +197,9 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="1">
-                                                <span className="flex items-center gap-2">
-                                                    <span className="h-2 w-2 rounded-full bg-red-500" />
-                                                    Gestor (Acesso Total)
-                                                </span>
-                                            </SelectItem>
-                                            <SelectItem value="2">
-                                                <span className="flex items-center gap-2">
-                                                    <span className="h-2 w-2 rounded-full bg-amber-500" />
-                                                    Vendedor+ (Criar/Editar)
-                                                </span>
-                                            </SelectItem>
-                                            <SelectItem value="3">
-                                                <span className="flex items-center gap-2">
-                                                    <span className="h-2 w-2 rounded-full bg-blue-500" />
-                                                    Vendedor (Apenas Visualizar)
-                                                </span>
-                                            </SelectItem>
+                                            <SelectItem value="1">Gestor (Acesso Total)</SelectItem>
+                                            <SelectItem value="2">Vendedor+</SelectItem>
+                                            <SelectItem value="3">Vendedor</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />

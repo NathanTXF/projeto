@@ -66,32 +66,29 @@ export function UserList({ users, userLevel, onEdit, onDelete }: UserListProps) 
                                         @{user.usuario}
                                     </TableCell>
                                     <TableCell>
-                                        <Badge
-                                            variant="outline"
-                                            className={cn(
-                                                "font-semibold text-[10px] uppercase tracking-wider px-2 py-0.5 border-none",
-                                                user.nivelAcesso === 1 && "bg-purple-100 text-purple-700",
-                                                user.nivelAcesso === 2 && "bg-blue-100 text-blue-700",
-                                                user.nivelAcesso === 3 && "bg-slate-100 text-slate-700"
-                                            )}
-                                        >
-                                            {user.nivelAcesso === 1 ? (
-                                                <span className="flex items-center gap-1">
-                                                    <Shield className="h-3 w-3" />
-                                                    Gestor
-                                                </span>
-                                            ) : user.nivelAcesso === 2 ? (
-                                                <span className="flex items-center gap-1">
-                                                    <UserIcon className="h-3 w-3" />
-                                                    Vendedor+
-                                                </span>
+                                        <div className="flex flex-col gap-1">
+                                            {(user as any).role ? (
+                                                <Badge
+                                                    variant="secondary"
+                                                    className="w-fit bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-none font-bold text-[10px] uppercase tracking-wider"
+                                                >
+                                                    <Shield className="h-3 w-3 mr-1" />
+                                                    {(user as any).role.name}
+                                                </Badge>
                                             ) : (
-                                                <span className="flex items-center gap-1">
-                                                    <UserIcon className="h-3 w-3" />
-                                                    Vendedor
-                                                </span>
+                                                <Badge
+                                                    variant="outline"
+                                                    className={cn(
+                                                        "w-fit font-semibold text-[10px] uppercase tracking-wider px-2 py-0.5 border-none",
+                                                        user.nivelAcesso === 1 && "bg-purple-100 text-purple-700",
+                                                        user.nivelAcesso === 2 && "bg-blue-100 text-blue-700",
+                                                        user.nivelAcesso === 3 && "bg-slate-100 text-slate-700"
+                                                    )}
+                                                >
+                                                    {user.nivelAcesso === 1 ? 'Gestor' : user.nivelAcesso === 2 ? 'Vendedor+' : 'Vendedor'}
+                                                </Badge>
                                             )}
-                                        </Badge>
+                                        </div>
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium bg-slate-50 px-2 py-1 rounded-md w-fit border border-slate-100">

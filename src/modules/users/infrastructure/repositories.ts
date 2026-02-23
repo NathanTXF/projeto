@@ -65,6 +65,7 @@ export class PrismaUserRepository implements UserRepository {
                 lockUntil: data.lockUntil,
                 contato: data.contato,
                 endereco: data.endereco,
+                roleId: data.roleId,
             }
         });
         return user as any;

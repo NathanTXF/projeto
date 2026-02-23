@@ -11,6 +11,7 @@ export const UserSchema = z.object({
     horarioFim: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/).optional().nullable(),
     failedAttempts: z.number().int().optional(),
     lockUntil: z.date().optional().nullable(),
+    roleId: z.string().uuid().optional().nullable(),
     contato: z.string().optional().nullable(),
     endereco: z.string().optional().nullable(),
     createdAt: z.date().optional(),
