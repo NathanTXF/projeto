@@ -51,7 +51,6 @@ const menuGroups = [
             { icon: Users, label: "Acessos (Usuários)", href: "/dashboard/users", permission: 'manage_users' },
             { icon: ShieldAlert, label: "Perfis de Acesso", href: "/dashboard/roles", permission: 'manage_roles' },
             { icon: LucideHistory, label: "Auditoria", href: "/dashboard/audit", permission: 'view_audit' },
-            { icon: Building2, label: "Dados da Empresa", href: "/dashboard/settings/company", permission: 'manage_settings' },
         ]
     }
 ];
@@ -288,12 +287,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
                                             <UserCircle className="mr-3 h-4 w-4 text-indigo-500" />
                                             Meu Perfil
                                         </Link>
-                                        {userLevel === 1 && (
-                                            <Link href="/dashboard/settings" onClick={() => setIsProfileOpen(false)} className="flex items-center px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 transition-colors w-full cursor-pointer">
-                                                <Settings className="mr-3 h-4 w-4 text-indigo-500" />
-                                                Configurações
-                                            </Link>
-                                        )}
                                     </div>
 
                                     {/* Danger Zone (Logout) */}
