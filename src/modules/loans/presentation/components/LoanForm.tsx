@@ -206,7 +206,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         </h3>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
                         <FormField
                             control={form.control}
                             name="clienteId"
@@ -305,7 +305,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         </h3>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
                         <FormField
                             control={form.control}
                             name="orgaoId"
@@ -357,7 +357,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3">
                         <FormField
                             control={form.control}
                             name="tipoId"
@@ -446,7 +446,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         </h3>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3">
                         <FormField
                             control={form.control}
                             name="valorBruto"
@@ -521,7 +521,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
                         <FormField
                             control={form.control}
                             name="prazo"
