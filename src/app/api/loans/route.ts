@@ -47,6 +47,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json(loan, { status: 201 });
     } catch (error: any) {
+        console.error('[API_LOANS_POST_ERROR]:', error);
         if (error.name === 'ZodError') {
             return NextResponse.json({ error: error.errors }, { status: 400 });
         }

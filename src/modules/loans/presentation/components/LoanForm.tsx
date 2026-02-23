@@ -67,6 +67,24 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
     const [submitting, setSubmitting] = useState(false);
     const [isLocked, setIsLocked] = useState(false);
 
+    // Currency Formatting Helpers
+    const formatBRL = (value: number) => {
+        return new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+        }).format(value);
+    };
+
+    const parseCurrency = (value: string) => {
+        const digits = value.replace(/\D/g, "");
+        return Number(digits) / 100;
+    };
+
+    const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (val: number) => void) => {
+        const value = parseCurrency(e.target.value);
+        onChange(value);
+    };
+
     useEffect(() => {
         if (initialData?.id) {
             fetch(`/api/commissions?loanId=${initialData.id}`)
@@ -154,6 +172,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
 
     const onSubmit = async (data: Loan) => {
         setSubmitting(true);
+        console.log("Submitting Loan Data:", data);
         try {
             const response = await fetch(
                 initialData ? `/api/loans/${initialData.id}` : "/api/loans",
@@ -166,6 +185,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
 
             if (!response.ok) {
                 const errorData = await response.json();
+                console.error("Loan Submission Error Response:", errorData);
                 throw new Error(errorData.error || "Falha ao salvar venda");
             }
 
@@ -314,7 +334,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                     <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
                                         Órgão
                                     </FormLabel>
-                                    <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                                    <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value?.toString() || ""}>
                                         <FormControl>
                                             <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
                                                 <SelectValue placeholder="Selecione o órgão" />
@@ -339,7 +359,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                     <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
                                         Banco
                                     </FormLabel>
-                                    <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                                    <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value?.toString() || ""}>
                                         <FormControl>
                                             <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
                                                 <SelectValue placeholder="Selecione o banco" />
@@ -366,7 +386,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                     <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
                                         Tipo
                                     </FormLabel>
-                                    <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                                    <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value?.toString() || ""}>
                                         <FormControl>
                                             <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
                                                 <SelectValue placeholder="Selecione" />
@@ -391,7 +411,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                     <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
                                         Grupo
                                     </FormLabel>
-                                    <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                                    <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value?.toString() || ""}>
                                         <FormControl>
                                             <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
                                                 <SelectValue placeholder="Selecione" />
@@ -416,7 +436,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                     <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
                                         Tabela
                                     </FormLabel>
-                                    <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={field.value?.toString()}>
+                                    <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value?.toString()}>
                                         <FormControl>
                                             <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
                                                 <SelectValue placeholder="Selecione" />
@@ -453,17 +473,16 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        Valor Bruto (R$)
+                                        Valor Bruto
                                     </FormLabel>
                                     <FormControl>
                                         <div className="relative">
                                             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
-                                                type="number"
-                                                step="0.01"
-                                                {...field}
-                                                onChange={e => field.onChange(Number(e.target.value))}
+                                                placeholder="R$ 0,00"
+                                                value={formatBRL(field.value || 0)}
+                                                onChange={e => handleCurrencyChange(e, field.onChange)}
                                             />
                                         </div>
                                     </FormControl>
@@ -477,17 +496,16 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        Valor Líquido (R$)
+                                        Valor Líquido
                                     </FormLabel>
                                     <FormControl>
                                         <div className="relative">
                                             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
-                                                type="number"
-                                                step="0.01"
-                                                {...field}
-                                                onChange={e => field.onChange(Number(e.target.value))}
+                                                placeholder="R$ 0,00"
+                                                value={formatBRL(field.value || 0)}
+                                                onChange={e => handleCurrencyChange(e, field.onChange)}
                                             />
                                         </div>
                                     </FormControl>
@@ -501,17 +519,16 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        Valor Parcela (R$)
+                                        Valor Parcela
                                     </FormLabel>
                                     <FormControl>
                                         <div className="relative">
                                             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
-                                                type="number"
-                                                step="0.01"
-                                                {...field}
-                                                onChange={e => field.onChange(Number(e.target.value))}
+                                                placeholder="R$ 0,00"
+                                                value={formatBRL(field.value || 0)}
+                                                onChange={e => handleCurrencyChange(e, field.onChange)}
                                             />
                                         </div>
                                     </FormControl>
