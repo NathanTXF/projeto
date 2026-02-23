@@ -27,7 +27,7 @@ const statusColors: Record<string, string> = {
 
 export function CommissionList({ commissions, onApprove, onCancel }: CommissionListProps) {
     return (
-        <div className="rounded-md border bg-white">
+        <div className="rounded-xl border border-slate-100 bg-white overflow-hidden shadow-sm">
             <Table>
                 <TableHeader className="bg-slate-50/50">
                     <TableRow>

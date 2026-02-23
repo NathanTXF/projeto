@@ -51,7 +51,7 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
             </div>
 
             {/* ── Tabela de Clientes ── */}
-            <Card className="border-none shadow-lg overflow-hidden rounded-2xl bg-white/80 backdrop-blur-sm">
+            <Card className="border border-slate-100 shadow-sm overflow-hidden rounded-2xl bg-white">
                 <CardContent className="p-0">
                     <Table>
                         <TableHeader className="bg-slate-50/80">
@@ -150,14 +150,14 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => onEdit(customer)}
-                                                        className="h-8 w-8 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                                        className="h-8 w-8 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                                     >
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                                        className="h-8 w-8 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                         onClick={() => customer.id && onDelete(customer.id)}
                                                     >
                                                         <Trash2 className="h-4 w-4" />

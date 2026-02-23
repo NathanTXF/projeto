@@ -143,35 +143,30 @@ export default function FinancialPage() {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            {/* ── Header Premium com Gradiente ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 shadow-xl shadow-indigo-200/40">
-                <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-                    <div className="absolute -left-6 -bottom-6 h-32 w-32 rounded-full bg-white/5 blur-xl" />
-                    <div className="absolute right-1/3 top-1/2 h-24 w-24 rounded-full bg-indigo-400/20 blur-xl" />
-                </div>
+            {/* ── Enterprise Hero Banner ── */}
+            <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm ring-1 ring-white/20 shadow-inner">
-                            <DollarSign className="h-7 w-7 text-white" />
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
+                            <DollarSign className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-white">Financeiro</h1>
-                            <p className="mt-1 text-blue-100/90 font-medium">Controle de pagamento de comissões aos vendedores.</p>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Financeiro</h1>
+                            <p className="mt-1 text-blue-100 font-medium">Controle de pagamento de comissões aos vendedores.</p>
                         </div>
                     </div>
                     <Button
                         variant="outline"
-                        className="gap-2 rounded-xl bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white transition-all font-medium"
+                        className="gap-2 rounded-xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white transition-all font-bold px-6 py-3 h-auto"
                     >
-                        <Filter className="h-4 w-4" />
+                        <Filter className="h-5 w-5" />
                         Filtrar por Período
                     </Button>
                 </div>
             </div>
 
-            <Card className="border-none shadow-lg overflow-hidden rounded-2xl bg-white/70 backdrop-blur-sm">
-                <CardHeader className="bg-white/80 border-b border-slate-100 pb-5">
+            <Card className="border border-slate-100 shadow-sm overflow-hidden rounded-2xl bg-white">
+                <CardHeader className="bg-white border-b border-slate-100 pb-5">
                     <div className="flex justify-between items-center">
                         <div>
                             <CardTitle className="text-xl font-bold text-slate-800">Pagamentos de Comissão</CardTitle>
@@ -269,19 +264,15 @@ export default function FinancialPage() {
             {/* Modal de Pagamento */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
-                    {/* Gradient Header */}
-                    <div className="relative overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-5">
-                        <div className="pointer-events-none absolute inset-0">
-                            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-xl" />
-                            <div className="absolute -left-4 -bottom-4 h-20 w-20 rounded-full bg-white/5 blur-lg" />
-                        </div>
+                    {/* Solid Blue Header */}
+                    <div className="relative bg-emerald-600 px-6 py-5">
                         <div className="relative flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm ring-1 ring-white/20">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 shadow-inner">
                                 <DollarSign className="h-5 w-5 text-white" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-white">Pagar Comissão</DialogTitle>
-                                <DialogDescription className="text-emerald-100/80 text-sm mt-0.5">
+                                <DialogTitle className="text-lg font-bold text-white leading-none">Pagar Comissão</DialogTitle>
+                                <DialogDescription className="text-emerald-50 text-sm mt-1">
                                     Registrar pagamento para o vendedor.
                                 </DialogDescription>
                             </div>

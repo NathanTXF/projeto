@@ -43,42 +43,37 @@ export default function SettingsPage() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* ── Header Premium com Gradiente ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 shadow-xl shadow-indigo-200/40">
-                <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-                    <div className="absolute -left-6 -bottom-6 h-32 w-32 rounded-full bg-white/5 blur-xl" />
-                    <div className="absolute right-1/3 top-1/2 h-24 w-24 rounded-full bg-indigo-400/20 blur-xl" />
-                </div>
+            {/* ── Enterprise Hero Banner ── */}
+            <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-8 shadow-sm">
                 <div className="relative flex items-center gap-4">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm ring-1 ring-white/20 shadow-inner">
-                        <Settings className="h-7 w-7 text-white" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
+                        <Settings className="h-8 w-8 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-white">Configurações</h1>
-                        <p className="mt-1 text-blue-100/90 font-medium">Personalize o comportamento do sistema.</p>
+                        <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Configurações</h1>
+                        <p className="mt-1 text-blue-100 font-medium">Personalize o comportamento do sistema.</p>
                     </div>
                 </div>
             </div>
 
             {/* Aparência */}
-            <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
-                <CardHeader className="bg-white border-b border-slate-100 pb-4">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <Monitor className="h-5 w-5 text-indigo-500" />
+            <Card className="border border-slate-100 shadow-sm rounded-2xl bg-white overflow-hidden">
+                <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+                    <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                        <Monitor className="h-5 w-5 text-blue-600" />
                         Aparência
                     </CardTitle>
                     <CardDescription>Escolha o tema visual da interface.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">
-                    <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex flex-col sm:flex-row gap-4">
                         {(["claro", "escuro", "sistema"] as const).map((t) => (
                             <button
                                 key={t}
                                 onClick={() => setTema(t)}
-                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all ${tema === t
-                                    ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                                    : "border-slate-200 text-slate-500 hover:border-slate-300"
+                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 text-sm font-bold transition-all ${tema === t
+                                    ? "border-blue-600 bg-blue-50 text-blue-700 shadow-sm"
+                                    : "border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50"
                                     }`}
                             >
                                 {t === "claro" && <Sun className="h-4 w-4" />}
@@ -92,10 +87,10 @@ export default function SettingsPage() {
             </Card>
 
             {/* Notificações */}
-            <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
-                <CardHeader className="bg-white border-b border-slate-100 pb-4">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <Bell className="h-5 w-5 text-indigo-500" />
+            <Card className="border border-slate-100 shadow-sm rounded-2xl bg-white overflow-hidden">
+                <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+                    <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                        <Bell className="h-5 w-5 text-blue-600" />
                         Notificações
                     </CardTitle>
                     <CardDescription>Controle quais alertas você deseja receber.</CardDescription>
@@ -106,14 +101,14 @@ export default function SettingsPage() {
                         { label: "Notificações do sistema", desc: "Alertas em tempo real dentro da plataforma.", state: notifSistema, setter: setNotifSistema },
                         { label: "Avisos de comissões", desc: "Alertas sobre novas comissões registradas.", state: notifComissoes, setter: setNotifComissoes },
                     ].map((item) => (
-                        <div key={item.label} className="flex items-center justify-between p-4 rounded-xl bg-slate-50">
+                        <div key={item.label} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
                             <div>
-                                <p className="font-medium text-slate-800 text-sm">{item.label}</p>
-                                <p className="text-xs text-slate-500 mt-0.5">{item.desc}</p>
+                                <p className="font-bold text-slate-800 text-sm">{item.label}</p>
+                                <p className="text-xs font-medium text-slate-500 mt-0.5">{item.desc}</p>
                             </div>
                             <button
                                 onClick={() => item.setter(!item.state)}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${item.state ? "bg-indigo-600" : "bg-slate-300"
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${item.state ? "bg-blue-600" : "bg-slate-300"
                                     }`}
                             >
                                 <span
@@ -127,10 +122,10 @@ export default function SettingsPage() {
             </Card>
 
             {/* Segurança */}
-            <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
-                <CardHeader className="bg-white border-b border-slate-100 pb-4">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <Shield className="h-5 w-5 text-indigo-500" />
+            <Card className="border border-slate-100 shadow-sm rounded-2xl bg-white overflow-hidden">
+                <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+                    <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                        <Shield className="h-5 w-5 text-emerald-500" />
                         Segurança da Sessão
                     </CardTitle>
                     <CardDescription>Configure o tempo de expiração automática da sessão.</CardDescription>
@@ -138,44 +133,44 @@ export default function SettingsPage() {
                 <CardContent className="p-6">
                     <div className="flex items-center gap-4">
                         <div className="relative flex-1 max-w-xs">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                             <Input
                                 type="number"
                                 min={1}
                                 max={24}
                                 value={sessionTimeout}
                                 onChange={(e) => setSessionTimeout(e.target.value)}
-                                className="pl-10 rounded-xl border-slate-200"
+                                className="pl-11 rounded-xl border-slate-200 bg-slate-50/50 h-11 font-medium focus:ring-blue-500"
                             />
                         </div>
-                        <Label className="text-slate-600 font-medium">horas de inatividade</Label>
+                        <Label className="text-slate-600 font-bold">horas de inatividade</Label>
                     </div>
-                    <p className="text-xs text-slate-400 mt-2 ml-1">
+                    <p className="text-xs font-medium text-slate-400 mt-2 ml-1">
                         A sessão expira automaticamente após {sessionTimeout}h sem atividade.
                     </p>
                 </CardContent>
             </Card>
 
             {/* Sistema */}
-            <Card className="border-none shadow-lg rounded-2xl bg-white/70 backdrop-blur-sm">
-                <CardHeader className="bg-white border-b border-slate-100 pb-4">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <Database className="h-5 w-5 text-indigo-500" />
+            <Card className="border border-slate-100 shadow-sm rounded-2xl bg-white overflow-hidden">
+                <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+                    <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                        <Database className="h-5 w-5 text-slate-600" />
                         Sobre o Sistema
                     </CardTitle>
                     <CardDescription>Informações técnicas da instalação atual.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">
-                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {[
                             { label: "Versão", value: "1.0.0" },
                             { label: "Ambiente", value: "Produção" },
                             { label: "Framework", value: "Next.js 16" },
                             { label: "Banco de Dados", value: "PostgreSQL 15" },
                         ].map((item) => (
-                            <div key={item.label} className="p-4 rounded-xl bg-slate-50">
-                                <dt className="text-xs text-slate-500 font-medium uppercase tracking-wide">{item.label}</dt>
-                                <dd className="mt-1 text-sm font-semibold text-slate-800">{item.value}</dd>
+                            <div key={item.label} className="p-4 rounded-xl border border-slate-100 bg-slate-50/50">
+                                <dt className="text-xs text-slate-500 font-bold uppercase tracking-widest">{item.label}</dt>
+                                <dd className="mt-1 text-sm font-bold text-slate-800">{item.value}</dd>
                             </div>
                         ))}
                     </dl>
@@ -187,9 +182,9 @@ export default function SettingsPage() {
                 <Button
                     onClick={handleSave}
                     disabled={saving}
-                    className="rounded-xl bg-indigo-600 hover:bg-indigo-700 shadow-md px-8 py-2 gap-2 transition-all active:scale-95"
+                    className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm px-8 py-6 gap-2 transition-all active:scale-95 border-none"
                 >
-                    {saving ? <RefreshCcw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {saving ? <RefreshCcw className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
                     Salvar Configurações
                 </Button>
             </div>

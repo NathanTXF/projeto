@@ -83,41 +83,36 @@ export default function AuditPage() {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            {/* ── Header Premium com Gradiente ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 shadow-xl shadow-indigo-200/40">
-                <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-                    <div className="absolute -left-6 -bottom-6 h-32 w-32 rounded-full bg-white/5 blur-xl" />
-                    <div className="absolute right-1/3 top-1/2 h-24 w-24 rounded-full bg-indigo-400/20 blur-xl" />
-                </div>
+            {/* ── Enterprise Hero Banner ── */}
+            <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-8 shadow-sm">
                 <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm ring-1 ring-white/20 shadow-inner">
-                            <History className="h-7 w-7 text-white" />
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
+                            <History className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-white">Auditoria do Sistema</h1>
-                            <p className="mt-1 text-blue-100/90 font-medium">Rastreamento completo de atividades e mudanças.</p>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Auditoria do Sistema</h1>
+                            <p className="mt-1 text-blue-100 font-medium">Rastreamento completo de atividades e mudanças.</p>
                         </div>
                     </div>
                     <Button
                         onClick={fetchLogs}
                         variant="outline"
-                        className="gap-2 rounded-xl bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white transition-all font-medium"
+                        className="gap-2 rounded-xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white transition-all font-bold px-6 py-3 h-auto"
                     >
-                        <RefreshCcw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                        <RefreshCcw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
                         Atualizar
                     </Button>
                 </div>
             </div>
 
-            <Card className="border-none shadow-md overflow-hidden rounded-2xl bg-white/70 backdrop-blur-sm">
+            <Card className="border border-slate-100 shadow-sm overflow-hidden rounded-2xl bg-white">
                 <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
                     <div className="flex flex-wrap gap-4 items-center justify-between">
                         <div className="flex gap-4 flex-wrap">
                             <div className="w-48">
                                 <Select value={filters.modulo} onValueChange={(val) => setFilters(f => ({ ...f, modulo: val }))}>
-                                    <SelectTrigger className="rounded-xl">
+                                    <SelectTrigger className="rounded-xl bg-white h-10 font-medium border-slate-200 shadow-sm focus:ring-blue-500">
                                         <SelectValue placeholder="Módulo" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -130,17 +125,17 @@ export default function AuditPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="flex bg-white rounded-xl border border-slate-200 px-3 py-1 items-center gap-2 shadow-sm">
+                            <div className="flex bg-white rounded-xl border border-slate-200 px-3 py-1 items-center gap-2 shadow-sm h-10 focus-within:ring-1 focus-within:ring-blue-500">
                                 <Search className="h-4 w-4 text-slate-400" />
                                 <input
                                     placeholder="Filtrar por Usuário ID..."
-                                    className="border-none focus:outline-none text-sm w-40"
+                                    className="border-none focus:outline-none text-sm w-40 bg-transparent font-medium"
                                     value={filters.usuarioId}
                                     onChange={(e) => setFilters(f => ({ ...f, usuarioId: e.target.value }))}
                                 />
                             </div>
                         </div>
-                        <Button onClick={fetchLogs} className="rounded-xl bg-indigo-600 hover:bg-indigo-700 shadow-md">
+                        <Button onClick={fetchLogs} className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm font-bold px-6 h-10">
                             <Filter className="h-4 w-4 mr-2" />
                             Aplicar Filtros
                         </Button>

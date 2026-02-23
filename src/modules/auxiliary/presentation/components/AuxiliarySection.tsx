@@ -103,14 +103,16 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
     };
 
     return (
-        <div className="space-y-5">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-                <div>
-                    <h3 className="text-xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
-                        <Database className="h-5 w-5 text-emerald-600" />
-                        {title}
-                    </h3>
-                    <p className="text-sm font-medium text-slate-500 mt-1">{description}</p>
+        <div className="flex flex-col h-full space-y-4 p-5">
+            <div className="flex justify-between items-start gap-4">
+                <div className="flex gap-4 items-center">
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                        <Database className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+                    </div>
+                    <div>
+                        <h3 className="text-xs sm:text-sm font-bold tracking-widest text-slate-500 uppercase">{title}</h3>
+                        <p className="text-[10px] sm:text-xs font-medium text-slate-400 mt-0.5 line-clamp-1">{description}</p>
+                    </div>
                 </div>
                 <Button
                     onClick={() => {
@@ -118,14 +120,15 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                         setNome("");
                         setIsDialogOpen(true);
                     }}
-                    className="rounded-xl shadow-md transition-all hover:shadow-lg bg-gradient-to-r from-emerald-500 to-teal-500 border-none text-white font-semibold gap-1.5 hover:scale-[1.02] active:scale-[0.98]"
+                    size="sm"
+                    className="rounded-lg shadow-sm transition-all hover:shadow bg-blue-600 hover:bg-blue-700 text-white font-bold gap-1 active:scale-95 px-2 sm:px-3 h-8 sm:h-9"
                 >
                     <Plus className="h-4 w-4" />
-                    Novo {title.endsWith('s') ? title.slice(0, -1) : title}
+                    <span className="hidden sm:inline">Novo</span>
                 </Button>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="rounded-xl border border-slate-100 bg-white shadow-sm overflow-hidden flex-1 flex flex-col">
                 <Table>
                     <TableHeader className="bg-slate-50/80 border-b border-slate-100">
                         <TableRow className="hover:bg-transparent">

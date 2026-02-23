@@ -94,25 +94,20 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
-            {/* ── Header Premium com Gradiente ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 shadow-xl shadow-indigo-200/40">
-                <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-                    <div className="absolute -left-6 -bottom-6 h-32 w-32 rounded-full bg-white/5 blur-xl" />
-                    <div className="absolute right-1/3 top-1/2 h-24 w-24 rounded-full bg-indigo-400/20 blur-xl" />
-                </div>
+            {/* ── Enterprise Hero Banner ── */}
+            <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-8 shadow-sm">
                 <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm ring-1 ring-white/20 shadow-inner">
-                            <LayoutDashboard className="h-7 w-7 text-white" />
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-inner">
+                            <LayoutDashboard className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-white">Dashboard</h1>
-                            <p className="mt-1 text-blue-100/90 font-medium">Análise de desempenho e métricas operacionais.</p>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Dashboard</h1>
+                            <p className="mt-1 text-blue-100 font-medium">Análise de desempenho e métricas operacionais.</p>
                         </div>
                     </div>
-                    <Badge variant="outline" className="w-fit bg-white/10 backdrop-blur-sm border-white/20 px-3 py-1.5 text-white font-semibold gap-2 shadow-sm rounded-xl">
-                        <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <Badge variant="outline" className="w-fit bg-white/10 border-white/20 px-4 py-2 text-white font-semibold gap-2 rounded-full">
+                        <div className="h-2 w-2 rounded-full bg-emerald-400" />
                         Sistema Ativo
                     </Badge>
                 </div>
@@ -120,20 +115,22 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {dashboardCards.map((stat) => (
-                    <Card key={stat.label} className="border-none shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden bg-white rounded-3xl">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                            <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">
-                                {stat.label}
-                            </CardTitle>
-                            <div className={`p-2 rounded-xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
-                                <stat.icon className="h-5 w-5" />
+                    <Card key={stat.label} className="border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden bg-white rounded-2xl">
+                        <CardHeader className="flex flex-col items-start gap-4 pb-2">
+                            <div className="flex w-full items-center justify-between">
+                                <CardTitle className="text-[11px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                                    {stat.label}
+                                </CardTitle>
+                                <div className={`h-8 w-8 flex items-center justify-center rounded-lg ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
+                                    <stat.icon className="h-4 w-4" />
+                                </div>
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-3xl font-black text-slate-900">{loading ? "..." : stat.value}</span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-3xl font-black text-slate-800 tracking-tight">{loading ? "..." : stat.value}</span>
                                 {stat.growth && (
-                                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full whitespace-nowrap">
                                         +{stat.growth}%
                                     </span>
                                 )}
