@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { HandCoins, FileText, PlusCircle, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { exportToCsv, exportToPdf, ExportColumn } from "@/lib/exportUtils";
 
 export default function LoansPage() {
     const [loans, setLoans] = useState<any[]>([]);
@@ -64,6 +66,21 @@ export default function LoansPage() {
         }
     };
 
+    const exportColumns: ExportColumn<any>[] = [
+        { header: "Cód.", accessor: (l) => l.cod || "-" },
+        { header: "Cliente", accessor: (l) => l.clienteNome || "Desconhecido" },
+        { header: "CPF", accessor: (l) => l.clienteCpf || "-" },
+        { header: "Banco", accessor: (l) => l.bancoNome || "-" },
+        { header: "Produto/Tabela", accessor: (l) => `${l.tipoNome || '-'} - ${l.tabelaNome || '-'}` },
+        { header: "Prazo", accessor: (l) => l.prazo ? `${l.prazo}x` : "-" },
+        { header: "Vl. Parcela", accessor: (l) => `R$ ${Number(l.valorParcela || 0).toFixed(2)}` },
+        { header: "Vl. Bruto", accessor: (l) => `R$ ${Number(l.valorBruto || 0).toFixed(2)}` },
+        { header: "Vl. Líquido", accessor: (l) => `R$ ${Number(l.valorLiquido || 0).toFixed(2)}` },
+        { header: "Vendedor", accessor: (l) => l.vendedorNome || "-" },
+        { header: "Status", accessor: (l) => l.status || "-" },
+        { header: "Registrado em", accessor: (l) => l.dataEmprestimo ? new Date(l.dataEmprestimo).toLocaleDateString('pt-BR') : "-" },
+    ];
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
@@ -81,17 +98,23 @@ export default function LoansPage() {
                         </div>
                     </div>
                     {userLevel !== 3 && (
-                        <Button
-                            onClick={() => {
-                                setSelectedLoan(undefined);
-                                setIsDialogOpen(true);
-                            }}
-                            variant="secondary"
-                            className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all active:scale-95"
-                        >
-                            <PlusCircle className="h-5 w-5" />
-                            Nova Venda
-                        </Button>
+                        <div className="flex gap-3">
+                            <ExportButton
+                                onExportCsv={() => exportToCsv("contratos", exportColumns, loans)}
+                                onExportPdf={() => exportToPdf("Relatório de Contratos", "contratos", exportColumns, loans)}
+                            />
+                            <Button
+                                onClick={() => {
+                                    setSelectedLoan(undefined);
+                                    setIsDialogOpen(true);
+                                }}
+                                variant="secondary"
+                                className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all active:scale-95"
+                            >
+                                <PlusCircle className="h-5 w-5" />
+                                Nova Venda
+                            </Button>
+                        </div>
                     )}
                 </div>
                 {/* Mini stats */}

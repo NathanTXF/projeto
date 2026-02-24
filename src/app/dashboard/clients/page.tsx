@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus, Users, UserCheck, UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { exportToCsv, exportToPdf, ExportColumn } from "@/lib/exportUtils";
 
 export default function ClientsPage() {
     const [customers, setCustomers] = useState<Customer[]>([]);
@@ -64,6 +66,21 @@ export default function ClientsPage() {
         }
     };
 
+    const exportColumns: ExportColumn<Customer>[] = [
+        { header: "Cód.", accessor: (c) => c.cod || "-" },
+        { header: "Nome", accessor: (c) => c.nome },
+        { header: "CPF/CNPJ", accessor: (c) => c.cpfCnpj },
+        { header: "E-mail", accessor: (c) => c.email || "-" },
+        { header: "Celular", accessor: (c) => c.celular },
+        { header: "Gênero", accessor: (c) => c.sexo === 'masculino' ? 'Masculino' : c.sexo === 'feminino' ? 'Feminino' : "-" },
+        { header: "Nascimento", accessor: (c) => c.dataNascimento ? new Date(c.dataNascimento).toLocaleDateString("pt-BR") : "-" },
+        { header: "Localidade", accessor: (c) => `${c.cidade}/${c.estado}` },
+        { header: "Bairro", accessor: (c) => c.bairro || "-" },
+        { header: "Matrícula", accessor: (c) => c.matricula || "-" },
+        { header: "Observação", accessor: (c) => c.observacao ? c.observacao.substring(0, 30) + '...' : "-" },
+        { header: "Cadastrado em", accessor: (c) => c.createdAt ? new Date(c.createdAt).toLocaleDateString("pt-BR") : "-" },
+    ];
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
@@ -84,17 +101,23 @@ export default function ClientsPage() {
                     </div>
 
                     {userLevel !== 3 && (
-                        <Button
-                            onClick={() => {
-                                setSelectedCustomer(undefined);
-                                setIsDialogOpen(true);
-                            }}
-                            variant="secondary"
-                            className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all active:scale-95"
-                        >
-                            <UserPlus className="h-5 w-5" />
-                            Novo Cliente
-                        </Button>
+                        <div className="flex gap-3">
+                            <ExportButton
+                                onExportCsv={() => exportToCsv("clientes", exportColumns, customers)}
+                                onExportPdf={() => exportToPdf("Relatório de Clientes", "clientes", exportColumns, customers)}
+                            />
+                            <Button
+                                onClick={() => {
+                                    setSelectedCustomer(undefined);
+                                    setIsDialogOpen(true);
+                                }}
+                                variant="secondary"
+                                className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all active:scale-95"
+                            >
+                                <UserPlus className="h-5 w-5" />
+                                Novo Cliente
+                            </Button>
+                        </div>
                     )}
                 </div>
 

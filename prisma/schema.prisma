@@ -219,11 +219,12 @@ model Appointment {
 }
 
 model Company {
-  id       Int     @id @default(1)
-  nome     String
-  cnpj     String
-  contato  String
-  endereco String
-  logoUrl  String?
-  metaMensal Decimal @db.Decimal(15, 2) @default(50000)
+  id        Int      @id @default(1)
+  nome      String
+  cnpj      String
+  contato   String?
+  endereco  String?
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

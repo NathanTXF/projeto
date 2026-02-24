@@ -11,6 +11,8 @@ import {
     FileText
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { exportToCsv, exportToPdf, ExportColumn } from "@/lib/exportUtils";
 import { Button } from "@/components/ui/button";
 import {
     Table,
@@ -159,6 +161,16 @@ export default function FinancialPage() {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     };
 
+    const exportColumns: ExportColumn<FinancialTransaction>[] = [
+        { header: "Cód. Fin", accessor: (t) => t.id.substring(0, 8).toUpperCase() },
+        { header: "Beneficiário (Vendedor)", accessor: (t) => t.vendedorNome || "Desconhecido" },
+        { header: "Competência", accessor: (t) => t.mesAno },
+        { header: "Valor do Rateio", accessor: (t) => `R$ ${Number(t.valorTotal || 0).toFixed(2)}` },
+        { header: "Comprovante", accessor: (t) => t.comprovanteUrl ? "Anexado" : "Pendente" },
+        { header: "Status", accessor: (t) => t.status },
+        { header: "Liquidado Em", accessor: (t) => t.pagoEm ? new Date(t.pagoEm).toLocaleDateString("pt-BR") : "-" },
+    ];
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
@@ -173,13 +185,19 @@ export default function FinancialPage() {
                             <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Controle de liquidação de comissões e fluxo de caixa.</p>
                         </div>
                     </div>
-                    <Button
-                        variant="outline"
-                        className="gap-2 rounded-xl bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground transition-all font-bold px-6 py-3 h-auto"
-                    >
-                        <Filter className="h-5 w-5" />
-                        Filtrar Período
-                    </Button>
+                    <div className="flex gap-3">
+                        <ExportButton
+                            onExportCsv={() => exportToCsv("financeiro", exportColumns, transactions)}
+                            onExportPdf={() => exportToPdf("Relatório Financeiro", "financeiro", exportColumns, transactions)}
+                        />
+                        <Button
+                            variant="outline"
+                            className="gap-2 rounded-xl bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground transition-all font-bold px-6 py-3 h-auto"
+                        >
+                            <Filter className="h-5 w-5" />
+                            Filtrar Período
+                        </Button>
+                    </div>
                 </div>
             </div>
 

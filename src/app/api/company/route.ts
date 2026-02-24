@@ -1,36 +1,67 @@
 import { NextResponse } from 'next/server';
-import { PrismaCompanyRepository } from '@/modules/company/infrastructure/repositories';
-import { CompanyUseCases } from '@/modules/company/application/useCases';
-import { getAuthUser } from '@/core/auth/getUser';
-import { CompanySchema } from '@/modules/company/domain/entities';
-import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { getAuthUser } from '@/lib/auth';
+import { PrismaClient } from '@prisma/client';
 
-const repository = new PrismaCompanyRepository();
-const useCases = new CompanyUseCases(repository);
+const prisma = new PrismaClient();
 
 export async function GET() {
     try {
-        const settings = await useCases.getSettings();
-        return NextResponse.json(settings || {});
+        const user = await getAuthUser();
+        if (!user) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        }
+
+        let company = await prisma.company.findFirst({ where: { id: 1 } });
+
+        // Upsert fallback caso ainda não exista no banco
+        if (!company) {
+            company = await prisma.company.create({
+                data: {
+                    id: 1,
+                    nome: "Dinheiro Fácil Ltda",
+                    cnpj: "00.000.000/0001-00",
+                }
+            });
+        }
+
+        return NextResponse.json(company);
     } catch (error: any) {
+        console.error("GET Company Error:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 
-export async function POST(request: Request) {
+export async function PUT(request: Request) {
     try {
-        const currentUser = await getAuthUser();
-        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_SETTINGS)) {
-            return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
+        const user = await getAuthUser();
+        if (!user || user.nivelAcesso !== 1) {
+            return NextResponse.json({ error: 'Acesso negado. Apenas administradores podem editar a empresa.' }, { status: 403 });
         }
 
         const data = await request.json();
-        const validatedData = CompanySchema.partial().parse(data);
 
-        const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
-        const settings = await useCases.updateSettings(validatedData, currentUser.id, ip);
-        return NextResponse.json(settings);
+        const updatedCompany = await prisma.company.upsert({
+            where: { id: 1 },
+            update: {
+                nome: data.nome,
+                cnpj: data.cnpj,
+                contato: data.contato,
+                endereco: data.endereco,
+                logoUrl: data.logoUrl
+            },
+            create: {
+                id: 1,
+                nome: data.nome,
+                cnpj: data.cnpj,
+                contato: data.contato,
+                endereco: data.endereco,
+                logoUrl: data.logoUrl
+            }
+        });
+
+        return NextResponse.json(updatedCompany);
     } catch (error: any) {
+        console.error("PUT Company Error:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

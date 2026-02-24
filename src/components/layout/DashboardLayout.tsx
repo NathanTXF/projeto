@@ -98,17 +98,21 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
                 "fixed inset-y-0 left-0 z-50 w-[260px] bg-sidebar border-r border-sidebar-border flex flex-col h-screen transition-transform duration-300 md:sticky md:top-0 md:translate-x-0 block",
                 isOpen ? "translate-x-0" : "-translate-x-full"
             )}>
-                <div className="h-16 px-6 border-b border-sidebar-border flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-sm overflow-hidden shrink-0">
-                        {company?.logoUrl ? (
-                            <img src={company.logoUrl} alt="Logo" className="h-full w-full object-contain p-1" />
-                        ) : (
-                            <Database className="h-5 w-5" />
-                        )}
-                    </div>
-                    <h1 className="text-lg font-bold text-foreground border-none outline-none truncate flex-1 tracking-tight">
-                        {company?.nome || "Dinheiro Fácil"}
-                    </h1>
+                <div className="h-16 px-6 border-b border-sidebar-border flex items-center gap-3 justify-center">
+                    {company?.logoUrl ? (
+                        <div className="w-full flex items-center justify-center h-full py-2">
+                            <img src={company.logoUrl} alt="Logo da Empresa" className="max-h-full max-w-full object-contain drop-shadow-sm" />
+                        </div>
+                    ) : (
+                        <>
+                            <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-sm overflow-hidden shrink-0">
+                                <Building2 className="h-5 w-5" />
+                            </div>
+                            <h1 className="text-lg font-bold text-foreground border-none outline-none truncate flex-1 tracking-tight">
+                                {company?.nome || "Dinheiro Fácil"}
+                            </h1>
+                        </>
+                    )}
                 </div>
 
                 <nav className="flex-1 p-4 space-y-6 overflow-y-auto overflow-x-hidden stylized-scrollbar">

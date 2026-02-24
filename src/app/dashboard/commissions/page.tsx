@@ -14,6 +14,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Filter, Coins, Users as UsersIcon, Calendar as CalendarIcon, RefreshCcw, CheckCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { exportToCsv, exportToPdf, ExportColumn } from "@/lib/exportUtils";
 
 export default function CommissionsPage() {
     const [commissions, setCommissions] = useState<any[]>([]);
@@ -130,6 +132,18 @@ export default function CommissionsPage() {
     const totalAprovado = commissions.filter(c => c.status === 'APROVADO').reduce((acc, c) => acc + Number(c.valorCalculado), 0);
     const totalPendente = commissions.filter(c => c.status === 'EM_ABERTO').reduce((acc, c) => acc + Number(c.valorCalculado), 0);
 
+    const exportColumns: ExportColumn<any>[] = [
+        { header: "Cód.", accessor: (c) => c.cod || "-" },
+        { header: "Vendedor", accessor: (c) => c.vendedorNome || "-" },
+        { header: "Cliente", accessor: (c) => c.clienteNome || "-" },
+        { header: "Regra Comiss.", accessor: (c) => c.tipoComissao || "-" },
+        { header: "Valor Base (Venda)", accessor: (c) => `R$ ${Number(c.valorBase || 0).toFixed(2)}` },
+        { header: "Comissão Gerada", accessor: (c) => `R$ ${Number(c.valorCalculado || 0).toFixed(2)}` },
+        { header: "Aprovado Em", accessor: (c) => c.aprovadoEm ? new Date(c.aprovadoEm).toLocaleDateString('pt-BR') : "-" },
+        { header: "Criado Em", accessor: (c) => c.createdAt ? new Date(c.createdAt).toLocaleDateString('pt-BR') : "-" },
+        { header: "Status", accessor: (c) => c.status || "-" }
+    ];
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
@@ -146,14 +160,20 @@ export default function CommissionsPage() {
                             </p>
                         </div>
                     </div>
-                    <Button
-                        variant="outline"
-                        onClick={() => { setPeriod("all"); setVendedorId("all"); }}
-                        className="gap-2 rounded-xl bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground transition-all font-bold px-6 py-3 h-auto"
-                    >
-                        <RefreshCcw className="h-5 w-5" />
-                        Limpar Filtros
-                    </Button>
+                    <div className="flex gap-3">
+                        <ExportButton
+                            onExportCsv={() => exportToCsv("comissoes", exportColumns, commissions)}
+                            onExportPdf={() => exportToPdf("Relatório de Comissões", "comissoes", exportColumns, commissions)}
+                        />
+                        <Button
+                            variant="outline"
+                            onClick={() => { setPeriod("all"); setVendedorId("all"); }}
+                            className="gap-2 rounded-xl bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground transition-all font-bold px-6 py-3 h-auto"
+                        >
+                            <RefreshCcw className="h-5 w-5" />
+                            Limpar Filtros
+                        </Button>
+                    </div>
                 </div>
                 {/* Mini stats */}
                 <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
