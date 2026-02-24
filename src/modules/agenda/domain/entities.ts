@@ -10,6 +10,7 @@ export const AppointmentSchema = z.object({
     destinatarioId: z.string().optional().nullable(),
     visibilidade: z.enum(["PRIVADO", "GLOBAL"]).default("PRIVADO"),
     status: z.enum(["PENDENTE", "CONCLUIDO", "CANCELADO"]).default("PENDENTE"),
+    localizacao: z.string().optional().nullable(),
     createdAt: z.date().optional(),
 });
 

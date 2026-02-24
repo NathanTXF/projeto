@@ -46,12 +46,14 @@ interface AuditLog {
 export default function AuditPage() {
     const [logs, setLogs] = useState<AuditLog[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isMounted, setIsMounted] = useState(false);
     const [filters, setFilters] = useState({
         modulo: "all",
         usuarioId: "",
     });
 
     useEffect(() => {
+        setIsMounted(true);
         fetchLogs();
     }, []);
 
@@ -211,7 +213,10 @@ export default function AuditPage() {
 
             <div className="flex justify-end pr-4 text-xs text-slate-400 gap-4">
                 <span className="flex items-center gap-1"><FileCode className="h-3 w-3" /> Registros: {logs.length}</span>
-                <span className="flex items-center gap-1"><History className="h-3 w-3" /> Última atualização: {new Date().toLocaleTimeString()}</span>
+                <span className="flex items-center gap-1">
+                    <History className="h-3 w-3" />
+                    Última atualização: {isMounted ? new Date().toLocaleTimeString() : '--:--:--'}
+                </span>
             </div>
         </div>
     );

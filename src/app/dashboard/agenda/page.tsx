@@ -12,6 +12,7 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
+    DialogFooter,
 } from "@/components/ui/dialog";
 import { AppointmentForm } from "@/modules/agenda/presentation/components/AppointmentForm";
 import { Appointment } from "@/modules/agenda/domain/entities";
@@ -27,25 +28,28 @@ export default function AgendaPage() {
     const [monthlyAppointments, setMonthlyAppointments] = useState<Appointment[]>([]);
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [filterStatus, setFilterStatus] = useState<string>("TODOS");
+    const [filterStatus, setFilterStatus] = useState<"TODOS" | "PENDENTE" | "CONCLUIDO">("TODOS");
 
     // Fetch monthly appointments when the month view changes
     useEffect(() => {
         fetchMonthlyAppointments(month);
     }, [month]);
 
-    const fetchMonthlyAppointments = async (targetMonth: Date) => {
+    const fetchMonthlyAppointments = async (currentDate: Date) => {
         try {
             setLoading(true);
-            const m = targetMonth.getMonth() + 1; // getMonth() returns 0-11
-            const y = targetMonth.getFullYear();
-            const response = await fetch(`/api/agenda?month=${m}&year=${y}`);
-            const data = await response.json();
-            if (data.error) throw new Error(data.error);
-            setMonthlyAppointments(data);
-        } catch (error: any) {
-            toast.error("Erro ao carregar agenda mensal: " + error.message);
+            const monthNum = currentDate.getMonth() + 1;
+            const yearNum = currentDate.getFullYear();
+            const response = await fetch(`/api/agenda?month=${monthNum}&year=${yearNum}`);
+            if (response.ok) {
+                const data = await response.json();
+                setMonthlyAppointments(data);
+            }
+        } catch (error) {
+            toast.error("Não foi possível carregar os compromissos.");
         } finally {
             setLoading(false);
         }
@@ -110,16 +114,31 @@ export default function AgendaPage() {
 
     const handleDelete = async (id: string | undefined) => {
         if (!id) return;
-        if (!confirm("Remover este compromisso?")) return;
+        setAppointmentToDelete(id);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!appointmentToDelete) return;
+        const id = appointmentToDelete;
+
+        // OPTIMISTIC UPDATE
+        const originalAppointments = [...monthlyAppointments];
+        setMonthlyAppointments(prev => prev.filter(apt => apt.id !== id));
+        setIsDeleteDialogOpen(false);
 
         try {
             const response = await fetch(`/api/agenda/${id}`, { method: 'DELETE' });
             if (response.ok) {
                 toast.success("Compromisso removido.");
-                fetchMonthlyAppointments(month);
+            } else {
+                throw new Error();
             }
         } catch (error: any) {
+            setMonthlyAppointments(originalAppointments);
             toast.error("Erro ao remover.");
+        } finally {
+            setAppointmentToDelete(null);
         }
     };
 
@@ -237,22 +256,18 @@ export default function AgendaPage() {
                                 </div>
 
                                 <div className="flex items-center gap-1">
-                                    {[
-                                        { id: "TODOS", label: "Tudo" },
-                                        { id: "PENDENTE", label: "Pendente" },
-                                        { id: "CONCLUIDO", label: "Feito" }
-                                    ].map((f) => (
+                                    {(["TODOS", "PENDENTE", "CONCLUIDO"] as const).map((id) => (
                                         <Button
-                                            key={f.id}
-                                            variant={filterStatus === f.id ? "default" : "ghost"}
+                                            key={id}
+                                            variant={filterStatus === id ? "default" : "ghost"}
                                             size="sm"
-                                            onClick={() => setFilterStatus(f.id)}
+                                            onClick={() => setFilterStatus(id)}
                                             className={cn(
                                                 "rounded-2xl h-8 px-4 font-bold text-[10px] uppercase tracking-wider transition-all",
-                                                filterStatus === f.id ? "bg-white text-primary shadow-sm hover:bg-white border border-slate-100" : "text-slate-500 hover:bg-slate-200/50"
+                                                filterStatus === id ? "bg-white text-primary shadow-sm hover:bg-white border border-slate-100" : "text-slate-500 hover:bg-slate-200/50"
                                             )}
                                         >
-                                            {f.label}
+                                            {id === "TODOS" ? "Tudo" : id === "PENDENTE" ? "Pendente" : "Feito"}
                                         </Button>
                                     ))}
                                 </div>
@@ -261,42 +276,40 @@ export default function AgendaPage() {
                     </CardHeader>
                     <CardContent className="p-0">
                         {loading ? (
-                            <div className="h-96 flex flex-col items-center justify-center gap-3 text-slate-400">
-                                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                                <span className="font-bold text-sm">Carregando sua agenda...</span>
+                            <div className="flex h-64 items-center justify-center">
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                                    <span className="text-xs font-bold text-slate-500 animate-pulse">CARREGANDO...</span>
+                                </div>
                             </div>
                         ) : filteredAppointments.length === 0 ? (
-                            <div className="h-96 flex flex-col items-center justify-center gap-6 text-slate-400">
-                                <div className="h-24 w-24 bg-gradient-to-br from-slate-50 to-white rounded-3xl flex items-center justify-center shadow-inner border border-slate-50 animate-pulse">
-                                    <CalendarIcon className="h-12 w-12 opacity-10" />
+                            <div className="flex flex-col items-center justify-center h-full py-20 bg-slate-50/30">
+                                <div className="h-20 w-20 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 mb-6 group-hover:scale-110 transition-transform duration-500">
+                                    <CalendarIcon className="h-10 w-10 text-slate-200" />
                                 </div>
-                                <div className="text-center">
-                                    <h3 className="font-black text-slate-800 text-lg">Folga Merecida!</h3>
-                                    <p className="text-sm font-medium text-slate-500 mt-1 max-w-[200px] mx-auto">Tudo limpo para este dia. Que tal adiantar as tarefas de amanhã?</p>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="mt-6 rounded-xl font-black text-[10px] uppercase tracking-widest border-2"
-                                        onClick={() => setIsDialogOpen(true)}
-                                    >
-                                        Criar Agenda
-                                    </Button>
-                                </div>
+                                <h3 className="text-xl font-black text-slate-800 mb-2">Folga Merecida!</h3>
+                                <p className="text-sm text-slate-500 font-bold max-w-[240px] text-center leading-relaxed">
+                                    Tudo limpo para este dia. Que tal adiantar as tarefas de amanhã?
+                                </p>
+                                <Button
+                                    variant="outline"
+                                    className="mt-8 rounded-2xl border-slate-200 font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm"
+                                    onClick={() => setIsDialogOpen(true)}
+                                >
+                                    CRIAR AGENDA
+                                </Button>
                             </div>
                         ) : (
                             <div className="divide-y divide-slate-100">
                                 {filteredAppointments.map((apt) => (
-                                    <div key={apt.id} className={cn(
-                                        "p-6 hover:bg-slate-50/50 transition-all flex justify-between items-center group relative",
-                                        apt.status === "CONCLUIDO" && "opacity-60"
-                                    )}>
-                                        <div className="flex gap-6 items-center">
+                                    <div key={apt.id} className="group flex items-center justify-between p-6 hover:bg-slate-50/80 transition-all border-l-4 border-transparent hover:border-primary">
+                                        <div className="flex items-center gap-6">
                                             <button
-                                                onClick={() => toggleStatus(apt.id!, apt.status!)}
+                                                onClick={() => toggleStatus(apt.id!, apt.status)}
                                                 className={cn(
-                                                    "h-12 w-12 rounded-2xl flex items-center justify-center transition-all shadow-sm border",
+                                                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 transition-all shadow-sm",
                                                     apt.status === "CONCLUIDO"
-                                                        ? "bg-emerald-500 border-emerald-500 text-white"
+                                                        ? "bg-primary/10 border-primary text-primary scale-95"
                                                         : "bg-white border-slate-200 text-slate-300 hover:border-primary hover:text-primary"
                                                 )}
                                             >
@@ -341,8 +354,15 @@ export default function AgendaPage() {
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-10 w-10 rounded-xl text-slate-400 hover:text-destructive hover:bg-destructive/5"
+                                                className={cn(
+                                                    "h-10 w-10 rounded-xl transition-all",
+                                                    apt.status === "CONCLUIDO"
+                                                        ? "text-slate-300 cursor-not-allowed cursor-not-allowed opacity-50"
+                                                        : "text-slate-400 hover:text-destructive hover:bg-destructive/5"
+                                                )}
                                                 onClick={() => handleDelete(apt.id)}
+                                                disabled={apt.status === "CONCLUIDO"}
+                                                title={apt.status === "CONCLUIDO" ? "Desmarque a conclusão para excluir" : "Excluir compromisso"}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
@@ -381,6 +401,25 @@ export default function AgendaPage() {
                             isLoading={isSubmitting}
                         />
                     </div>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent className="max-w-[400px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                    <DialogHeader className="bg-red-600">
+                        <DialogTitle>Remover Compromisso</DialogTitle>
+                        <DialogDescription className="text-white/80">
+                            Esta ação não pode ser desfeita. O compromisso será removido permanentemente.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="bg-white">
+                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="rounded-xl border-slate-200 font-bold">
+                            Cancelar
+                        </Button>
+                        <Button variant="destructive" onClick={confirmDelete} className="rounded-xl font-bold bg-red-600 hover:bg-red-700 shadow-sm shadow-red-200/50">
+                            Confirmar Exclusão
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>

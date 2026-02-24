@@ -3,6 +3,7 @@ import { PrismaAppointmentRepository } from '@/modules/agenda/infrastructure/rep
 import { AgendaUseCases } from '@/modules/agenda/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 import { AppointmentSchema } from '@/modules/agenda/domain/entities';
+import { logAudit } from '@/core/audit/logger';
 
 const repository = new PrismaAppointmentRepository();
 const useCases = new AgendaUseCases(repository);
@@ -59,6 +60,14 @@ export async function POST(request: Request) {
         });
 
         const appointment = await useCases.scheduleAppointment(validatedData as any);
+
+        await logAudit({
+            usuarioId: currentUser.id,
+            modulo: 'AGENDA',
+            acao: 'ADICIONAR COMPROMISSO',
+            entidadeId: appointment.id
+        });
+
         return NextResponse.json(appointment);
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });

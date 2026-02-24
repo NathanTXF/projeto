@@ -47,6 +47,8 @@ export default function ProfilePage() {
     const [newPassword, setNewPassword] = useState("");
     const [isPhotoDialogOpen, setIsPhotoDialogOpen] = useState(false);
     const [tempPhotoUrl, setTempPhotoUrl] = useState("");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         fetchProfile();
@@ -107,26 +109,59 @@ export default function ProfilePage() {
         }
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setTempPhotoUrl(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleUpdatePhoto = async () => {
-        if (!profile) return;
+        if (!selectedFile) {
+            toast.error("Por favor, selecione uma imagem.");
+            return;
+        }
+
         try {
-            setSaving(true);
+            setUploading(true);
+
+            // 1. Upload the file
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            const uploadResponse = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const uploadData = await uploadResponse.json();
+            if (uploadData.error) throw new Error(uploadData.error);
+
+            const finalPhotoUrl = uploadData.url;
+
+            // 2. Update profile with the local URL
             const response = await fetch('/api/profile', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fotoUrl: tempPhotoUrl })
+                body: JSON.stringify({ fotoUrl: finalPhotoUrl })
             });
 
             const data = await response.json();
             if (data.error) throw new Error(data.error);
 
-            setProfile(p => p ? ({ ...p, fotoUrl: tempPhotoUrl }) : null);
+            setProfile(p => p ? ({ ...p, fotoUrl: finalPhotoUrl }) : null);
             toast.success("Foto de perfil atualizada!");
             setIsPhotoDialogOpen(false);
+            setSelectedFile(null);
         } catch (error: any) {
             toast.error("Erro ao atualizar foto: " + error.message);
         } finally {
-            setSaving(false);
+            setUploading(false);
         }
     };
 
@@ -339,33 +374,37 @@ export default function ProfilePage() {
                             <div>
                                 <DialogTitle className="text-lg font-bold">Alterar Foto de Perfil</DialogTitle>
                                 <DialogDescription className="text-primary-foreground/80 text-xs">
-                                    Insira a URL da sua nova imagem de perfil.
+                                    Selecione uma imagem do seu computador.
                                 </DialogDescription>
                             </div>
                         </div>
                     </DialogHeader>
 
                     <div className="p-6 space-y-6">
-                        <div className="flex flex-col items-center gap-4 py-6 border-2 border-dashed border-border rounded-2xl bg-muted/30">
-                            <div className="h-24 w-24 rounded-full bg-card border border-border flex items-center justify-center overflow-hidden shadow-sm">
+                        <div
+                            className="flex flex-col items-center gap-4 py-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 hover:bg-slate-50 hover:border-primary/50 transition-all cursor-pointer relative"
+                            onClick={() => document.getElementById('photo-upload')?.click()}
+                        >
+                            <input
+                                id="photo-upload"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleFileChange}
+                            />
+
+                            <div className="h-28 w-28 rounded-full bg-white border-4 border-white shadow-md flex items-center justify-center overflow-hidden">
                                 {tempPhotoUrl ? (
                                     <img src={tempPhotoUrl} alt="Preview" className="h-full w-full object-cover" />
                                 ) : (
-                                    <UserCircle className="h-12 w-12 text-muted-foreground/30" />
+                                    <UserCircle className="h-14 w-14 text-slate-200" />
                                 )}
                             </div>
-                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">Pré-visualização</p>
-                        </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="photoUrl" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">URL da Imagem</Label>
-                            <Input
-                                id="photoUrl"
-                                placeholder="https://exemplo.com/sua-foto.jpg"
-                                value={tempPhotoUrl}
-                                onChange={(e) => setTempPhotoUrl(e.target.value)}
-                                className="rounded-xl border-border focus:ring-primary h-12"
-                            />
+                            <div className="text-center">
+                                <p className="text-sm font-bold text-slate-700">Clique para selecionar</p>
+                                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest mt-1">PNG, JPG ou WEBP (Max. 2MB)</p>
+                            </div>
                         </div>
                     </div>
 
@@ -373,16 +412,16 @@ export default function ProfilePage() {
                         <Button
                             variant="outline"
                             onClick={() => setIsPhotoDialogOpen(false)}
-                            className="rounded-xl font-bold px-6 border-border"
+                            className="rounded-xl font-bold px-6 border-slate-200"
                         >
                             Cancelar
                         </Button>
                         <Button
                             onClick={handleUpdatePhoto}
-                            disabled={saving}
-                            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 shadow-sm"
+                            disabled={uploading || !selectedFile}
+                            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 shadow-sm flex items-center gap-2"
                         >
-                            {saving && <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />}
+                            {uploading ? <RefreshCcw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                             Confirmar Alteração
                         </Button>
                     </DialogFooter>

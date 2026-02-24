@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { PrismaAppointmentRepository } from '@/modules/agenda/infrastructure/repositories';
 import { AgendaUseCases } from '@/modules/agenda/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
+import { logAudit } from '@/core/audit/logger';
 
 const repository = new PrismaAppointmentRepository();
 const useCases = new AgendaUseCases(repository);
@@ -27,6 +28,17 @@ export async function PATCH(
         }
 
         const updated = await repository.update(id, data);
+
+        // Auditoria de alteração de status
+        if (data.status) {
+            await logAudit({
+                usuarioId: currentUser.id,
+                modulo: 'AGENDA',
+                acao: `ALTERAR STATUS: ${data.status}`,
+                entidadeId: id
+            });
+        }
+
         return NextResponse.json(updated);
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -50,7 +62,22 @@ export async function DELETE(
             return NextResponse.json({ error: 'Sem permissão para remover este compromisso' }, { status: 403 });
         }
 
-        await useCases.cancelAppointment(id); // Assume cancelAppointment calls delete or updates status
+        // BLOQUEIO: Não permitir excluir se estiver CONCLUIDO
+        if (appointment.status === 'CONCLUIDO') {
+            return NextResponse.json({
+                error: 'Não é possível excluir um compromisso concluído. Desmarque a conclusão primeiro.'
+            }, { status: 403 });
+        }
+
+        await useCases.cancelAppointment(id);
+
+        await logAudit({
+            usuarioId: currentUser.id,
+            modulo: 'AGENDA',
+            acao: 'REMOVER COMPROMISSO',
+            entidadeId: id
+        });
+
         return NextResponse.json({ success: true });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
