@@ -224,6 +224,7 @@ model Company {
   cnpj      String
   contato   String?
   endereco  String?
+  cidade    String?
   logoUrl   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

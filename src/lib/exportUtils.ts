@@ -70,7 +70,9 @@ export async function exportToPdf<T>(title: string, filename: string, columns: E
                     const infoLines = [];
                     if (company.cnpj) infoLines.push(`CNPJ: ${company.cnpj}`);
                     if (company.contato) infoLines.push(`Contato: ${company.contato}`);
-                    if (company.endereco) infoLines.push(`${company.endereco}`);
+
+                    const addressLine = [company.endereco, company.cidade].filter(Boolean).join(' - ');
+                    if (addressLine) infoLines.push(addressLine);
 
                     let currY = 21;
                     infoLines.forEach(line => {

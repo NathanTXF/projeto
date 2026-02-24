@@ -21,6 +21,7 @@ export default function CompanyPage() {
         cnpj: "",
         contato: "",
         endereco: "",
+        cidade: "",
         logoUrl: "",
     });
 
@@ -48,6 +49,7 @@ export default function CompanyPage() {
                     cnpj: data.cnpj || "",
                     contato: data.contato || "",
                     endereco: data.endereco || "",
+                    cidade: data.cidade || "",
                     logoUrl: data.logoUrl || "",
                 });
             }
@@ -109,14 +111,16 @@ export default function CompanyPage() {
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
             {/* Banner */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
                 <div className="relative flex items-center gap-4">
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
-                        <Building2 className="h-8 w-8 text-white" />
+                        <Building2 className="h-8 w-8 text-primary-foreground" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-white leading-tight">Empresa (White Label)</h1>
-                        <p className="mt-1 text-slate-300 font-medium text-sm">Configure a identidade visual e dados oficiais que sairão nos relatórios.</p>
+                        <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">
+                            {form.nome ? form.nome : "Configurações da Empresa"}
+                        </h1>
+                        <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Configure a identidade visual e dados oficiais que sairão nos relatórios.</p>
                     </div>
                 </div>
             </div>
@@ -201,6 +205,17 @@ export default function CompanyPage() {
                                 onChange={(e) => setForm({ ...form, endereco: e.target.value })}
                                 className="bg-slate-50 h-12 rounded-xl"
                                 placeholder="Rua das Finanças, 100 - Centro"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-slate-600 font-bold flex items-center gap-2">
+                                <MapPin className="h-4 w-4 text-slate-400" /> Cidade
+                            </Label>
+                            <Input
+                                value={form.cidade}
+                                onChange={(e) => setForm({ ...form, cidade: e.target.value })}
+                                className="bg-slate-50 h-12 rounded-xl"
+                                placeholder="Sua Cidade - UF"
                             />
                         </div>
                     </div>

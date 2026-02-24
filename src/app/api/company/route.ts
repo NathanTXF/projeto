@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getAuthUser } from '@/lib/auth';
+import { getAuthUser } from '@/core/auth/getUser';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
+// Force Next.js to reload Prisma schema
 
 export async function GET() {
     try {
@@ -47,6 +48,7 @@ export async function PUT(request: Request) {
                 cnpj: data.cnpj,
                 contato: data.contato,
                 endereco: data.endereco,
+                cidade: data.cidade,
                 logoUrl: data.logoUrl
             },
             create: {
@@ -55,6 +57,7 @@ export async function PUT(request: Request) {
                 cnpj: data.cnpj,
                 contato: data.contato,
                 endereco: data.endereco,
+                cidade: data.cidade,
                 logoUrl: data.logoUrl
             }
         });

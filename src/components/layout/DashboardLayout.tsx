@@ -31,7 +31,8 @@ const menuGroups = [
         label: "Home",
         items: [
             { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", permission: 'view_dashboard' },
-            { icon: TrendingUp, label: "Visão Geral (Gestor)", href: "/dashboard/overview", permission: 'view_dashboard' }
+            { icon: TrendingUp, label: "Visão Geral (Gestor)", href: "/dashboard/overview", permission: 'view_dashboard' },
+            { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", permission: 'view_agenda' }
         ]
     },
     {
@@ -40,15 +41,15 @@ const menuGroups = [
             { icon: Users, label: "Clientes", href: "/dashboard/clients", permission: 'view_clients' },
             { icon: HandCoins, label: "Empréstimos", href: "/dashboard/loans", permission: 'view_loans' },
             { icon: FileText, label: "Comissões", href: "/dashboard/commissions", permission: 'view_commissions' },
+            { icon: Database, label: "Cadastros Auxiliares", href: "/dashboard/auxiliary", permission: 'manage_auxiliary' },
+            { icon: FileText, label: "Financeiro", href: "/dashboard/financial", permission: 'view_financial' },
         ]
     },
     {
         label: "Administração",
         roleBased: true, // Marker to indicate careful permission checks
         items: [
-            { icon: Database, label: "Cadastros Auxiliares", href: "/dashboard/auxiliary", permission: 'manage_auxiliary' },
-            { icon: FileText, label: "Financeiro", href: "/dashboard/financial", permission: 'view_financial' },
-            { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", permission: 'view_agenda' },
+            { icon: Building2, label: "Empresa", href: "/dashboard/company", permission: 'manage_settings' },
             { icon: Users, label: "Acessos (Usuários)", href: "/dashboard/users", permission: 'manage_users' },
             { icon: ShieldAlert, label: "Perfis de Acesso", href: "/dashboard/roles", permission: 'manage_roles' },
             { icon: Target, label: "Gestão de Metas", href: "/dashboard/admin/goals", permission: 'manage_settings' },
