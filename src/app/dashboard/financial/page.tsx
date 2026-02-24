@@ -351,7 +351,7 @@ export default function FinancialPage() {
                                             <FormControl>
                                                 <div className="relative">
                                                     <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                    <Input type="date" {...field} className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:bg-white transition-colors" />
+                                                    <Input type="date" {...field} className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors" />
                                                 </div>
                                             </FormControl>
                                             <FormMessage className="text-xs" />
@@ -371,7 +371,7 @@ export default function FinancialPage() {
                                                     <Input
                                                         type="file"
                                                         accept="application/pdf,image/*"
-                                                        className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:bg-white transition-colors file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                                                        className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                                                         onChange={(event) => onChange(event.target.files)}
                                                         {...fieldProps}
                                                     />

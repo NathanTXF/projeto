@@ -119,8 +119,8 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                 {/* ── Seção: Dados Pessoais ── */}
                 <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50">
-                            <UserCircle className="h-4 w-4 text-indigo-600" />
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                            <UserCircle className="h-4 w-4 text-primary" />
                         </div>
                         <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
                             Dados Pessoais
@@ -141,7 +141,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 placeholder="Ex: João da Silva"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                                 {...field}
                                             />
                                         </div>
@@ -164,7 +164,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 placeholder="000.000.000-00"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
                                                 {...field}
                                             />
                                         </div>
@@ -187,7 +187,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 placeholder="123456"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
                                                 {...field}
                                             />
                                         </div>
@@ -210,7 +210,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 type="date"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                                 {...field}
                                                 value={
                                                     field.value instanceof Date
@@ -242,7 +242,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                     </FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
-                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-primary focus:bg-white transition-colors">
                                                 <SelectValue placeholder="Selecione" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -294,7 +294,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <Input
                                                 placeholder="joao@exemplo.com"
                                                 type="email"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                                 {...field}
                                             />
                                         </div>
@@ -317,7 +317,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 placeholder="(00) 00000-0000"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                                 {...field}
                                             />
                                         </div>
@@ -353,7 +353,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                         <Input
                                             placeholder="Rua Exemplo, 123"
-                                            className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                            className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                             {...field}
                                         />
                                     </div>
@@ -375,7 +375,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                     <FormControl>
                                         <Input
                                             placeholder="São Paulo"
-                                            className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                            className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                             {...field}
                                         />
                                     </FormControl>
@@ -394,7 +394,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                     <FormControl>
                                         <Input
                                             placeholder="Centro"
-                                            className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                            className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                             {...field}
                                         />
                                     </FormControl>
@@ -414,7 +414,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                         <Input
                                             placeholder="SP"
                                             maxLength={2}
-                                            className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors uppercase"
+                                            className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors uppercase"
                                             {...field}
                                         />
                                     </FormControl>
@@ -450,7 +450,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 placeholder="Armazene a senha do cliente"
-                                                className="pl-10 pr-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                className="pl-10 pr-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                                 type={showPassword ? "text" : "password"}
                                                 {...field}
                                             />
@@ -490,7 +490,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                                             <Textarea
                                                 placeholder="Informações adicionais sobre o cliente..."
-                                                className="pl-10 min-h-[80px] resize-none rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                className="pl-10 min-h-[80px] resize-none rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                                 {...field}
                                             />
                                         </div>

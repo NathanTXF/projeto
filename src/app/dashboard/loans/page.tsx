@@ -118,7 +118,7 @@ export default function LoansPage() {
                     )}
                 </div>
                 {/* Mini stats */}
-                <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-3 gap-6">
                     <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
                         <FileText className="h-6 w-6 text-primary-foreground/60" />
                         <div>

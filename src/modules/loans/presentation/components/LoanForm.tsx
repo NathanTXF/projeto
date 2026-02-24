@@ -214,7 +214,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
     if (loadingData) {
         return (
             <div className="flex items-center justify-center p-12">
-                <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
@@ -225,8 +225,8 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                 {/* ── Seção: Cliente & Data ── */}
                 <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50">
-                            <User className="h-4 w-4 text-indigo-600" />
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                            <User className="h-4 w-4 text-primary" />
                         </div>
                         <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
                             Cliente & Data
@@ -247,7 +247,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 placeholder="Buscar por nome ou CPF..."
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                                 value={clientSearch}
                                                 onChange={(e) => {
                                                     setClientSearch(e.target.value);
@@ -305,7 +305,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 type="date"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                                 {...field}
                                                 value={field.value instanceof Date
                                                     ? field.value.toISOString().split('T')[0]
@@ -486,7 +486,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                         <div className="relative">
                                             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
                                                 placeholder="R$ 0,00"
                                                 value={formatBRL(field.value || 0)}
                                                 onChange={e => handleCurrencyChange(e, field.onChange)}
@@ -509,7 +509,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                         <div className="relative">
                                             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
                                                 placeholder="R$ 0,00"
                                                 value={formatBRL(field.value || 0)}
                                                 onChange={e => handleCurrencyChange(e, field.onChange)}
@@ -532,7 +532,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                         <div className="relative">
                                             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
                                                 placeholder="R$ 0,00"
                                                 value={formatBRL(field.value || 0)}
                                                 onChange={e => handleCurrencyChange(e, field.onChange)}
@@ -558,7 +558,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                         <div className="relative">
                                             <Timer className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors font-mono"
+                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
                                                 type="number"
                                                 {...field}
                                                 onChange={e => field.onChange(Number(e.target.value))}

@@ -247,7 +247,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                             <Menu className="h-6 w-6" />
                         </Button>
                         <div className="hidden md:flex items-center font-semibold text-sm truncate gap-2">
-                            <Link href="/dashboard" className="text-slate-400 hover:text-blue-600 transition-colors">Dashboard</Link>
+                            <Link href="/dashboard" className="text-slate-400 hover:text-primary transition-colors">Dashboard</Link>
                             {pathname !== '/dashboard' && (
                                 <>
                                     <span className="text-slate-300">/</span>
@@ -263,7 +263,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                     <div className="relative ml-auto flex items-center gap-1 sm:gap-3 shrink-0">
 
                         {/* Notification Bell */}
-                        <button className="h-9 w-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-blue-600 transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-offset-1">
+                        <button className="h-9 w-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-primary transition-colors focus:ring-2 focus:ring-primary/50 focus:outline-none focus:ring-offset-1">
                             <Bell className="h-5 w-5" />
                         </button>
 
@@ -284,7 +284,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                                 <span className="text-sm font-bold text-slate-700 leading-none truncate w-full">
                                     {userName.split(' ')[0]}
                                 </span>
-                                <span className="text-[10px] font-semibold text-indigo-600 uppercase tracking-wider leading-none">
+                                <span className="text-[10px] font-semibold text-primary uppercase tracking-wider leading-none">
                                     {userLevel === 1 ? 'Admin' : 'Usuário'}
                                 </span>
                             </div>
@@ -306,8 +306,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
                                     {/* Action Links */}
                                     <div className="py-1 px-2 space-y-1">
-                                        <Link href="/dashboard/profile" onClick={() => setIsProfileOpen(false)} className="flex items-center px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 transition-colors w-full cursor-pointer">
-                                            <UserCircle className="mr-3 h-4 w-4 text-indigo-500" />
+                                        <Link href="/dashboard/profile" onClick={() => setIsProfileOpen(false)} className="flex items-center px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors w-full cursor-pointer">
+                                            <UserCircle className="mr-3 h-4 w-4 text-primary" />
                                             Meu Perfil
                                         </Link>
                                     </div>
