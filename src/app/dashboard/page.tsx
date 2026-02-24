@@ -169,9 +169,9 @@ export default function DashboardPage() {
             {/* ── Quick Actions Grid (The Hub) ── */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
-                    { label: "Novo Cliente", icon: Plus, href: "/dashboard/clients", color: "text-sidebar-foreground", bg: "bg-sidebar/10" },
-                    { label: "Novo Contrato", icon: FileText, href: "/dashboard/loans", color: "text-sidebar-foreground", bg: "bg-sidebar/5" },
-                    { label: "Comissões", icon: PieChart, href: "/dashboard/commissions", color: "text-primary", bg: "bg-primary/10" },
+                    { label: "Novo Cliente", icon: Plus, href: "/dashboard/clients", color: "text-sidebar", bg: "bg-sidebar/10" },
+                    { label: "Novo Contrato", icon: FileText, href: "/dashboard/loans", color: "text-sidebar", bg: "bg-sidebar/10" },
+                    { label: "Comissões", icon: PieChart, href: "/dashboard/commissions", color: "text-emerald-600", bg: "bg-emerald-50" },
                     { label: "Financeiro", icon: Wallet, href: "/dashboard/financial", color: "text-amber-600", bg: "bg-amber-50" },
                 ].map((action) => (
                     <Link key={action.label} href={action.href}>
@@ -197,7 +197,7 @@ export default function DashboardPage() {
                     <Card className="border-none shadow-xl rounded-[2rem] bg-sidebar p-1">
                         <div className="bg-white rounded-[1.9rem] p-6 h-full">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="h-10 w-10 bg-sidebar/10 rounded-xl flex items-center justify-center text-sidebar-foreground">
+                                <div className="h-10 w-10 bg-sidebar/10 rounded-xl flex items-center justify-center text-sidebar">
                                     <Shield className="h-5 w-5" />
                                 </div>
                                 <Badge className="bg-sidebar/10 text-sidebar-foreground border-none">Gestão Global</Badge>
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                     <Card className="border-none shadow-xl rounded-[2rem] bg-gradient-to-br from-primary to-primary/80 p-1">
                         <div className="bg-white rounded-[1.9rem] p-6 h-full">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                                <div className="h-10 w-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
                                     <DollarSign className="h-5 w-5" />
                                 </div>
                                 <Badge className="bg-primary/20 text-primary border-none">Fluxo de Caixa</Badge>
@@ -261,10 +261,10 @@ export default function DashboardPage() {
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
-                        { label: "Digitação", count: pipeline?.digitacao || 0, icon: ClipboardCheck, color: "text-sidebar-foreground", bg: "bg-sidebar/10" },
-                        { label: "Em Análise", count: pipeline?.analise || 0, icon: Search, color: "text-amber-500", bg: "bg-amber-500/10" },
-                        { label: "Averbação", count: pipeline?.averbacao || 0, icon: Clock, color: "text-sidebar-foreground/80", bg: "bg-sidebar/10" },
-                        { label: "Contratos Pagos", count: pipeline?.pagos || 0, icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10" }
+                        { label: "Digitação", count: pipeline?.digitacao || 0, icon: ClipboardCheck, color: "text-sidebar", bg: "bg-sidebar/10" },
+                        { label: "Em Análise", count: pipeline?.analise || 0, icon: Search, color: "text-amber-600", bg: "bg-amber-50" },
+                        { label: "Averbação", count: pipeline?.averbacao || 0, icon: Clock, color: "text-slate-600", bg: "bg-slate-100" },
+                        { label: "Contratos Pagos", count: pipeline?.pagos || 0, icon: CheckCircle2, color: "text-emerald-700", bg: "bg-emerald-50" }
                     ].map((step) => (
                         <Card key={step.label} className="border-none shadow-xl hover:shadow-2xl transition-all group rounded-3xl p-6">
                             <div className="flex items-center justify-between mb-4">

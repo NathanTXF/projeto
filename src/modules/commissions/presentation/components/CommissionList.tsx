@@ -23,10 +23,10 @@ interface CommissionListProps {
 }
 
 const statusColors: Record<string, string> = {
-    EM_ABERTO: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    APROVADO: "bg-emerald-100 text-emerald-800 border-emerald-200",
-    CANCELADO: "bg-red-100 text-red-800 border-red-200",
-    PENDENTE_GERACAO: "bg-blue-100 text-blue-800 border-blue-200",
+    EM_ABERTO: "bg-amber-100/50 text-amber-700 border-amber-200",
+    APROVADO: "bg-emerald-100/50 text-emerald-700 border-emerald-200",
+    CANCELADO: "bg-rose-100/50 text-rose-700 border-rose-200",
+    PENDENTE_GERACAO: "bg-blue-100/50 text-blue-700 border-blue-200",
 };
 
 export function CommissionList({ commissions, onApprove, onCancel }: CommissionListProps) {
@@ -45,16 +45,16 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
     return (
         <div className="rounded-xl border border-slate-100 bg-white overflow-hidden shadow-sm">
             <Table>
-                <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold border-b-none">
-                    <TableRow>
-                        <TableHead className="font-semibold text-sidebar-foreground">Vendedor</TableHead>
-                        <TableHead className="font-semibold text-sidebar-foreground">Contrato</TableHead>
-                        <TableHead className="font-semibold text-sidebar-foreground">Cliente</TableHead>
-                        <TableHead className="font-semibold text-sidebar-foreground text-center">Referência</TableHead>
-                        <TableHead className="font-semibold text-sidebar-foreground">Tipo</TableHead>
-                        <TableHead className="font-semibold text-sidebar-foreground">Valor Comissão</TableHead>
-                        <TableHead className="font-semibold text-sidebar-foreground">Status</TableHead>
-                        <TableHead className="text-right font-semibold text-sidebar-foreground">Ações</TableHead>
+                <TableHeader className="bg-slate-50 border-b border-slate-200">
+                    <TableRow className="hover:bg-transparent border-none">
+                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Vendedor</TableHead>
+                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Contrato</TableHead>
+                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Cliente</TableHead>
+                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider text-center">Referência</TableHead>
+                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Tipo</TableHead>
+                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Valor Comissão</TableHead>
+                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Status</TableHead>
+                        <TableHead className="text-right font-bold text-slate-500 text-[11px] uppercase tracking-wider">Ações</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -87,12 +87,12 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
                                         {isPending ? (
                                             <Input
                                                 type="number"
-                                                className="h-8 w-20 mx-auto text-center font-bold"
+                                                className="h-9 w-24 mx-auto text-center font-bold rounded-lg border-slate-200 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
                                                 value={currentData.referencia}
                                                 onChange={(e) => handleDataChange(c.id, 'referencia', Number(e.target.value))}
                                             />
                                         ) : (
-                                            <span className="font-bold text-slate-600">
+                                            <span className="font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-md text-xs">
                                                 {c.tipoComissao === 'PORCENTAGEM' ? `${c.valorReferencia}%` : `R$ ${c.valorReferencia}`}
                                             </span>
                                         )}

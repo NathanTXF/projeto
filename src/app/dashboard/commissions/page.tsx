@@ -24,6 +24,26 @@ export default function CommissionsPage() {
     const [period, setPeriod] = useState<string>("all");
     const [vendedorId, setVendedorId] = useState<string>("all");
 
+    // Dynamic Periods Generation
+    const getRecentPeriods = () => {
+        const periods = [];
+        const date = new Date();
+        const formatter = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' });
+
+        for (let i = 0; i < 12; i++) {
+            const label = formatter.format(date);
+            const value = `${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+            periods.push({
+                label: label.charAt(0).toUpperCase() + label.slice(1),
+                value
+            });
+            date.setMonth(date.getMonth() - 1);
+        }
+        return periods;
+    };
+
+    const periodOptions = getRecentPeriods();
+
     const fetchUsers = async () => {
         try {
             const response = await fetch("/api/users");
@@ -69,7 +89,6 @@ export default function CommissionsPage() {
     const handleApprove = async (id: string, data?: any) => {
         try {
             if (id.startsWith('pending-')) {
-                // Criar nova comissão
                 const response = await fetch("/api/commissions", {
                     method: "POST",
                     body: JSON.stringify(data),
@@ -78,11 +97,6 @@ export default function CommissionsPage() {
 
                 if (response.ok) {
                     const commission = await response.json();
-                    // Após criar, aprovar automaticamente (ou o POST já faz isso?)
-                    // O MVP diz que ao aprovar, vai para o financeiro.
-                    // Vou fazer o POST ja criar como APROVADO se vier da UI de aprovação, 
-                    // ou fazer um PATCH logo em seguida.
-                    // Melhorei o backend para o POST suportar status opcional.
                     const approveRes = await fetch(`/api/commissions/${commission.id}`, {
                         method: "PATCH",
                         body: JSON.stringify({ action: "APPROVE" }),
@@ -177,25 +191,25 @@ export default function CommissionsPage() {
                 </div>
                 {/* Mini stats */}
                 <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-3 gap-6">
-                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <CheckCircle className="h-6 w-6 text-primary" />
+                    <div className="flex items-center gap-3 rounded-xl bg-white/10 px-5 py-4 border border-white/10 backdrop-blur-sm transition-all hover:bg-white/20">
+                        <CheckCircle className="h-6 w-6 text-emerald-400" />
                         <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Aprovado</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">{formatCurrency(totalAprovado)}</p>
+                            <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest leading-none mb-1.5">Aprovado</p>
+                            <p className="text-xl font-black text-white leading-none">{formatCurrency(totalAprovado)}</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                    <div className="flex items-center gap-3 rounded-xl bg-white/10 px-5 py-4 border border-white/10 backdrop-blur-sm transition-all hover:bg-white/20">
                         <Clock className="h-6 w-6 text-amber-400" />
                         <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Pendente</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">{formatCurrency(totalPendente)}</p>
+                            <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest leading-none mb-1.5">Pendente</p>
+                            <p className="text-xl font-black text-white leading-none">{formatCurrency(totalPendente)}</p>
                         </div>
                     </div>
-                    <div className="hidden sm:flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <Filter className="h-6 w-6 text-primary-foreground/60" />
+                    <div className="hidden sm:flex items-center gap-3 rounded-xl bg-white/10 px-5 py-4 border border-white/10 backdrop-blur-sm transition-all hover:bg-white/20">
+                        <Filter className="h-6 w-6 text-blue-300" />
                         <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Registros</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : commissions.length}</p>
+                            <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest leading-none mb-1.5">Registros</p>
+                            <p className="text-xl font-black text-white leading-none">{loading ? "..." : commissions.length}</p>
                         </div>
                     </div>
                 </div>
@@ -216,9 +230,9 @@ export default function CommissionsPage() {
                                 </SelectTrigger>
                                 <SelectContent className="rounded-xl">
                                     <SelectItem value="all">Todos os períodos</SelectItem>
-                                    <SelectItem value="02/2026">02/2026</SelectItem>
-                                    <SelectItem value="01/2026">01/2026</SelectItem>
-                                    <SelectItem value="12/2025">12/2025</SelectItem>
+                                    {periodOptions.map(p => (
+                                        <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -242,8 +256,8 @@ export default function CommissionsPage() {
                         </div>
 
                         <div className="flex items-end">
-                            <div className="w-full h-12 px-4 bg-sidebar/5 border border-sidebar/10 rounded-xl flex items-center justify-center text-sm text-sidebar-foreground font-bold">
-                                <Filter className="h-4 w-4 mr-2" />
+                            <div className="w-full h-12 px-4 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-sm text-slate-500 font-bold">
+                                <Filter className="h-4 w-4 mr-2 text-slate-400" />
                                 {commissions.length} registros encontrados
                             </div>
                         </div>
@@ -251,37 +265,32 @@ export default function CommissionsPage() {
                 </CardContent>
             </Card>
 
-            {/* Summary Cards */}
             <div className="grid gap-6 md:grid-cols-2">
                 <Card className="bg-white border-slate-100 shadow-sm rounded-2xl overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                        <CheckCircle className="h-24 w-24 text-primary" />
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform text-emerald-600">
+                        <CheckCircle className="h-24 w-24" />
                     </div>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Total a Pagar (Aprovado)</CardTitle>
+                        <CardTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Total a Pagar (Aprovado)</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black text-primary tracking-tight">
-                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                                commissions.filter(c => c.status === 'APROVADO').reduce((acc, c) => acc + Number(c.valorCalculado), 0)
-                            )}
+                        <div className="text-3xl font-black text-emerald-600 tracking-tight">
+                            {formatCurrency(totalAprovado)}
                         </div>
                         <p className="text-xs text-slate-400 mt-1 font-medium">Comissões aprovadas para os filtros atuais</p>
                     </CardContent>
                 </Card>
 
                 <Card className="bg-white border-slate-100 shadow-sm rounded-2xl overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                        <Clock className="h-24 w-24 text-amber-600" />
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform text-amber-600">
+                        <Clock className="h-24 w-24" />
                     </div>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Pendente (Em Aberto)</CardTitle>
+                        <CardTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Pendente (Em Aberto)</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-black text-amber-500 tracking-tight">
-                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                                commissions.filter(c => c.status === 'EM_ABERTO').reduce((acc, c) => acc + Number(c.valorCalculado), 0)
-                            )}
+                            {formatCurrency(totalPendente)}
                         </div>
                         <p className="text-xs text-slate-400 mt-1 font-medium">Aguardando aprovação</p>
                     </CardContent>

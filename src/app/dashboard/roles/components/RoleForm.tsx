@@ -51,8 +51,8 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 gap-5">
                 <div className="space-y-2">
-                    <Label htmlFor="name" className="text-slate-700 font-semibold flex items-center gap-2">
-                        <Settings2 className="w-4 h-4 text-sidebar-foreground" />
+                    <Label htmlFor="name" className="text-slate-700 font-bold flex items-center gap-2">
+                        <Settings2 className="w-4 h-4 text-sidebar" />
                         Nome do Perfil
                     </Label>
                     <Input
@@ -79,7 +79,7 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
 
                 <div className="mt-4 border-t pt-6">
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
-                        <ShieldCheck className="w-5 h-5 text-sidebar-foreground" />
+                        <ShieldCheck className="w-5 h-5 text-sidebar" />
                         Permissões do Sistema
                     </h3>
 
