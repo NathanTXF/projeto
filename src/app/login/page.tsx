@@ -93,7 +93,7 @@ export default function LoginPage() {
                     <CardFooter className="pb-6">
                         <Button
                             type="submit"
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition-all font-medium py-6"
+                            className="w-full bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground rounded-xl shadow-sm transition-all font-medium py-6"
                             disabled={loading}
                         >
                             {loading ? "Entrando..." : "Entrar no Sistema"}

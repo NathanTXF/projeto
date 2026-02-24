@@ -174,7 +174,7 @@ export default function FinancialPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
                         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
@@ -212,13 +212,13 @@ export default function FinancialPage() {
                 </CardHeader>
                 <CardContent className="p-0">
                     <Table>
-                        <TableHeader className="bg-slate-50/80">
+                        <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold">
                             <TableRow className="hover:bg-transparent border-slate-100">
-                                <TableHead className="font-semibold text-slate-700 h-12">Vendedor</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Mês/Ano</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Valor Total</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Status</TableHead>
-                                <TableHead className="text-right font-semibold text-slate-700">Ações</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground h-12">Vendedor</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground">Mês/Ano</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground">Valor Total</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground">Status</TableHead>
+                                <TableHead className="text-right font-semibold text-sidebar-foreground">Ações</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -264,7 +264,7 @@ export default function FinancialPage() {
                                             <Badge
                                                 variant={t.status === 'Pago' ? 'default' : 'secondary'}
                                                 className={t.status === 'Pago'
-                                                    ? 'bg-emerald-100/80 text-emerald-700 hover:bg-emerald-200/80 border-emerald-200/50 font-bold px-2.5 py-0.5 shadow-sm'
+                                                    ? 'bg-primary/10 text-primary border-primary/20 font-bold px-2.5 py-0.5 shadow-sm'
                                                     : 'bg-amber-100/80 text-amber-700 hover:bg-amber-200/80 border-amber-200/50 font-bold px-2.5 py-0.5 shadow-sm'}
                                             >
                                                 <div className="flex items-center gap-1.5">
@@ -278,7 +278,7 @@ export default function FinancialPage() {
                                                 <Button
                                                     size="sm"
                                                     onClick={() => handleOpenPaymentDialog(t)}
-                                                    className="rounded-xl shadow-md transition-all hover:shadow-lg bg-gradient-to-r from-emerald-500 to-teal-500 border-none text-white font-semibold gap-1.5 hover:scale-[1.02]"
+                                                    className="rounded-xl shadow-md transition-all hover:shadow-lg bg-primary hover:bg-primary/90 border-none text-primary-foreground font-semibold gap-1.5 hover:scale-[1.02]"
                                                 >
                                                     <DollarSign className="h-4 w-4" />
                                                     Pagar
@@ -289,7 +289,7 @@ export default function FinancialPage() {
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                                                            className="h-8 w-8 text-primary hover:text-primary-foreground hover:bg-primary/90"
                                                             asChild
                                                         >
                                                             <a href={t.comprovanteUrl} target="_blank" rel="noopener noreferrer">
@@ -297,7 +297,7 @@ export default function FinancialPage() {
                                                             </a>
                                                         </Button>
                                                     )}
-                                                    <CheckCircle2 className="h-5 w-5 text-emerald-500/50" />
+                                                    <CheckCircle2 className="h-5 w-5 text-primary/50" />
                                                 </div>
                                             )}
                                         </TableCell>
@@ -332,7 +332,7 @@ export default function FinancialPage() {
                         {selectedTransaction && (
                             <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-100">
                                 <p className="text-sm text-slate-500 font-medium mb-1">Valor a ser pago</p>
-                                <p className="text-3xl font-bold text-emerald-600 font-outfit">{formatCurrency(selectedTransaction.valorTotal)}</p>
+                                <p className="text-3xl font-bold text-primary font-outfit">{formatCurrency(selectedTransaction.valorTotal)}</p>
                                 <div className="mt-3 pt-3 border-t border-slate-200/60 flex justify-between items-center text-sm">
                                     <span className="text-slate-500 font-medium">Vendedor</span>
                                     <span className="font-semibold text-slate-700">{selectedTransaction.vendedorNome}</span>
@@ -394,7 +394,7 @@ export default function FinancialPage() {
                                     <Button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-200/50 transition-all hover:scale-[1.02] border-none font-semibold gap-2"
+                                        className="rounded-xl bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground shadow-lg shadow-sidebar/20 transition-all hover:scale-[1.02] border-none font-semibold gap-2"
                                     >
                                         {isSubmitting ? (
                                             <><Loader2 className="h-4 w-4 animate-spin" />Processando...</>

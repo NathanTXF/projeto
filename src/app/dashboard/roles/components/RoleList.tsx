@@ -42,7 +42,7 @@ export function RoleList({ roles, onEdit, onDelete }: RoleListProps) {
                                 <span className="text-slate-600 truncate block max-w-xs">{role.description || '-'}</span>
                             </td>
                             <td className="px-6 py-4">
-                                <Badge variant="secondary" className="bg-indigo-50 text-indigo-700">
+                                <Badge variant="secondary" className="bg-sidebar/10 text-sidebar-foreground">
                                     {role.permissions?.length || 0} permissões ativas
                                 </Badge>
                             </td>
@@ -52,7 +52,7 @@ export function RoleList({ roles, onEdit, onDelete }: RoleListProps) {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => onEdit(role)}
-                                        className="h-8 w-8 p-0 rounded-lg text-blue-600 border-blue-200 hover:bg-blue-50"
+                                        className="h-8 w-8 p-0 rounded-lg text-sidebar-foreground border-sidebar/20 hover:bg-sidebar/10"
                                         title="Editar Perfil"
                                     >
                                         <Edit2 className="h-4 w-4" />

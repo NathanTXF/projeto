@@ -16,7 +16,7 @@ export function ExportButton({ onExportCsv, onExportPdf }: ExportButtonProps) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 border-slate-200 text-slate-700 bg-white hover:bg-slate-50 gap-2 font-bold shadow-sm">
+                <Button variant="secondary" className="h-10 gap-2 rounded-xl font-bold shadow-sm px-6 transition-all active:scale-95">
                     <Download className="h-4 w-4" />
                     Exportar
                 </Button>
@@ -26,7 +26,7 @@ export function ExportButton({ onExportCsv, onExportPdf }: ExportButtonProps) {
                     onClick={onExportCsv}
                     className="cursor-pointer gap-2 font-medium p-2"
                 >
-                    <div className="h-8 w-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center">
+                    <div className="h-8 w-8 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
                         <Table className="h-4 w-4" />
                     </div>
                     Exportar como CSV

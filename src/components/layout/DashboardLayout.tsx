@@ -21,7 +21,9 @@ import {
     ShieldAlert,
     Building2,
     TrendingUp,
-    Target
+    Target,
+    ChevronLeft,
+    ChevronRight as ChevronRightIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -58,16 +60,12 @@ const menuGroups = [
     }
 ];
 
-export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (val: boolean) => void }) {
+export function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: { isOpen: boolean; setIsOpen: (val: boolean) => void; isCollapsed: boolean; setIsCollapsed: (val: boolean) => void }) {
     const pathname = usePathname();
     const [company, setCompany] = useState<{ nome: string, logoUrl?: string } | null>(null);
     const [userLevel, setUserLevel] = useState<number | null>(null);
     const [userPermissions, setUserPermissions] = useState<string[]>([]);
-    const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-        "Home": true,
-        "Gestão Corporativa": true,
-        "Administração": true
-    });
+
 
     useEffect(() => {
         fetch('/api/company').then(res => res.json()).then(data => { if (data.nome) setCompany(data); }).catch(() => { });
@@ -77,12 +75,7 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
         }).catch(() => { });
     }, []);
 
-    const toggleGroup = (groupLabel: string) => {
-        setExpandedGroups(prev => ({
-            ...prev,
-            [groupLabel]: !prev[groupLabel]
-        }));
-    };
+
 
     return (
         <>
@@ -96,27 +89,46 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
 
             {/* Sidebar Component */}
             <aside className={cn(
-                "fixed inset-y-0 left-0 z-50 w-[260px] bg-sidebar border-r border-sidebar-border flex flex-col h-screen transition-transform duration-300 md:sticky md:top-0 md:translate-x-0 block",
-                isOpen ? "translate-x-0" : "-translate-x-full"
+                "fixed inset-y-0 left-0 z-50 bg-sidebar border-r border-sidebar-border flex flex-col h-screen transition-all duration-300 md:sticky md:top-0 shadow-xl",
+                isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+                isCollapsed ? "w-[80px]" : "w-[260px]"
             )}>
-                <div className="h-16 px-6 border-b border-sidebar-border flex items-center gap-3 justify-center">
-                    {company?.logoUrl ? (
-                        <div className="w-full flex items-center justify-center h-full py-2">
-                            <img src={company.logoUrl} alt="Logo da Empresa" className="max-h-full max-w-full object-contain drop-shadow-sm" />
-                        </div>
-                    ) : (
+                <div className="h-16 px-4 border-b border-sidebar-border flex items-center justify-between gap-3 relative">
+                    {!isCollapsed ? (
                         <>
-                            <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-sm overflow-hidden shrink-0">
+                            {company?.logoUrl ? (
+                                <div className="w-full flex items-center justify-center h-full py-2 overflow-hidden">
+                                    <img src={company.logoUrl} alt="Logo da Empresa" className="max-h-full max-w-full object-contain drop-shadow-sm" style={{ transform: 'scale(0.85)' }} />
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <div className="h-9 w-9 rounded-lg bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground shadow-sm shrink-0">
+                                        <Building2 className="h-5 w-5" />
+                                    </div>
+                                    <h1 className="text-lg font-bold text-sidebar-foreground border-none outline-none truncate flex-1 tracking-tight">
+                                        {company?.nome || "Dinheiro Fácil"}
+                                    </h1>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="w-full flex justify-center">
+                            <div className="h-9 w-9 rounded-lg bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground shadow-sm shrink-0">
                                 <Building2 className="h-5 w-5" />
                             </div>
-                            <h1 className="text-lg font-bold text-foreground border-none outline-none truncate flex-1 tracking-tight">
-                                {company?.nome || "Dinheiro Fácil"}
-                            </h1>
-                        </>
+                        </div>
                     )}
+
+                    {/* Toggle Button for Desktop */}
+                    <button
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        className="hidden md:flex absolute -right-3 top-5 h-6 w-6 bg-sidebar border border-sidebar-border rounded-full items-center justify-center text-sidebar-foreground/60 hover:text-sidebar-foreground shadow-sm z-[60] transition-colors"
+                    >
+                        {isCollapsed ? <ChevronRightIcon className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
+                    </button>
                 </div>
 
-                <nav className="flex-1 p-4 space-y-6 overflow-y-auto overflow-x-hidden stylized-scrollbar">
+                <nav className={cn("flex-1 min-h-0 space-y-6 overflow-y-auto overflow-x-hidden stylized-scrollbar", isCollapsed ? "p-2" : "p-4")}>
                     {menuGroups.map((group) => {
                         // Filter items inside group based on user level or permissions
                         // Se o array de permissões estiver vazio (não logou de novo ainda) fallback pro admin
@@ -146,19 +158,18 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
 
                         if (displayItems.length === 0) return null;
 
-                        const isExpanded = expandedGroups[group.label] !== false;
-
                         return (
-                            <div key={group.label} className="flex flex-col gap-1">
-                                <button
-                                    onClick={() => toggleGroup(group.label)}
-                                    className="flex items-center justify-between w-full px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors mb-1"
-                                >
-                                    {group.label}
-                                    <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200 opacity-60", !isExpanded && "-rotate-90")} />
-                                </button>
+                            <div key={group.label} className={cn("flex flex-col", isCollapsed ? "gap-2 items-center" : "gap-1")}>
+                                {!isCollapsed && (
+                                    <div className="flex items-center justify-between w-full px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-sidebar-foreground/60 mb-1">
+                                        {group.label}
+                                    </div>
+                                )}
 
-                                <div className={cn("flex flex-col gap-1 overflow-hidden transition-all", isExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0")}>
+                                <div className={cn(
+                                    "flex flex-col transition-all opacity-100",
+                                    isCollapsed ? "gap-2 items-center w-full" : "gap-1"
+                                )}>
                                     {displayItems.map((item) => {
                                         const isActive = item.href === '/dashboard'
                                             ? pathname === '/dashboard'
@@ -168,15 +179,17 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
                                                 key={item.href}
                                                 href={item.href}
                                                 onClick={() => setIsOpen(false)}
+                                                title={isCollapsed ? item.label : undefined}
                                                 className={cn(
-                                                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-sm font-medium",
+                                                    "flex items-center rounded-lg transition-all font-medium",
+                                                    isCollapsed ? "p-2.5 justify-center w-10 h-10" : "gap-3 px-3 py-2 text-sm",
                                                     isActive
-                                                        ? "bg-primary text-primary-foreground shadow-sm"
-                                                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                                        ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm shadow-black/10"
+                                                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
                                                 )}
                                             >
-                                                <item.icon className={cn("h-[18px] w-[18px]", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
-                                                {item.label}
+                                                <item.icon className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-sidebar-primary-foreground" : "text-sidebar-foreground/70")} />
+                                                {!isCollapsed && <span className="truncate">{item.label}</span>}
                                             </Link>
                                         );
                                     })}
@@ -195,6 +208,7 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (va
 export function Shell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     // User Session Mock/Fetch
@@ -221,9 +235,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="flex bg-background min-h-screen">
-            <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+            <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} isCollapsed={isSidebarCollapsed} setIsCollapsed={setIsSidebarCollapsed} />
 
-            <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
                 {/* Global TopBar Header */}
                 <header className="flex items-center justify-between px-4 sm:px-6 h-16 bg-card border-b border-border sticky top-0 z-30 shadow-sm transition-all text-foreground">
 

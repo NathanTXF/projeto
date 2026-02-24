@@ -103,7 +103,7 @@ export default function CompanyPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full min-h-[500px]">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-200 border-t-indigo-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/20 border-t-primary"></div>
             </div>
         );
     }
@@ -111,7 +111,7 @@ export default function CompanyPage() {
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
             {/* Banner */}
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex items-center gap-4">
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
                         <Building2 className="h-8 w-8 text-primary-foreground" />
@@ -224,7 +224,7 @@ export default function CompanyPage() {
                         <Button
                             onClick={handleSave}
                             disabled={saving}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white h-12 px-8 rounded-xl font-bold gap-2 text-base shadow-lg shadow-indigo-200 transition-all hover:-translate-y-0.5"
+                            className="bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground h-12 px-8 rounded-xl font-bold gap-2 text-base shadow-lg shadow-sidebar/20 transition-all hover:-translate-y-0.5"
                         >
                             {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
                             Salvar Configurações

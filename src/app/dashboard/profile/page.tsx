@@ -135,7 +135,7 @@ export default function ProfilePage() {
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex items-center gap-4">
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
                         <UserCircle className="h-8 w-8 text-primary-foreground" />
@@ -196,7 +196,7 @@ export default function ProfilePage() {
                             </div>
 
                             <div className="flex items-center gap-3 text-sm text-slate-600 font-medium group">
-                                <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
+                                <div className="h-8 w-8 rounded-lg bg-sidebar/5 flex items-center justify-center text-sidebar-foreground group-hover:bg-sidebar/10 transition-colors">
                                     <Phone className="h-4 w-4" />
                                 </div>
                                 <div className="flex flex-col">
@@ -232,7 +232,7 @@ export default function ProfilePage() {
                                         id="nome"
                                         value={profile?.nome || ""}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, nome: e.target.value }) : null)}
-                                        className="rounded-xl border-slate-200 focus:ring-blue-500 bg-slate-50/50 h-12 font-medium"
+                                        className="rounded-xl border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -241,7 +241,7 @@ export default function ProfilePage() {
                                         id="usuario"
                                         value={profile?.usuario || ""}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, usuario: e.target.value }) : null)}
-                                        className="rounded-xl border-slate-200 focus:ring-blue-500 bg-slate-50/50 h-12 font-medium"
+                                        className="rounded-xl border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
                             </div>
@@ -254,7 +254,7 @@ export default function ProfilePage() {
                                         placeholder="(00) 00000-0000"
                                         value={profile?.contato || ""}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, contato: e.target.value }) : null)}
-                                        className="rounded-xl border-slate-200 focus:ring-blue-500 bg-slate-50/50 h-12 font-medium"
+                                        className="rounded-xl border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -264,7 +264,7 @@ export default function ProfilePage() {
                                         placeholder="Rua, Número, Bairro"
                                         value={profile?.endereco || ""}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, endereco: e.target.value }) : null)}
-                                        className="rounded-xl border-slate-200 focus:ring-blue-500 bg-slate-50/50 h-12 font-medium"
+                                        className="rounded-xl border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
                             </div>
@@ -279,7 +279,7 @@ export default function ProfilePage() {
                                         type="time"
                                         value={profile?.horarioInicio || "08:00"}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, horarioInicio: e.target.value }) : null)}
-                                        className="rounded-xl border-slate-200 focus:ring-blue-500 bg-slate-50/50 h-12 font-medium"
+                                        className="rounded-xl border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -291,7 +291,7 @@ export default function ProfilePage() {
                                         type="time"
                                         value={profile?.horarioFim || "18:00"}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, horarioFim: e.target.value }) : null)}
-                                        className="rounded-xl border-slate-200 focus:ring-blue-500 bg-slate-50/50 h-12 font-medium"
+                                        className="rounded-xl border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
                             </div>
@@ -307,7 +307,7 @@ export default function ProfilePage() {
                                         placeholder={profile?.nivelAcesso === 1 ? "Deixe em branco para manter a atual" : "Bloqueado pelo sistema"}
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
-                                        className="rounded-xl border-slate-200 pl-11 focus:ring-blue-500 bg-slate-50/50 h-12 disabled:bg-slate-100 disabled:text-slate-400 disabled:opacity-50 font-medium"
+                                        className="rounded-xl border-slate-200 pl-11 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 disabled:bg-slate-100 disabled:text-slate-400 disabled:opacity-50 font-medium"
                                     />
                                 </div>
                                 {profile?.nivelAcesso === 1 && <p className="text-xs text-slate-400 font-medium mt-1">Mínimo de 6 caracteres.</p>}
@@ -317,7 +317,7 @@ export default function ProfilePage() {
                                 <Button
                                     type="submit"
                                     disabled={saving}
-                                    className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-sm px-8 py-6 gap-2 transition-all active:scale-95"
+                                    className="rounded-xl bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground font-bold shadow-sm px-8 py-6 gap-2 transition-all active:scale-95"
                                 >
                                     {saving ? <RefreshCcw className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
                                     Salvar Alterações

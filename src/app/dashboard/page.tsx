@@ -105,9 +105,9 @@ export default function DashboardPage() {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
 
             {/* ── Strategic Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 p-8 md:p-12 shadow-2xl border border-white/5">
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-[#00355E] p-8 md:p-12 shadow-2xl border border-white/5">
                 <div className="absolute top-0 right-0 -mt-20 -mr-20 h-96 w-96 rounded-full bg-primary/20 blur-[100px]" />
-                <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-indigo-500/10 blur-[80px]" />
+                <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-sidebar/10 blur-[80px]" />
 
                 <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
                     <div className="space-y-6">
@@ -147,7 +147,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden mb-6">
                                 <div
-                                    className="h-full bg-gradient-to-r from-primary to-indigo-500 transition-all duration-1000 shadow-[0_0_20px_rgba(var(--primary-rgb),0.5)]"
+                                    className="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-1000 shadow-[0_0_20px_rgba(var(--primary-rgb),0.5)]"
                                     style={{ width: `${goalPercent}%` }}
                                 />
                             </div>
@@ -169,9 +169,9 @@ export default function DashboardPage() {
             {/* ── Quick Actions Grid (The Hub) ── */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
-                    { label: "Novo Cliente", icon: Plus, href: "/dashboard/clients", color: "text-blue-600", bg: "bg-blue-50" },
-                    { label: "Novo Contrato", icon: FileText, href: "/dashboard/loans", color: "text-indigo-600", bg: "bg-indigo-50" },
-                    { label: "Comissões", icon: PieChart, href: "/dashboard/commissions", color: "text-emerald-600", bg: "bg-emerald-50" },
+                    { label: "Novo Cliente", icon: Plus, href: "/dashboard/clients", color: "text-sidebar-foreground", bg: "bg-sidebar/10" },
+                    { label: "Novo Contrato", icon: FileText, href: "/dashboard/loans", color: "text-sidebar-foreground", bg: "bg-sidebar/5" },
+                    { label: "Comissões", icon: PieChart, href: "/dashboard/commissions", color: "text-primary", bg: "bg-primary/10" },
                     { label: "Financeiro", icon: Wallet, href: "/dashboard/financial", color: "text-amber-600", bg: "bg-amber-50" },
                 ].map((action) => (
                     <Link key={action.label} href={action.href}>
@@ -194,13 +194,13 @@ export default function DashboardPage() {
             {/* ── Admin Specific Strategic View ── */}
             {authUser?.nivelAcesso === 1 && hub && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in slide-in-from-left-4 duration-500 delay-150">
-                    <Card className="border-none shadow-xl rounded-[2rem] bg-gradient-to-br from-indigo-600 to-primary p-1">
+                    <Card className="border-none shadow-xl rounded-[2rem] bg-sidebar p-1">
                         <div className="bg-white rounded-[1.9rem] p-6 h-full">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                                <div className="h-10 w-10 bg-sidebar/10 rounded-xl flex items-center justify-center text-sidebar-foreground">
                                     <Shield className="h-5 w-5" />
                                 </div>
-                                <Badge className="bg-indigo-100 text-indigo-700 border-none">Gestão Global</Badge>
+                                <Badge className="bg-sidebar/10 text-sidebar-foreground border-none">Gestão Global</Badge>
                             </div>
                             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Aprovação Pendente</h3>
                             <p className="text-3xl font-black text-slate-900">{hub.pendingApproval}</p>
@@ -213,19 +213,19 @@ export default function DashboardPage() {
                         </div>
                     </Card>
 
-                    <Card className="border-none shadow-xl rounded-[2rem] bg-gradient-to-br from-emerald-500 to-teal-500 p-1">
+                    <Card className="border-none shadow-xl rounded-[2rem] bg-gradient-to-br from-primary to-primary/80 p-1">
                         <div className="bg-white rounded-[1.9rem] p-6 h-full">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="h-10 w-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                                <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                                     <DollarSign className="h-5 w-5" />
                                 </div>
-                                <Badge className="bg-emerald-100 text-emerald-700 border-none">Fluxo de Caixa</Badge>
+                                <Badge className="bg-primary/20 text-primary border-none">Fluxo de Caixa</Badge>
                             </div>
                             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Recebido</h3>
                             <p className="text-3xl font-black text-slate-900">{formatCurrency(metrics?.commissions.received || 0)}</p>
                             <p className="text-xs text-slate-500 mt-2 font-medium">Suas comissões pagas neste mês.</p>
                             <Link href="/dashboard/commissions">
-                                <Button variant="link" className="p-0 h-auto mt-4 text-emerald-600 font-bold text-xs gap-1 group">
+                                <Button variant="link" className="p-0 h-auto mt-4 text-primary font-bold text-xs gap-1 group">
                                     Ver Minhas Comissões <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
                                 </Button>
                             </Link>
@@ -261,9 +261,9 @@ export default function DashboardPage() {
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
-                        { label: "Digitação", count: pipeline?.digitacao || 0, icon: ClipboardCheck, color: "text-blue-500", bg: "bg-blue-500/10" },
+                        { label: "Digitação", count: pipeline?.digitacao || 0, icon: ClipboardCheck, color: "text-sidebar-foreground", bg: "bg-sidebar/10" },
                         { label: "Em Análise", count: pipeline?.analise || 0, icon: Search, color: "text-amber-500", bg: "bg-amber-500/10" },
-                        { label: "Averbação", count: pipeline?.averbacao || 0, icon: Clock, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+                        { label: "Averbação", count: pipeline?.averbacao || 0, icon: Clock, color: "text-sidebar-foreground/80", bg: "bg-sidebar/10" },
                         { label: "Contratos Pagos", count: pipeline?.pagos || 0, icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10" }
                     ].map((step) => (
                         <Card key={step.label} className="border-none shadow-xl hover:shadow-2xl transition-all group rounded-3xl p-6">
@@ -335,9 +335,9 @@ export default function DashboardPage() {
                                 </div>
                             </div>
                         </Card>
-                        <Card className="border-none shadow-xl rounded-3xl bg-emerald-500/5 p-6 border-l-4 border-emerald-500">
+                        <Card className="border-none shadow-xl rounded-3xl bg-primary/5 p-6 border-l-4 border-primary">
                             <div className="flex items-center gap-4">
-                                <div className="h-12 w-12 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-lg">
+                                <div className="h-12 w-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg">
                                     <Users className="h-6 w-6" />
                                 </div>
                                 <div>
@@ -373,7 +373,7 @@ export default function DashboardPage() {
                                             className={cn(
                                                 "h-10 w-10 shrink-0 rounded-2xl flex items-center justify-center transition-all shadow-sm border mt-1",
                                                 appointment.status === "CONCLUIDO"
-                                                    ? "bg-emerald-500 border-emerald-500 text-white"
+                                                    ? "bg-primary border-primary text-white"
                                                     : "bg-white border-border text-slate-300 hover:border-primary hover:text-primary"
                                             )}
                                         >
@@ -389,7 +389,7 @@ export default function DashboardPage() {
                                                 <span className="text-xs font-black text-primary">{appointment.hora}</span>
                                                 <Badge className={cn(
                                                     "bg-muted text-muted-foreground border-none text-[8px] font-black uppercase tracking-tighter",
-                                                    appointment.status === 'CONCLUIDO' && 'bg-emerald-100 text-emerald-700'
+                                                    appointment.status === 'CONCLUIDO' && 'bg-primary/10 text-primary'
                                                 )}>
                                                     {appointment.status === 'CONCLUIDO' ? 'FEITO' : appointment.tipo}
                                                 </Badge>

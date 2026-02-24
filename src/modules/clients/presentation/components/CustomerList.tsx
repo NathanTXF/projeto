@@ -39,7 +39,7 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                     placeholder="Buscar por nome ou CPF..."
-                    className="pl-10 rounded-xl border-slate-200 bg-white shadow-sm focus-visible:ring-indigo-500/20 focus-visible:border-indigo-400 transition-all h-11"
+                    className="pl-10 rounded-xl border-slate-200 bg-white shadow-sm focus-visible:ring-sidebar/20 focus-visible:border-sidebar transition-all h-11"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -54,15 +54,15 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
             <Card className="border border-slate-100 shadow-sm overflow-hidden rounded-2xl bg-white">
                 <CardContent className="p-0">
                     <Table>
-                        <TableHeader className="bg-slate-50/80">
+                        <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold">
                             <TableRow className="hover:bg-transparent border-slate-100">
-                                <TableHead className="font-semibold text-slate-600 text-xs uppercase tracking-wider h-12 pl-6">Cliente</TableHead>
-                                <TableHead className="font-semibold text-slate-600 text-xs uppercase tracking-wider">CPF/CNPJ</TableHead>
-                                <TableHead className="font-semibold text-slate-600 text-xs uppercase tracking-wider">Idade</TableHead>
-                                <TableHead className="font-semibold text-slate-600 text-xs uppercase tracking-wider">Sexo</TableHead>
-                                <TableHead className="font-semibold text-slate-600 text-xs uppercase tracking-wider">Localidade</TableHead>
-                                <TableHead className="font-semibold text-slate-600 text-xs uppercase tracking-wider">Celular</TableHead>
-                                <TableHead className="text-right font-semibold text-slate-600 text-xs uppercase tracking-wider pr-6">Ações</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground text-xs uppercase tracking-wider h-12 pl-6">Cliente</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground text-xs uppercase tracking-wider">CPF/CNPJ</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground text-xs uppercase tracking-wider">Idade</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground text-xs uppercase tracking-wider">Sexo</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground text-xs uppercase tracking-wider">Localidade</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground text-xs uppercase tracking-wider">Celular</TableHead>
+                                <TableHead className="text-right font-semibold text-sidebar-foreground text-xs uppercase tracking-wider pr-6">Ações</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -85,7 +85,7 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                                         <TableCell className="pl-6">
                                             <div className="flex items-center gap-3">
                                                 <Avatar className="h-9 w-9 border-2 border-white shadow-sm">
-                                                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
+                                                    <AvatarFallback className="bg-sidebar text-white text-xs font-bold">
                                                         {customer.nome.charAt(0).toUpperCase()}
                                                     </AvatarFallback>
                                                 </Avatar>
@@ -118,7 +118,7 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                                                 variant="secondary"
                                                 className={
                                                     customer.sexo === "masculino"
-                                                        ? "bg-blue-50 text-blue-700 border-blue-100 font-medium text-xs"
+                                                        ? "bg-sidebar/10 text-sidebar-foreground border-sidebar/20 font-medium text-xs"
                                                         : "bg-pink-50 text-pink-700 border-pink-100 font-medium text-xs"
                                                 }
                                             >
@@ -150,7 +150,7 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => onEdit(customer)}
-                                                        className="h-8 w-8 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                                                     >
                                                         <Edit className="h-4 w-4" />
                                                     </Button>

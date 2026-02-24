@@ -52,14 +52,14 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
             <div className="grid grid-cols-1 gap-5">
                 <div className="space-y-2">
                     <Label htmlFor="name" className="text-slate-700 font-semibold flex items-center gap-2">
-                        <Settings2 className="w-4 h-4 text-indigo-500" />
+                        <Settings2 className="w-4 h-4 text-sidebar-foreground" />
                         Nome do Perfil
                     </Label>
                     <Input
                         id="name"
                         placeholder="Ex: Gerente Financeiro"
                         {...register("name")}
-                        className={`bg-slate-50 border-slate-200 focus-visible:ring-indigo-500 ${errors.name ? 'border-red-500' : ''}`}
+                        className={`bg-slate-50 border-slate-200 focus-visible:ring-sidebar/20 focus-visible:border-sidebar ${errors.name ? 'border-red-500' : ''}`}
                     />
                     {errors.name && <span className="text-red-500 text-sm mt-1">{errors.name.message}</span>}
                 </div>
@@ -72,14 +72,14 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
                         id="description"
                         placeholder="Descreva a responsabilidade deste perfil..."
                         {...register("description")}
-                        className="bg-slate-50 border-slate-200 focus-visible:ring-indigo-500 resize-none"
+                        className="bg-slate-50 border-slate-200 focus-visible:ring-sidebar/20 focus-visible:border-sidebar resize-none"
                         rows={3}
                     />
                 </div>
 
                 <div className="mt-4 border-t pt-6">
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
-                        <ShieldCheck className="w-5 h-5 text-indigo-500" />
+                        <ShieldCheck className="w-5 h-5 text-sidebar-foreground" />
                         Permissões do Sistema
                     </h3>
 
@@ -102,7 +102,7 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
                                                         type="checkbox"
                                                         id={perm.name}
                                                         value={perm.name}
-                                                        className="mt-1 w-4 h-4 text-indigo-600 bg-white border-slate-300 rounded focus:ring-indigo-500"
+                                                        className="mt-1 w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary/20"
                                                         checked={field.value.includes(perm.name)}
                                                         onChange={(e) => {
                                                             const updated = e.target.checked
@@ -132,7 +132,7 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
                 <Button
                     type="submit"
                     disabled={isLoading}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[140px] font-semibold tracking-wide"
+                    className="bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground min-w-[140px] font-semibold tracking-wide"
                 >
                     {isLoading ? (
                         <>

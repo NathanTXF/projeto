@@ -35,13 +35,13 @@ export function UserList({ users, userLevel, onEdit, onDelete }: UserListProps) 
             </CardHeader>
             <CardContent className="p-0">
                 <Table>
-                    <TableHeader className="bg-slate-50/50">
+                    <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold border-b-none">
                         <TableRow>
-                            <TableHead className="font-semibold text-slate-700">Nome</TableHead>
-                            <TableHead className="font-semibold text-slate-700">Usuário</TableHead>
-                            <TableHead className="font-semibold text-slate-700">Nível</TableHead>
-                            <TableHead className="font-semibold text-slate-700">Horário</TableHead>
-                            <TableHead className="text-right font-semibold text-slate-700">Ações</TableHead>
+                            <TableHead className="font-semibold text-sidebar-foreground">Nome</TableHead>
+                            <TableHead className="font-semibold text-sidebar-foreground">Usuário</TableHead>
+                            <TableHead className="font-semibold text-sidebar-foreground">Nível</TableHead>
+                            <TableHead className="font-semibold text-sidebar-foreground">Horário</TableHead>
+                            <TableHead className="text-right font-semibold text-sidebar-foreground">Ações</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

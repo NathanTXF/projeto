@@ -96,7 +96,7 @@ export default function RolesPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
                         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
@@ -166,17 +166,17 @@ export default function RolesPage() {
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="max-w-[95vw] sm:max-w-2xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-slate-50">
-                    {/* Solid Indigo Header */}
-                    <div className="relative bg-indigo-600 px-6 py-5">
+                    {/* Solid Sidebar Header */}
+                    <div className="relative bg-sidebar px-6 py-5">
                         <div className="relative flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 shadow-inner">
                                 <ShieldAlert className="h-5 w-5 text-white" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-white leading-none">
+                                <DialogTitle className="text-lg font-bold text-sidebar-foreground leading-none">
                                     {selectedRole ? "Editar Perfil" : "Novo Perfil"}
                                 </DialogTitle>
-                                <DialogDescription className="text-indigo-100 text-sm mt-1">
+                                <DialogDescription className="text-sidebar-foreground/80 text-sm mt-1">
                                     {selectedRole
                                         ? "Altere o nome e as permissões."
                                         : "Crie um novo perfil definindo suas permissões."}

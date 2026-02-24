@@ -121,7 +121,7 @@ export default function GoalsManagementPage() {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex items-center gap-4">
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
                         <Target className="h-8 w-8 text-primary-foreground" />
@@ -192,7 +192,7 @@ export default function GoalsManagementPage() {
                                     <CardDescription>Defina a meta individual de comissões para cada vendedor.</CardDescription>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <Badge className="hidden md:flex bg-emerald-500/10 text-emerald-600 border-none font-black px-3 py-1 text-[10px] rounded-full uppercase tracking-tighter">
+                                    <Badge className="hidden md:flex bg-primary/10 text-primary border-none font-black px-3 py-1 text-[10px] rounded-full uppercase tracking-tighter">
                                         <TrendingUp className="h-3 w-3 mr-1" />
                                         Baseado em Comissões
                                     </Badge>

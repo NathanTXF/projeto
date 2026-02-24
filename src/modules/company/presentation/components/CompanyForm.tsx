@@ -128,7 +128,7 @@ export function CompanyForm({ initialData, onSubmit, isLoading }: CompanyFormPro
                 />
 
                 <div className="flex justify-end pt-4">
-                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-sm transition-all font-bold py-6 px-10 gap-2">
+                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground rounded-xl shadow-sm transition-all font-bold py-6 px-10 gap-2">
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Salvar Alterações
                     </Button>

@@ -124,7 +124,7 @@ export default function AgendaPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
                         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
@@ -254,7 +254,7 @@ export default function AgendaPage() {
                                                         {apt.tipo}
                                                     </Badge>
                                                     {apt.visibilidade === 'GLOBAL' && (
-                                                        <Badge className="bg-indigo-100 text-indigo-700 rounded-full px-2 py-0.5 text-[8px] font-black border-none">GLOBAL</Badge>
+                                                        <Badge className="bg-sidebar/10 text-sidebar-foreground rounded-full px-2 py-0.5 text-[8px] font-black border-none">GLOBAL</Badge>
                                                     )}
                                                 </div>
                                                 <h4 className={cn(
@@ -286,17 +286,17 @@ export default function AgendaPage() {
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl max-h-[90vh] flex flex-col">
-                    {/* Solid Blue Header */}
-                    <div className="relative bg-blue-600 px-6 py-5 shrink-0">
+                    {/* Solid Primary Header */}
+                    <div className="relative bg-primary px-6 py-5 shrink-0">
                         <div className="relative flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 shadow-inner">
-                                <CalendarIcon className="h-5 w-5 text-white" />
+                                <CalendarIcon className="h-5 w-5 text-primary-foreground" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-white leading-none">
+                                <DialogTitle className="text-lg font-bold text-primary-foreground leading-none">
                                     Novo Compromisso
                                 </DialogTitle>
-                                <DialogDescription className="text-blue-100 text-sm mt-1">
+                                <DialogDescription className="text-primary-foreground/80 text-sm mt-1">
                                     Agende um novo compromisso para {date ? format(date, "dd/MM/yyyy") : "a data selecionada"}.
                                 </DialogDescription>
                             </div>

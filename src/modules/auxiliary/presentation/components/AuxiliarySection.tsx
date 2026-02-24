@@ -106,8 +106,8 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
         <div className="flex flex-col h-full space-y-4 p-5">
             <div className="flex justify-between items-start gap-4">
                 <div className="flex gap-4 items-center">
-                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                        <Database className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <Database className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                     </div>
                     <div>
                         <h3 className="text-xs sm:text-sm font-bold tracking-widest text-slate-500 uppercase">{title}</h3>
@@ -121,7 +121,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                         setIsDialogOpen(true);
                     }}
                     size="sm"
-                    className="rounded-lg shadow-sm transition-all hover:shadow bg-blue-600 hover:bg-blue-700 text-white font-bold gap-1 active:scale-95 px-2 sm:px-3 h-8 sm:h-9"
+                    className="rounded-lg shadow-sm transition-all hover:shadow bg-primary hover:bg-primary/90 text-primary-foreground font-bold gap-1 active:scale-95 px-2 sm:px-3 h-8 sm:h-9"
                 >
                     <Plus className="h-4 w-4" />
                     <span className="hidden sm:inline">Novo</span>
@@ -130,11 +130,11 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
 
             <div className="rounded-xl border border-slate-100 bg-white shadow-sm overflow-hidden flex-1 flex flex-col">
                 <Table>
-                    <TableHeader className="bg-slate-50/80 border-b border-slate-100">
+                    <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold border-b border-sidebar">
                         <TableRow className="hover:bg-transparent">
-                            <TableHead className="w-[80px] font-semibold text-slate-700 h-11">Cód.</TableHead>
-                            <TableHead className="font-semibold text-slate-700 h-11">Descrição</TableHead>
-                            <TableHead className="text-right font-semibold text-slate-700 h-11">Ações</TableHead>
+                            <TableHead className="w-[80px] font-semibold text-sidebar-foreground h-11">Cód.</TableHead>
+                            <TableHead className="font-semibold text-sidebar-foreground h-11">Descrição</TableHead>
+                            <TableHead className="text-right font-semibold text-sidebar-foreground h-11">Ações</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -142,7 +142,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                             <TableRow>
                                 <TableCell colSpan={3} className="text-center h-40">
                                     <div className="flex flex-col items-center justify-center gap-3 text-slate-400">
-                                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
                                         <span className="font-medium">Carregando {title.toLowerCase()}...</span>
                                     </div>
                                 </TableCell>
@@ -172,7 +172,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                className="h-8 w-8 p-0 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                                                className="h-8 w-8 p-0 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10"
                                                 onClick={() => {
                                                     setSelectedItem(item);
                                                     setNome(item.nome);
@@ -202,8 +202,8 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
-                    {/* Gradient Header */}
-                    <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-5">
+                    {/* Header */}
+                    <div className="relative overflow-hidden bg-primary px-6 py-5">
                         <div className="pointer-events-none absolute inset-0">
                             <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-xl" />
                             <div className="absolute -left-4 -bottom-4 h-20 w-20 rounded-full bg-white/5 blur-lg" />
@@ -217,10 +217,10 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                                 )}
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-white">
+                                <DialogTitle className="text-lg font-bold text-primary-foreground">
                                     {selectedItem ? "Editar" : "Novo"} {title.endsWith('s') ? title.slice(0, -1) : title}
                                 </DialogTitle>
-                                <DialogDescription className="text-blue-100/80 text-sm mt-0.5">
+                                <DialogDescription className="text-primary-foreground/80 text-sm mt-0.5">
                                     {selectedItem ? "Altere a descrição do registro." : "Adicione um novo registro ao sistema."}
                                 </DialogDescription>
                             </div>
@@ -238,7 +238,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                                         value={nome}
                                         onChange={(e) => setNome(e.target.value)}
                                         placeholder={`Ex: ${title === 'Órgãos' ? 'INSS' : title === 'Bancos' ? 'Banco do Brasil' : 'Digite o nome...'}`}
-                                        className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-blue-500 focus-visible:bg-white transition-colors"
+                                        className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-ring focus-visible:bg-white transition-colors"
                                         autoFocus
                                     />
                                 </div>
@@ -256,7 +256,7 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                             <Button
                                 onClick={handleSave}
                                 disabled={submitting || !nome.trim()}
-                                className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-200/50 transition-all hover:scale-[1.02] border-none font-semibold h-10 px-6 active:scale-[0.98] gap-2"
+                                className="rounded-xl bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground shadow-lg shadow-sidebar/20 transition-all hover:scale-[1.02] border-none font-semibold h-10 px-6 active:scale-[0.98] gap-2"
                             >
                                 {submitting ? (
                                     <><Loader2 className="h-4 w-4 animate-spin" />Salvando...</>

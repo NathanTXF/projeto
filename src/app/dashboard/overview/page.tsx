@@ -121,8 +121,8 @@ export default function OverviewPage() {
             icon: TrendingUp,
             label: "Comissões Mês",
             value: formatCurrency(stats?.totalCommissionsMonth ?? 0),
-            color: "text-emerald-500",
-            bg: "bg-emerald-500/10",
+            color: "text-primary",
+            bg: "bg-primary/10",
             growth: stats?.commissionsGrowth,
             description: "Receitado no período"
         },
@@ -130,8 +130,8 @@ export default function OverviewPage() {
             icon: Target,
             label: "Ticket Médio",
             value: formatCurrency(stats?.ticketMedio ?? 0),
-            color: "text-indigo-500",
-            bg: "bg-indigo-500/10",
+            color: "text-primary",
+            bg: "bg-primary/10",
             description: "Valor médio por contrato"
         },
         {
@@ -147,7 +147,7 @@ export default function OverviewPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-12">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-3xl bg-primary p-10 shadow-2xl border border-white/10">
+            <div className="relative overflow-hidden rounded-3xl bg-[#00355E] p-10 shadow-2xl border border-white/10">
                 <div className="absolute top-0 right-0 -mt-20 -mr-20 h-80 w-80 rounded-full bg-white/5 blur-3xl" />
                 <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex items-center gap-6">
@@ -157,7 +157,7 @@ export default function OverviewPage() {
                         <div>
                             <div className="flex items-center gap-3 mb-1">
                                 <h1 className="text-4xl font-black tracking-tighter text-white">Painel Estratégico</h1>
-                                <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 font-bold uppercase tracking-widest text-[10px]">Senior BI</Badge>
+                                <Badge className="bg-primary/20 text-primary border-primary/30 font-bold uppercase tracking-widest text-[10px]">Senior BI</Badge>
                             </div>
                             <p className="text-primary-foreground/70 font-medium text-lg">Visão 360º da performance corporativa e saúde financeira.</p>
                         </div>
@@ -334,7 +334,7 @@ export default function OverviewPage() {
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end">
-                                        <Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[9px]">+12%</Badge>
+                                        <Badge className="bg-primary/10 text-primary border-none font-black text-[9px]">+12%</Badge>
                                     </div>
                                 </div>
                             ))}
@@ -411,7 +411,7 @@ export default function OverviewPage() {
                                 { icon: CalendarIcon, label: "Agenda", href: "/dashboard/agenda" }
                             ].map((action) => (
                                 <Link key={action.label} href={action.href}>
-                                    <div className="bg-white/10 hover:bg-white/20 backdrop-blur-xl p-8 rounded-[2rem] flex flex-col items-center gap-4 transition-all cursor-pointer active:scale-95 border border-white/5 shadow-2xl min-w-[140px]">
+                                    <div className="bg-[#00355E] hover:bg-[#00355E]/90 backdrop-blur-xl p-8 rounded-[2rem] flex flex-col items-center gap-4 transition-all cursor-pointer active:scale-95 border border-white/5 shadow-2xl min-w-[140px]">
                                         <div className="bg-white/10 p-4 rounded-2xl">
                                             <action.icon className="h-8 w-8 text-white" />
                                         </div>

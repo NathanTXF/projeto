@@ -84,7 +84,7 @@ export default function LoansPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
                         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
@@ -127,7 +127,7 @@ export default function LoansPage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <CheckCircle className="h-6 w-6 text-emerald-400" />
+                        <CheckCircle className="h-6 w-6 text-primary" />
                         <div>
                             <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Ativos</p>
                             <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : loans.filter(l => l.status === 'ATIVO' || l.status === 'APROVADO').length}</p>
@@ -153,7 +153,7 @@ export default function LoansPage() {
             {loading ? (
                 <div className="flex items-center justify-center h-64">
                     <div className="flex flex-col items-center gap-3">
-                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-200 border-t-indigo-600"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/20 border-t-primary"></div>
                         <span className="text-sm font-medium text-slate-400">Carregando vendas...</span>
                     </div>
                 </div>
@@ -168,17 +168,17 @@ export default function LoansPage() {
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="max-w-[95vw] sm:max-w-4xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
-                    {/* Solid Blue Header */}
-                    <div className="relative bg-blue-600 px-6 py-5">
+                    {/* Solid Primary Header */}
+                    <div className="relative bg-primary px-6 py-5">
                         <div className="relative flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 shadow-inner">
-                                <HandCoins className="h-5 w-5 text-white" />
+                                <HandCoins className="h-5 w-5 text-primary-foreground" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-white leading-none">
+                                <DialogTitle className="text-lg font-bold text-primary-foreground leading-none">
                                     {selectedLoan ? "Editar Venda" : "Registrar Nova Venda"}
                                 </DialogTitle>
-                                <DialogDescription className="text-blue-100 text-sm mt-1">
+                                <DialogDescription className="text-primary-foreground/80 text-sm mt-1">
                                     Preencha os dados do contrato abaixo.
                                 </DialogDescription>
                             </div>

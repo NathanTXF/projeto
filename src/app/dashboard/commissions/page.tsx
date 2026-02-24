@@ -147,7 +147,7 @@ export default function CommissionsPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
                         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
@@ -178,7 +178,7 @@ export default function CommissionsPage() {
                 {/* Mini stats */}
                 <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
                     <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <CheckCircle className="h-6 w-6 text-emerald-400" />
+                        <CheckCircle className="h-6 w-6 text-primary" />
                         <div>
                             <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Aprovado</p>
                             <p className="text-xl font-black text-primary-foreground leading-none">{formatCurrency(totalAprovado)}</p>
@@ -242,7 +242,7 @@ export default function CommissionsPage() {
                         </div>
 
                         <div className="flex items-end">
-                            <div className="w-full h-12 px-4 bg-blue-50/50 border border-blue-100/50 rounded-xl flex items-center justify-center text-sm text-blue-600 font-bold">
+                            <div className="w-full h-12 px-4 bg-sidebar/5 border border-sidebar/10 rounded-xl flex items-center justify-center text-sm text-sidebar-foreground font-bold">
                                 <Filter className="h-4 w-4 mr-2" />
                                 {commissions.length} registros encontrados
                             </div>
@@ -255,13 +255,13 @@ export default function CommissionsPage() {
             <div className="grid gap-4 md:grid-cols-2">
                 <Card className="bg-white border-slate-100 shadow-sm rounded-2xl overflow-hidden relative group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                        <CheckCircle className="h-24 w-24 text-emerald-600" />
+                        <CheckCircle className="h-24 w-24 text-primary" />
                     </div>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Total a Pagar (Aprovado)</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black text-emerald-600 tracking-tight">
+                        <div className="text-3xl font-black text-primary tracking-tight">
                             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
                                 commissions.filter(c => c.status === 'APROVADO').reduce((acc, c) => acc + Number(c.valorCalculado), 0)
                             )}
@@ -292,7 +292,7 @@ export default function CommissionsPage() {
                 <CardContent className="p-0">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center h-64 gap-3">
-                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
                             <p className="text-sm text-slate-400 font-medium">Carregando dados...</p>
                         </div>
                     ) : (

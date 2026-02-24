@@ -8,7 +8,7 @@ export default function AuxiliaryPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex items-center gap-4">
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
                         <Database className="h-8 w-8 text-primary-foreground" />
@@ -22,7 +22,7 @@ export default function AuxiliaryPage() {
 
             <div className="mb-4">
                 <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800">
-                    <Database className="h-5 w-5 text-blue-500" />
+                    <Database className="h-5 w-5 text-sidebar-foreground" />
                     Ferramentas de Gestão
                 </h2>
                 <p className="text-sm text-slate-500 font-medium">Configure as tabelas de suporte do ERP Dinheiro Fácil.</p>

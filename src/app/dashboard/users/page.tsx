@@ -100,7 +100,7 @@ export default function UsersPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
                         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
@@ -133,7 +133,7 @@ export default function UsersPage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <Shield className="h-6 w-6 text-emerald-400" />
+                        <Shield className="h-6 w-6 text-primary" />
                         <div>
                             <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Admins</p>
                             <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : users.filter(u => u.nivelAcesso === 1).length}</p>
@@ -166,7 +166,7 @@ export default function UsersPage() {
                 <CardContent className="p-0">
                     {loading ? (
                         <div className="h-64 flex flex-col items-center justify-center gap-3 text-slate-400">
-                            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
                             <span>Carregando usuários...</span>
                         </div>
                     ) : (

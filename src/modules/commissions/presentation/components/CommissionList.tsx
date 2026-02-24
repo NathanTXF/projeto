@@ -45,16 +45,16 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
     return (
         <div className="rounded-xl border border-slate-100 bg-white overflow-hidden shadow-sm">
             <Table>
-                <TableHeader className="bg-slate-50/50">
+                <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold border-b-none">
                     <TableRow>
-                        <TableHead className="font-semibold text-slate-700">Vendedor</TableHead>
-                        <TableHead className="font-semibold text-slate-700">Contrato</TableHead>
-                        <TableHead className="font-semibold text-slate-700">Cliente</TableHead>
-                        <TableHead className="font-semibold text-slate-700 text-center">Referência</TableHead>
-                        <TableHead className="font-semibold text-slate-700">Tipo</TableHead>
-                        <TableHead className="font-semibold text-slate-700">Valor Comissão</TableHead>
-                        <TableHead className="font-semibold text-slate-700">Status</TableHead>
-                        <TableHead className="text-right font-semibold text-slate-700">Ações</TableHead>
+                        <TableHead className="font-semibold text-sidebar-foreground">Vendedor</TableHead>
+                        <TableHead className="font-semibold text-sidebar-foreground">Contrato</TableHead>
+                        <TableHead className="font-semibold text-sidebar-foreground">Cliente</TableHead>
+                        <TableHead className="font-semibold text-sidebar-foreground text-center">Referência</TableHead>
+                        <TableHead className="font-semibold text-sidebar-foreground">Tipo</TableHead>
+                        <TableHead className="font-semibold text-sidebar-foreground">Valor Comissão</TableHead>
+                        <TableHead className="font-semibold text-sidebar-foreground">Status</TableHead>
+                        <TableHead className="text-right font-semibold text-sidebar-foreground">Ações</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

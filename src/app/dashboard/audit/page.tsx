@@ -75,16 +75,16 @@ export default function AuditPage() {
     };
 
     const getActionBadgeColor = (action: string) => {
-        if (action.includes('CREATE')) return 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-none';
-        if (action.includes('DELETE')) return 'bg-rose-100 text-rose-700 hover:bg-rose-200 border-none';
-        if (action.includes('UPDATE')) return 'bg-amber-100 text-amber-700 hover:bg-amber-200 border-none';
-        return 'bg-blue-100 text-blue-700 hover:bg-blue-200 border-none';
+        if (action.includes('CREATE')) return 'bg-primary/10 text-primary border-none';
+        if (action.includes('DELETE')) return 'bg-rose-100 text-rose-700 border-none';
+        if (action.includes('UPDATE')) return 'bg-amber-100 text-amber-700 border-none';
+        return 'bg-sidebar/10 text-sidebar-foreground border-none';
     };
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
                         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
@@ -112,7 +112,7 @@ export default function AuditPage() {
                         <div className="flex gap-4 flex-wrap">
                             <div className="w-48">
                                 <Select value={filters.modulo} onValueChange={(val) => setFilters(f => ({ ...f, modulo: val }))}>
-                                    <SelectTrigger className="rounded-xl bg-white h-10 font-medium border-slate-200 shadow-sm focus:ring-blue-500">
+                                    <SelectTrigger className="rounded-xl bg-white h-10 font-medium border-slate-200 shadow-sm focus:ring-sidebar/20 focus:border-sidebar">
                                         <SelectValue placeholder="Módulo" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -125,7 +125,7 @@ export default function AuditPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="flex bg-white rounded-xl border border-slate-200 px-3 py-1 items-center gap-2 shadow-sm h-10 focus-within:ring-1 focus-within:ring-blue-500">
+                            <div className="flex bg-white rounded-xl border border-slate-200 px-3 py-1 items-center gap-2 shadow-sm h-10 focus-within:ring-1 focus-within:ring-sidebar/20 focus-within:border-sidebar">
                                 <Search className="h-4 w-4 text-slate-400" />
                                 <input
                                     placeholder="Filtrar por Usuário ID..."
@@ -135,7 +135,7 @@ export default function AuditPage() {
                                 />
                             </div>
                         </div>
-                        <Button onClick={fetchLogs} className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm font-bold px-6 h-10">
+                        <Button onClick={fetchLogs} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm font-bold px-6 h-10">
                             <Filter className="h-4 w-4 mr-2" />
                             Aplicar Filtros
                         </Button>
@@ -143,14 +143,14 @@ export default function AuditPage() {
                 </CardHeader>
                 <CardContent className="p-0">
                     <Table>
-                        <TableHeader className="bg-slate-50/30">
+                        <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold">
                             <TableRow>
-                                <TableHead className="font-semibold text-slate-700 w-[180px]">Data/Hora</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Usuário</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Módulo</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Ação</TableHead>
-                                <TableHead className="font-semibold text-slate-700">Entidade ID</TableHead>
-                                <TableHead className="text-right font-semibold text-slate-700">IP</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground w-[180px]">Data/Hora</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground">Usuário</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground">Módulo</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground">Ação</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground">Entidade ID</TableHead>
+                                <TableHead className="text-right font-semibold text-sidebar-foreground">IP</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

@@ -384,7 +384,7 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                 <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg shadow-indigo-200/50 transition-all duration-200 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] gap-2"
+                    className="w-full h-11 rounded-xl bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground font-semibold shadow-lg shadow-sidebar/20 transition-all duration-200 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] gap-2"
                 >
                     {isLoading ? (
                         <><Loader2 className="h-4 w-4 animate-spin" />Salvando...</>

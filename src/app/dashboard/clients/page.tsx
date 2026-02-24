@@ -84,7 +84,7 @@ export default function ClientsPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
                         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
@@ -131,7 +131,7 @@ export default function ClientsPage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <UserCheck className="h-6 w-6 text-emerald-400" />
+                        <UserCheck className="h-6 w-6 text-primary" />
                         <div>
                             <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Ativos</p>
                             <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : customers.length}</p>
@@ -158,7 +158,7 @@ export default function ClientsPage() {
             {loading ? (
                 <div className="flex items-center justify-center h-64">
                     <div className="flex flex-col items-center gap-3">
-                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-200 border-t-indigo-600"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/20 border-t-primary"></div>
                         <span className="text-sm font-medium text-slate-400">Carregando clientes...</span>
                     </div>
                 </div>

@@ -40,7 +40,7 @@ export function LoanList({ loans, userLevel, onEdit, onDelete }: LoanListProps) 
     return (
         <div className="rounded-xl border bg-white overflow-hidden shadow-sm">
             <Table>
-                <TableHeader className="bg-slate-50/50">
+                <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold border-b-none">
                     <TableRow>
                         <TableHead className="w-[80px] font-bold">Cód</TableHead>
                         <TableHead className="font-bold">Cliente</TableHead>
