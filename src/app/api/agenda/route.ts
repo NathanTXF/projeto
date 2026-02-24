@@ -14,7 +14,16 @@ export async function GET(request: Request) {
 
         const { searchParams } = new URL(request.url);
         const dateStr = searchParams.get('date');
+        const monthStr = searchParams.get('month');
+        const yearStr = searchParams.get('year');
         const userId = searchParams.get('userId');
+
+        if (monthStr && yearStr) {
+            const month = parseInt(monthStr);
+            const year = parseInt(yearStr);
+            const appointments = await useCases.getMonthlyAppointments(month, year, currentUser.id);
+            return NextResponse.json(appointments);
+        }
 
         if (dateStr) {
             const date = new Date(dateStr);

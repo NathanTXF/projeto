@@ -18,6 +18,7 @@ export const CustomerSchema = z.object({
     observacao: z.string().optional(),
     createdAt: z.date().optional(),
     updatedAt: z.date().optional(),
+    vendedorId: z.string().optional(),
 });
 
 export type Customer = z.infer<typeof CustomerSchema>;

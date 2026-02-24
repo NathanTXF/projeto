@@ -211,6 +211,7 @@ model Appointment {
   criadorId  String
   destinatarioId String? // Se null e visibilidade=GLOBAL, é para todos
   visibilidade String   @default("PRIVADO") // PRIVADO | GLOBAL
+  status       String   @default("PENDENTE") // PENDENTE | CONCLUIDO | CANCELADO
   createdAt  DateTime @default(now())
 
   criador      User     @relation("CreatedAppointments", fields: [criadorId], references: [id])

@@ -43,12 +43,17 @@ export async function GET(request: Request) {
             }
         });
 
-        const totalReceivedMonth = commissions
-            .filter(c => c.status === 'Pago' || c.status === 'Aprovado')
-            .reduce((acc, c) => acc + Number(c.valorCalculado), 0);
+        const financials = await prisma.financial.findMany({
+            where: { vendedorId: user.id, createdAt: { gte: thisMonth } },
+            select: { valorTotal: true, status: true }
+        });
+
+        const totalReceivedMonth = financials
+            .filter(f => f.status?.toLowerCase() === 'pago')
+            .reduce((acc, f) => acc + Number(f.valorTotal), 0);
 
         const totalPendingMonth = commissions
-            .filter(c => c.status === 'Em aberto')
+            .filter(c => c.status?.toLowerCase() === 'em aberto' || c.status?.toLowerCase() === 'em_aberto' || c.status?.toLowerCase() === 'aprovado')
             .reduce((acc, c) => acc + Number(c.valorCalculado), 0);
 
         // 3. Pipeline de Vendas (Mês)

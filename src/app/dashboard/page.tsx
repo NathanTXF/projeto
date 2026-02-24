@@ -16,6 +16,7 @@ import {
     Activity,
     ClipboardCheck,
     CheckCircle2,
+    Circle,
     Search,
     Plus,
     FileText,
@@ -58,6 +59,29 @@ export default function DashboardPage() {
             console.error("Erro ao carregar métricas:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const toggleAppointmentStatus = async (id: string, currentStatus: string) => {
+        try {
+            const nextStatus = currentStatus === "PENDENTE" ? "CONCLUIDO" : "PENDENTE";
+            const response = await fetch(`/api/agenda/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: nextStatus }),
+            });
+
+            if (response.ok) {
+                // Atualizar localmente para feedback instantâneo
+                setData((prev: any) => ({
+                    ...prev,
+                    appointments: prev.appointments.map((apt: any) =>
+                        apt.id === id ? { ...apt, status: nextStatus } : apt
+                    )
+                }));
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar status:", error);
         }
     };
 
@@ -197,12 +221,12 @@ export default function DashboardPage() {
                                 </div>
                                 <Badge className="bg-emerald-100 text-emerald-700 border-none">Fluxo de Caixa</Badge>
                             </div>
-                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total a Pagar</h3>
-                            <p className="text-3xl font-black text-slate-900">{formatCurrency(hub.totalToPay)}</p>
-                            <p className="text-xs text-slate-500 mt-2 font-medium">Compromissos financeiros em aberto.</p>
-                            <Link href="/dashboard/financial">
+                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Recebido</h3>
+                            <p className="text-3xl font-black text-slate-900">{formatCurrency(metrics?.commissions.received || 0)}</p>
+                            <p className="text-xs text-slate-500 mt-2 font-medium">Suas comissões pagas neste mês.</p>
+                            <Link href="/dashboard/commissions">
                                 <Button variant="link" className="p-0 h-auto mt-4 text-emerald-600 font-bold text-xs gap-1 group">
-                                    Ver Financeiro <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+                                    Ver Minhas Comissões <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
                                 </Button>
                             </Link>
                         </div>
@@ -337,37 +361,64 @@ export default function DashboardPage() {
                                 <Badge variant="outline" className="rounded-full border-primary/20 text-primary font-black px-2 py-0.5 text-[9px]">Hoje</Badge>
                             </div>
                         </CardHeader>
-                        <CardContent className="p-0 flex-1">
+                        <CardContent className="p-0 flex-1 overflow-y-auto max-h-[500px]">
                             <div className="divide-y divide-border/30">
                                 {appointments?.length > 0 ? appointments.map((appointment: any) => (
-                                    <div key={appointment.id} className="p-5 hover:bg-muted/30 transition-all group flex gap-4">
-                                        <div className="flex flex-col items-center shrink-0">
-                                            <span className="text-sm font-black text-primary">{appointment.hora}</span>
-                                            <div className="w-px flex-1 bg-border/50 my-1" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <h4 className="font-bold text-sm text-foreground tracking-tight leading-tight">{appointment.tipo}</h4>
-                                            <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">{appointment.observacao || 'Sem observações'}</p>
-                                            <div className="pt-2 flex items-center gap-2">
-                                                <Badge className="bg-muted text-muted-foreground border-none text-[8px] font-black uppercase tracking-tighter">
-                                                    {appointment.visibilidade}
+                                    <div key={appointment.id} className={cn(
+                                        "p-5 hover:bg-muted/30 transition-all group flex gap-4 items-start",
+                                        appointment.status === "CONCLUIDO" && "opacity-60"
+                                    )}>
+                                        <button
+                                            onClick={() => toggleAppointmentStatus(appointment.id, appointment.status)}
+                                            className={cn(
+                                                "h-10 w-10 shrink-0 rounded-2xl flex items-center justify-center transition-all shadow-sm border mt-1",
+                                                appointment.status === "CONCLUIDO"
+                                                    ? "bg-emerald-500 border-emerald-500 text-white"
+                                                    : "bg-white border-border text-slate-300 hover:border-primary hover:text-primary"
+                                            )}
+                                        >
+                                            {appointment.status === "CONCLUIDO" ? (
+                                                <CheckCircle2 className="h-5 w-5" />
+                                            ) : (
+                                                <Circle className="h-5 w-5" />
+                                            )}
+                                        </button>
+
+                                        <div className="flex-1 space-y-1">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-xs font-black text-primary">{appointment.hora}</span>
+                                                <Badge className={cn(
+                                                    "bg-muted text-muted-foreground border-none text-[8px] font-black uppercase tracking-tighter",
+                                                    appointment.status === 'CONCLUIDO' && 'bg-emerald-100 text-emerald-700'
+                                                )}>
+                                                    {appointment.status === 'CONCLUIDO' ? 'FEITO' : appointment.tipo}
                                                 </Badge>
                                             </div>
+                                            <h4 className={cn(
+                                                "font-bold text-sm text-foreground tracking-tight leading-tight",
+                                                appointment.status === "CONCLUIDO" && "line-through"
+                                            )}>
+                                                {appointment.observacao || 'Sem observações'}
+                                            </h4>
                                         </div>
                                     </div>
                                 )) : (
-                                    <div className="p-12 text-center">
+                                    <div className="p-12 text-center h-full flex flex-col items-center justify-center">
                                         <div className="h-16 w-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto mb-4">
                                             <Calendar className="h-8 w-8 text-muted-foreground/30" />
                                         </div>
                                         <p className="text-sm font-bold text-muted-foreground">Tudo limpo por aqui!</p>
-                                        <p className="text-[11px] text-muted-foreground/60 mt-1">Aproveite para prospectar.</p>
+                                        <p className="text-[11px] text-muted-foreground/60 mt-1 uppercase tracking-widest">Nada agendado para hoje</p>
                                     </div>
                                 )}
                             </div>
                         </CardContent>
                         <div className="p-6 bg-muted/10 border-t border-border/40 shrink-0">
-                            <Button variant="outline" className="w-full rounded-2xl font-black text-[10px] uppercase tracking-widest border-border/50 h-11 bg-white shadow-sm">Ver Minha Agenda</Button>
+                            <Link href="/dashboard/agenda">
+                                <Button variant="outline" className="w-full rounded-2xl font-black text-[10px] uppercase tracking-widest border-border/50 h-11 bg-white shadow-sm hover:shadow-md transition-all">
+                                    Ver Agenda Completa
+                                </Button>
+                            </Link>
                         </div>
                     </Card>
                 </div>

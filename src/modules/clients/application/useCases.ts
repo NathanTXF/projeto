@@ -20,6 +20,10 @@ export class CustomerUseCases {
             throw new Error('Cliente já cadastrado com este CPF/CNPJ');
         }
 
+        if (!data.vendedorId) {
+            data.vendedorId = requesterId;
+        }
+
         const customer = await this.repository.create(data);
 
         await logAudit({

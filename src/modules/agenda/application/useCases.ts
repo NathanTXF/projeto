@@ -7,6 +7,10 @@ export class AgendaUseCases {
         return await this.repository.findAllByDate(date, userId);
     }
 
+    async getMonthlyAppointments(month: number, year: number, userId?: string) {
+        return await this.repository.findAllByMonth(month, year, userId);
+    }
+
     async getUserAppointments(userId: string) {
         return await this.repository.findAllByUser(userId);
     }

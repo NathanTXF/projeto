@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Calendar as CalendarIcon, Clock, MoreVertical, Trash2, Search, MapPin } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, Clock, MoreVertical, Trash2, Search, MapPin, CheckCircle2, Circle, Filter } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,34 +18,46 @@ import { Appointment } from "@/modules/agenda/domain/entities";
 import { Badge } from "@/components/ui/Badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 
 export default function AgendaPage() {
+    const [month, setMonth] = useState<Date>(new Date());
     const [date, setDate] = useState<Date | undefined>(new Date());
-    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [monthlyAppointments, setMonthlyAppointments] = useState<Appointment[]>([]);
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [filterStatus, setFilterStatus] = useState<string>("TODOS");
 
+    // Fetch monthly appointments when the month view changes
     useEffect(() => {
-        if (date) {
-            fetchAppointments(date);
-        }
-    }, [date]);
+        fetchMonthlyAppointments(month);
+    }, [month]);
 
-    const fetchAppointments = async (targetDate: Date) => {
+    const fetchMonthlyAppointments = async (targetMonth: Date) => {
         try {
             setLoading(true);
-            const dateStr = targetDate.toISOString().split('T')[0];
-            const response = await fetch(`/api/agenda?date=${dateStr}`);
+            const m = targetMonth.getMonth() + 1; // getMonth() returns 0-11
+            const y = targetMonth.getFullYear();
+            const response = await fetch(`/api/agenda?month=${m}&year=${y}`);
             const data = await response.json();
             if (data.error) throw new Error(data.error);
-            setAppointments(data);
+            setMonthlyAppointments(data);
         } catch (error: any) {
-            toast.error("Erro ao carregar agenda: " + error.message);
+            toast.error("Erro ao carregar agenda mensal: " + error.message);
         } finally {
             setLoading(false);
         }
     };
+
+    // Derive daily appointments from the monthly pool
+    const appointments = monthlyAppointments.filter(apt => {
+        if (!date) return false;
+        const aptDate = new Date(apt.data);
+        // Compensate timezone if needed, or simply string compare
+        return aptDate.toISOString().split('T')[0] === date.toISOString().split('T')[0];
+    });
 
     const handleCreate = async (values: any) => {
         try {
@@ -59,7 +71,7 @@ export default function AgendaPage() {
             if (response.ok) {
                 toast.success("Compromisso agendado!");
                 setIsDialogOpen(false);
-                if (date) fetchAppointments(date);
+                fetchMonthlyAppointments(month); // Refresh the month
             } else {
                 const errorData = await response.json();
                 toast.error("Erro: " + errorData.error);
@@ -71,21 +83,43 @@ export default function AgendaPage() {
         }
     };
 
+    const toggleStatus = async (id: string, currentStatus: string) => {
+        try {
+            const nextStatus = currentStatus === "PENDENTE" ? "CONCLUIDO" : "PENDENTE";
+            const response = await fetch(`/api/agenda/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: nextStatus }),
+            });
+
+            if (response.ok) {
+                toast.success(nextStatus === "CONCLUIDO" ? "Compromisso concluído!" : "Compromisso reaberto.");
+                fetchMonthlyAppointments(month);
+            }
+        } catch (error) {
+            toast.error("Erro ao atualizar status.");
+        }
+    };
+
     const handleDelete = async (id: string | undefined) => {
         if (!id) return;
-        // Simplesmente para o MVP, vamos deletar direto depois de confirmação
         if (!confirm("Remover este compromisso?")) return;
 
         try {
             const response = await fetch(`/api/agenda/${id}`, { method: 'DELETE' });
             if (response.ok) {
                 toast.success("Compromisso removido.");
-                if (date) fetchAppointments(date);
+                fetchMonthlyAppointments(month);
             }
         } catch (error: any) {
             toast.error("Erro ao remover.");
         }
     };
+
+    const filteredAppointments = appointments.filter(apt => {
+        if (filterStatus === "TODOS") return true;
+        return apt.status === filterStatus;
+    });
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
@@ -116,68 +150,132 @@ export default function AgendaPage() {
                 <Card className="lg:col-span-4 border border-slate-100 shadow-sm rounded-2xl bg-white overflow-hidden h-fit">
                     <CardHeader className="bg-slate-50/50 border-b border-slate-100">
                         <CardTitle className="text-lg font-bold">Calendário</CardTitle>
-                        <CardDescription>Selecione uma data para visualizar.</CardDescription>
+                        <CardDescription>Visualização do Mês</CardDescription>
                     </CardHeader>
-                    <CardContent className="p-5">
-                        <Input
-                            type="date"
-                            value={date ? date.toISOString().split('T')[0] : ""}
-                            onChange={(e) => {
-                                const newDate = e.target.value ? new Date(e.target.value + 'T12:00:00') : undefined;
-                                setDate(newDate);
+                    <CardContent className="p-5 flex justify-center">
+                        <Calendar
+                            mode="single"
+                            selected={date}
+                            onSelect={(d) => d && setDate(d)}
+                            month={month}
+                            onMonthChange={setMonth}
+                            locale={ptBR}
+                            className="bg-white rounded-xl"
+                            modifiers={{
+                                hasAppointment: monthlyAppointments.map(a => new Date(a.data))
                             }}
-                            className="rounded-xl border-slate-200 h-12"
+                            modifiersClassNames={{
+                                hasAppointment: "relative font-bold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:bg-primary after:rounded-full"
+                            }}
                         />
                     </CardContent>
                 </Card>
 
                 <Card className="lg:col-span-8 border border-slate-100 shadow-sm rounded-2xl bg-white overflow-hidden">
-                    <CardHeader className="bg-white border-b border-slate-100">
-                        <div className="flex justify-between items-center">
+                    <CardHeader className="bg-white border-b border-slate-100 p-6">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
-                                <CardTitle className="text-lg font-bold">
+                                <CardTitle className="text-xl font-black text-slate-800">
                                     {date ? format(date, "EEEE, d 'de' MMMM", { locale: ptBR }) : "Selecione uma data"}
                                 </CardTitle>
-                                <CardDescription>{appointments.length} compromissos encontrados.</CardDescription>
+                                <CardDescription className="font-medium">{appointments.length} compromissos encontrados.</CardDescription>
+                            </div>
+                            <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
+                                {[
+                                    { id: "TODOS", label: "Tudo" },
+                                    { id: "PENDENTE", label: "Pendente" },
+                                    { id: "CONCLUIDO", label: "Feito" }
+                                ].map((f) => (
+                                    <Button
+                                        key={f.id}
+                                        variant={filterStatus === f.id ? "default" : "ghost"}
+                                        size="sm"
+                                        onClick={() => setFilterStatus(f.id)}
+                                        className={cn(
+                                            "rounded-xl h-8 px-4 font-bold text-[10px] uppercase tracking-wider transition-all",
+                                            filterStatus === f.id ? "bg-white text-primary shadow-sm hover:bg-white" : "text-slate-500 hover:bg-slate-100"
+                                        )}
+                                    >
+                                        {f.label}
+                                    </Button>
+                                ))}
                             </div>
                         </div>
                     </CardHeader>
                     <CardContent className="p-0">
                         {loading ? (
-                            <div className="h-64 flex flex-col items-center justify-center gap-3 text-slate-400">
-                                <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
-                                <span>Carregando agenda...</span>
+                            <div className="h-96 flex flex-col items-center justify-center gap-3 text-slate-400">
+                                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                                <span className="font-bold text-sm">Carregando sua agenda...</span>
                             </div>
-                        ) : appointments.length === 0 ? (
-                            <div className="h-64 flex flex-col items-center justify-center gap-3 text-slate-400 italic">
-                                <CalendarIcon className="h-12 w-12 opacity-20" />
-                                <span>Nenhum compromisso para este dia.</span>
+                        ) : filteredAppointments.length === 0 ? (
+                            <div className="h-96 flex flex-col items-center justify-center gap-4 text-slate-400">
+                                <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center">
+                                    <CalendarIcon className="h-10 w-10 opacity-20" />
+                                </div>
+                                <div className="text-center">
+                                    <p className="font-bold text-slate-500">Nenhum compromisso encontrado</p>
+                                    <p className="text-xs uppercase tracking-widest font-black opacity-40 mt-1">Limpo por aqui!</p>
+                                </div>
                             </div>
                         ) : (
                             <div className="divide-y divide-slate-100">
-                                {appointments.map((apt) => (
-                                    <div key={apt.id} className="p-5 hover:bg-slate-50/50 transition-colors flex justify-between items-start group">
-                                        <div className="flex gap-4">
-                                            <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-indigo-50 text-indigo-700 min-w-[60px] h-fit">
-                                                <Clock className="h-4 w-4 mb-1" />
-                                                <span className="font-bold text-sm">{apt.hora}</span>
-                                            </div>
-                                            <div>
-                                                <Badge className="mb-2 bg-indigo-100 text-indigo-700 hover:bg-indigo-100 border-none font-semibold">
-                                                    {apt.tipo}
-                                                </Badge>
+                                {filteredAppointments.map((apt) => (
+                                    <div key={apt.id} className={cn(
+                                        "p-6 hover:bg-slate-50/50 transition-all flex justify-between items-center group relative",
+                                        apt.status === "CONCLUIDO" && "opacity-60"
+                                    )}>
+                                        <div className="flex gap-6 items-center">
+                                            <button
+                                                onClick={() => toggleStatus(apt.id!, apt.status!)}
+                                                className={cn(
+                                                    "h-12 w-12 rounded-2xl flex items-center justify-center transition-all shadow-sm border",
+                                                    apt.status === "CONCLUIDO"
+                                                        ? "bg-emerald-500 border-emerald-500 text-white"
+                                                        : "bg-white border-slate-200 text-slate-300 hover:border-primary hover:text-primary"
+                                                )}
+                                            >
+                                                {apt.status === "CONCLUIDO" ? (
+                                                    <CheckCircle2 className="h-6 w-6" />
+                                                ) : (
+                                                    <Circle className="h-6 w-6" />
+                                                )}
+                                            </button>
 
-                                                <p className="text-slate-500 text-sm">{apt.observacao || "Sem observações."}</p>
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-1.5">
+                                                    <span className="text-sm font-black text-slate-900">{apt.hora}</span>
+                                                    <Badge className={cn(
+                                                        "rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest border-none",
+                                                        apt.tipo === 'Visita' ? "bg-blue-100 text-blue-700" :
+                                                            apt.tipo === 'Cobrança' ? "bg-amber-100 text-amber-700" :
+                                                                "bg-slate-100 text-slate-600"
+                                                    )}>
+                                                        {apt.tipo}
+                                                    </Badge>
+                                                    {apt.visibilidade === 'GLOBAL' && (
+                                                        <Badge className="bg-indigo-100 text-indigo-700 rounded-full px-2 py-0.5 text-[8px] font-black border-none">GLOBAL</Badge>
+                                                    )}
+                                                </div>
+                                                <h4 className={cn(
+                                                    "font-bold text-slate-700 leading-tight transition-all",
+                                                    apt.status === "CONCLUIDO" && "line-through text-slate-400"
+                                                )}>
+                                                    {apt.observacao || "Compromisso sem descrição"}
+                                                </h4>
                                             </div>
                                         </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-destructive transition-all"
-                                            onClick={() => handleDelete(apt.id)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+
+                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-10 w-10 rounded-xl text-slate-400 hover:text-destructive hover:bg-destructive/5"
+                                                onClick={() => handleDelete(apt.id)}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>

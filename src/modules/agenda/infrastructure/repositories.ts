@@ -41,6 +41,36 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
         return appointments as any;
     }
 
+    async findAllByMonth(month: number, year: number, userId?: string): Promise<Appointment[]> {
+        // Obter início e fim do mês
+        const start = new Date(year, month - 1, 1);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(year, month, 0);
+        end.setHours(23, 59, 59, 999);
+
+        const where: any = {
+            data: {
+                gte: start,
+                lte: end
+            }
+        };
+
+        if (userId) {
+            where.OR = [
+                { criadorId: userId },
+                { destinatarioId: userId },
+                { visibilidade: "GLOBAL" }
+            ];
+        }
+
+        const appointments = await prisma.appointment.findMany({
+            where,
+            orderBy: [{ data: 'asc' }, { hora: 'asc' }],
+            include: { criador: true, destinatario: true }
+        });
+        return appointments as any;
+    }
+
     async findAllByUser(userId: string): Promise<Appointment[]> {
         const appointments = await prisma.appointment.findMany({
             where: { criadorId: userId },
@@ -59,7 +89,8 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
                 observacao: data.observacao,
                 criadorId: data.criadorId,
                 destinatarioId: data.destinatarioId,
-                visibilidade: data.visibilidade || "PRIVADO"
+                visibilidade: data.visibilidade || "PRIVADO",
+                status: data.status || "PENDENTE"
             }
         });
         return appointment as any;
@@ -74,7 +105,8 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
                 tipo: data.tipo,
                 observacao: data.observacao,
                 destinatarioId: data.destinatarioId,
-                visibilidade: data.visibilidade
+                visibilidade: data.visibilidade,
+                status: data.status
             }
         });
         return appointment as any;
