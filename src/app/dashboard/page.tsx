@@ -88,7 +88,7 @@ export default function DashboardPage() {
     if (loading) {
         return (
             <div className="flex h-[80vh] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <Loader2 className="h-8 w-8 animate-spin text-sidebar" />
             </div>
         );
     }
@@ -126,7 +126,7 @@ export default function DashboardPage() {
                             Olá, <span className="text-primary">{authUser?.nome?.split(' ')[0]}</span>. <br />
                             Pronto para <span className="italic underline decoration-primary/30">vencer?</span>
                         </h1>
-                        <p className="text-slate-400 font-medium max-w-md text-lg leading-relaxed">
+                        <p className="text-white/80 font-medium max-w-md text-lg leading-relaxed">
                             {authUser?.nivelAcesso === 1
                                 ? "Seu sistema está operacional. Confira os indicadores estratégicos e tome decisões baseadas em dados."
                                 : `Você já conquistou ${formatCurrency(metrics?.commissions.received)} este mês. Faltam ${formatCurrency(Math.max(0, metrics?.metaMensal - metrics?.commissions.received))} para a meta!`}
@@ -138,7 +138,7 @@ export default function DashboardPage() {
                         <div className="relative z-10">
                             <div className="flex justify-between items-end mb-5">
                                 <div>
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{authUser?.nivelAcesso === 1 ? "Meta Global" : "Sua Meta"}</p>
+                                    <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">{authUser?.nivelAcesso === 1 ? "Meta Global" : "Sua Meta"}</p>
                                     <p className="text-4xl font-black text-white tracking-tighter">{Math.round(goalPercent)}%</p>
                                 </div>
                                 <div className="text-right">
@@ -153,7 +153,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
-                                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-tighter mb-1">Pendentes</p>
+                                    <p className="text-[9px] font-black text-white/40 uppercase tracking-tighter mb-1">Pendentes</p>
                                     <p className="text-md font-bold text-white leading-none">{formatCurrency(metrics?.commissions.pending)}</p>
                                 </div>
                                 <div className="p-4 rounded-3xl bg-primary/10 border border-primary/10 hover:bg-primary/20 transition-colors">
@@ -202,7 +202,7 @@ export default function DashboardPage() {
                                 </div>
                                 <Badge className="bg-sidebar/10 text-sidebar-foreground border-none">Gestão Global</Badge>
                             </div>
-                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Aprovação Pendente</h3>
+                            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Aprovação Pendente</h3>
                             <p className="text-3xl font-black text-slate-900">{hub.pendingApproval}</p>
                             <p className="text-xs text-slate-500 mt-2 font-medium">Comissões aguardando sua revisão.</p>
                             <Link href="/dashboard/commissions">
@@ -221,7 +221,7 @@ export default function DashboardPage() {
                                 </div>
                                 <Badge className="bg-primary/20 text-primary border-none">Fluxo de Caixa</Badge>
                             </div>
-                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Recebido</h3>
+                            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Total Recebido</h3>
                             <p className="text-3xl font-black text-slate-900">{formatCurrency(metrics?.commissions.received || 0)}</p>
                             <p className="text-xs text-slate-500 mt-2 font-medium">Suas comissões pagas neste mês.</p>
                             <Link href="/dashboard/commissions">
@@ -240,7 +240,7 @@ export default function DashboardPage() {
                                 </div>
                                 <Badge className="bg-amber-100 text-amber-700 border-none">Performance</Badge>
                             </div>
-                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Vendas do Mês</h3>
+                            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Vendas do Mês</h3>
                             <p className="text-3xl font-black text-slate-900">{hub.totalLoansMonth}</p>
                             <p className="text-xs text-slate-500 mt-2 font-medium">Contratos gerados globalmente.</p>
                             <Link href="/dashboard/loans">

@@ -161,7 +161,7 @@ export function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: { is
                         return (
                             <div key={group.label} className={cn("flex flex-col", isCollapsed ? "gap-2 items-center" : "gap-1")}>
                                 {!isCollapsed && (
-                                    <div className="flex items-center justify-between w-full px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-sidebar-foreground/60 mb-1">
+                                    <div className="flex items-center justify-between w-full px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1">
                                         {group.label}
                                     </div>
                                 )}
@@ -185,10 +185,10 @@ export function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: { is
                                                     isCollapsed ? "p-2.5 justify-center w-10 h-10" : "gap-3 px-3 py-2 text-sm",
                                                     isActive
                                                         ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm shadow-black/10"
-                                                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+                                                        : "text-white/80 hover:bg-sidebar-accent/20 hover:text-white"
                                                 )}
                                             >
-                                                <item.icon className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-sidebar-primary-foreground" : "text-sidebar-foreground/70")} />
+                                                <item.icon className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-sidebar-primary-foreground" : "text-white/60")} />
                                                 {!isCollapsed && <span className="truncate">{item.label}</span>}
                                             </Link>
                                         );
@@ -247,11 +247,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
                             <Menu className="h-6 w-6" />
                         </Button>
                         <div className="hidden md:flex items-center font-semibold text-sm truncate gap-2">
-                            <Link href="/dashboard" className="text-slate-400 hover:text-primary transition-colors">Dashboard</Link>
+                            <Link href="/dashboard" className="text-slate-600 hover:text-primary transition-colors">Dashboard</Link>
                             {pathname !== '/dashboard' && (
                                 <>
-                                    <span className="text-slate-300">/</span>
-                                    <span className="text-slate-800 capitalize truncate">
+                                    <span className="text-slate-400">/</span>
+                                    <span className="text-slate-900 capitalize truncate">
                                         {pathname.split('/').filter(Boolean).pop()?.replace('-', ' ')}
                                     </span>
                                 </>

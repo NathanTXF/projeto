@@ -39,7 +39,7 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                     placeholder="Buscar por nome ou CPF..."
-                    className="pl-10 rounded-xl border-slate-200 bg-white shadow-sm focus-visible:ring-sidebar/20 focus-visible:border-sidebar transition-all h-11"
+                    className="pl-10 rounded-xl border-slate-300 bg-white shadow-sm focus-visible:ring-sidebar/20 focus-visible:border-sidebar transition-all h-11"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -91,7 +91,7 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                                                 </Avatar>
                                                 <div className="flex flex-col">
                                                     <span className="font-semibold text-slate-800 text-sm">{customer.nome}</span>
-                                                    <span className="text-xs text-slate-400 font-medium">Cód. {customer.cod}</span>
+                                                    <span className="text-xs text-slate-500 font-bold">Cód. {customer.cod}</span>
                                                 </div>
                                             </div>
                                         </TableCell>
@@ -118,8 +118,8 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                                                 variant="secondary"
                                                 className={
                                                     customer.sexo === "masculino"
-                                                        ? "bg-sidebar/10 text-sidebar-foreground border-sidebar/20 font-medium text-xs"
-                                                        : "bg-pink-50 text-pink-700 border-pink-100 font-medium text-xs"
+                                                        ? "bg-sidebar/10 text-sidebar border-sidebar/20 font-bold text-[10px]"
+                                                        : "bg-pink-50 text-pink-700 border-pink-100 font-bold text-[10px]"
                                                 }
                                             >
                                                 {customer.sexo === "masculino" ? "M" : "F"}

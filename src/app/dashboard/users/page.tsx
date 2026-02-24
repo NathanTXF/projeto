@@ -108,7 +108,7 @@ export default function UsersPage() {
                         </div>
                         <div>
                             <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Gerenciamento de Usuários</h1>
-                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Administre os acessos corporativos e permissões do sistema.</p>
+                            <p className="mt-1 text-primary-foreground/90 font-medium text-sm">Administre os acessos corporativos e permissões do sistema.</p>
                         </div>
                     </div>
                     <Button
@@ -165,8 +165,8 @@ export default function UsersPage() {
                 </CardHeader>
                 <CardContent className="p-0">
                     {loading ? (
-                        <div className="h-64 flex flex-col items-center justify-center gap-3 text-slate-400">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        <div className="h-64 flex flex-col items-center justify-center gap-3 text-slate-600 font-medium">
+                            <Loader2 className="h-8 w-8 animate-spin text-sidebar" />
                             <span>Carregando usuários...</span>
                         </div>
                     ) : (
