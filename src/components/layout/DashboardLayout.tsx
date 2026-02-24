@@ -17,7 +17,6 @@ import {
     Calendar,
     ChevronDown,
     Menu,
-    Bell,
     ShieldAlert,
     Building2,
     TrendingUp,
@@ -262,10 +261,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                     {/* Right Side: Notifications & User Profile */}
                     <div className="relative ml-auto flex items-center gap-1 sm:gap-3 shrink-0">
 
-                        {/* Notification Bell */}
-                        <button className="h-9 w-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-primary transition-colors focus:ring-2 focus:ring-primary/50 focus:outline-none focus:ring-offset-1">
-                            <Bell className="h-5 w-5" />
-                        </button>
+
 
                         <div className="h-6 w-px bg-slate-200 hidden sm:block mx-1"></div>
 

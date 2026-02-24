@@ -84,20 +84,27 @@ export default function AgendaPage() {
     };
 
     const toggleStatus = async (id: string, currentStatus: string) => {
+        // OPTIMISTIC UPDATE
+        const originalAppointments = [...monthlyAppointments];
+        const nextStatus = currentStatus === "PENDENTE" ? "CONCLUIDO" : "PENDENTE";
+
+        setMonthlyAppointments(prev => prev.map(apt =>
+            apt.id === id ? { ...apt, status: nextStatus } : apt
+        ));
+
         try {
-            const nextStatus = currentStatus === "PENDENTE" ? "CONCLUIDO" : "PENDENTE";
             const response = await fetch(`/api/agenda/${id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: nextStatus }),
             });
 
-            if (response.ok) {
-                toast.success(nextStatus === "CONCLUIDO" ? "Compromisso concluído!" : "Compromisso reaberto.");
-                fetchMonthlyAppointments(month);
-            }
+            if (!response.ok) throw new Error();
+
+            toast.success(nextStatus === "CONCLUIDO" ? "Compromisso concluído!" : "Compromisso reaberto.");
         } catch (error) {
-            toast.error("Erro ao atualizar status.");
+            setMonthlyAppointments(originalAppointments);
+            toast.error("Erro ao sincronizar status.");
         }
     };
 
@@ -125,20 +132,27 @@ export default function AgendaPage() {
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
             <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
+                <div className="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
+                    <CalendarIcon className="h-64 w-64 text-white" />
+                </div>
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md shadow-inner border border-white/20">
                             <CalendarIcon className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
                             <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Agenda de Compromissos</h1>
-                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Organize suas reuniões, visitas e cobranças.</p>
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">
+                                {appointments.length > 0
+                                    ? `Você tem ${appointments.length} compromissos para hoje. ${appointments.filter(a => a.status === 'CONCLUIDO').length} já feitos!`
+                                    : "Sua agenda está livre para hoje. Aproveite para planejar o amanhã!"}
+                            </p>
                         </div>
                     </div>
                     <Button
                         onClick={() => setIsDialogOpen(true)}
                         variant="secondary"
-                        className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all active:scale-95"
+                        className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all hover:scale-105 active:scale-95 bg-white text-[#00355E] hover:bg-white/90"
                     >
                         <Plus className="h-5 w-5" />
                         Novo Compromisso
@@ -147,12 +161,12 @@ export default function AgendaPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <Card className="lg:col-span-4 border border-slate-100 shadow-sm rounded-2xl bg-white overflow-hidden h-fit">
-                    <CardHeader className="bg-slate-50/50 border-b border-slate-100">
-                        <CardTitle className="text-lg font-bold">Calendário</CardTitle>
-                        <CardDescription>Visualização do Mês</CardDescription>
+                <Card className="lg:col-span-4 border border-slate-100 shadow-xl rounded-3xl bg-white/80 backdrop-blur-xl overflow-hidden h-fit sticky top-6">
+                    <CardHeader className="bg-slate-50/30 border-b border-slate-100">
+                        <CardTitle className="text-xl font-black text-slate-800">Calendário</CardTitle>
+                        <CardDescription className="font-bold text-slate-500 uppercase tracking-widest text-[10px]">Visualização do Mês</CardDescription>
                     </CardHeader>
-                    <CardContent className="p-5 flex justify-center">
+                    <CardContent className="p-5 flex flex-col items-center">
                         <Calendar
                             mode="single"
                             selected={date}
@@ -160,14 +174,20 @@ export default function AgendaPage() {
                             month={month}
                             onMonthChange={setMonth}
                             locale={ptBR}
-                            className="bg-white rounded-xl"
+                            className="bg-transparent"
                             modifiers={{
-                                hasAppointment: monthlyAppointments.map(a => new Date(a.data))
+                                hasAppointment: (date) => monthlyAppointments.some(a => new Date(a.data).toDateString() === date.toDateString()),
+                                visia: (date) => monthlyAppointments.some(a => new Date(a.data).toDateString() === date.toDateString() && a.tipo === 'Visita'),
+                                cobranca: (date) => monthlyAppointments.some(a => new Date(a.data).toDateString() === date.toDateString() && a.tipo === 'Cobrança')
                             }}
                             modifiersClassNames={{
-                                hasAppointment: "relative font-bold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:bg-primary after:rounded-full"
+                                hasAppointment: "relative font-bold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1.5 after:w-1.5 after:rounded-full after:bg-primary/20",
+                                visia: "after:bg-blue-500",
+                                cobranca: "after:bg-amber-500"
                             }}
                         />
+
+
                     </CardContent>
                 </Card>
 
@@ -175,30 +195,67 @@ export default function AgendaPage() {
                     <CardHeader className="bg-white border-b border-slate-100 p-6">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
-                                <CardTitle className="text-xl font-black text-slate-800">
+                                <CardTitle className="text-2xl font-black text-slate-900 tracking-tight">
                                     {date ? format(date, "EEEE, d 'de' MMMM", { locale: ptBR }) : "Selecione uma data"}
                                 </CardTitle>
-                                <CardDescription className="font-medium">{appointments.length} compromissos encontrados.</CardDescription>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <CardDescription className="font-bold text-slate-500">{appointments.length} compromissos encontrados.</CardDescription>
+                                    <div className="h-1 w-1 rounded-full bg-slate-300" />
+                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">
+                                        {Math.round((appointments.filter(a => a.status === 'CONCLUIDO').length / (appointments.length || 1)) * 100)}% concluído
+                                    </span>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
-                                {[
-                                    { id: "TODOS", label: "Tudo" },
-                                    { id: "PENDENTE", label: "Pendente" },
-                                    { id: "CONCLUIDO", label: "Feito" }
-                                ].map((f) => (
-                                    <Button
-                                        key={f.id}
-                                        variant={filterStatus === f.id ? "default" : "ghost"}
-                                        size="sm"
-                                        onClick={() => setFilterStatus(f.id)}
-                                        className={cn(
-                                            "rounded-xl h-8 px-4 font-bold text-[10px] uppercase tracking-wider transition-all",
-                                            filterStatus === f.id ? "bg-white text-primary shadow-sm hover:bg-white" : "text-slate-500 hover:bg-slate-100"
-                                        )}
-                                    >
-                                        {f.label}
-                                    </Button>
-                                ))}
+                            <div className="flex items-center gap-6 bg-slate-50/50 p-2 pr-4 rounded-3xl border border-slate-100 shadow-inner">
+                                <div className="relative h-12 w-12 flex items-center justify-center">
+                                    <svg className="h-full w-full -rotate-90 transform">
+                                        <circle
+                                            cx="24"
+                                            cy="24"
+                                            r="20"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                            fill="transparent"
+                                            className="text-slate-200"
+                                        />
+                                        <circle
+                                            cx="24"
+                                            cy="24"
+                                            r="20"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                            fill="transparent"
+                                            strokeDasharray={125.6}
+                                            strokeDashoffset={125.6 - (125.6 * (appointments.filter(a => a.status === 'CONCLUIDO').length / (appointments.length || 1)))}
+                                            strokeLinecap="round"
+                                            className="text-primary transition-all duration-1000 ease-out"
+                                        />
+                                    </svg>
+                                    <span className="absolute text-[10px] font-black text-slate-700">
+                                        {Math.round((appointments.filter(a => a.status === 'CONCLUIDO').length / (appointments.length || 1)) * 100)}%
+                                    </span>
+                                </div>
+
+                                <div className="flex items-center gap-1">
+                                    {[
+                                        { id: "TODOS", label: "Tudo" },
+                                        { id: "PENDENTE", label: "Pendente" },
+                                        { id: "CONCLUIDO", label: "Feito" }
+                                    ].map((f) => (
+                                        <Button
+                                            key={f.id}
+                                            variant={filterStatus === f.id ? "default" : "ghost"}
+                                            size="sm"
+                                            onClick={() => setFilterStatus(f.id)}
+                                            className={cn(
+                                                "rounded-2xl h-8 px-4 font-bold text-[10px] uppercase tracking-wider transition-all",
+                                                filterStatus === f.id ? "bg-white text-primary shadow-sm hover:bg-white border border-slate-100" : "text-slate-500 hover:bg-slate-200/50"
+                                            )}
+                                        >
+                                            {f.label}
+                                        </Button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </CardHeader>
@@ -209,13 +266,21 @@ export default function AgendaPage() {
                                 <span className="font-bold text-sm">Carregando sua agenda...</span>
                             </div>
                         ) : filteredAppointments.length === 0 ? (
-                            <div className="h-96 flex flex-col items-center justify-center gap-4 text-slate-400">
-                                <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center">
-                                    <CalendarIcon className="h-10 w-10 opacity-20" />
+                            <div className="h-96 flex flex-col items-center justify-center gap-6 text-slate-400">
+                                <div className="h-24 w-24 bg-gradient-to-br from-slate-50 to-white rounded-3xl flex items-center justify-center shadow-inner border border-slate-50 animate-pulse">
+                                    <CalendarIcon className="h-12 w-12 opacity-10" />
                                 </div>
                                 <div className="text-center">
-                                    <p className="font-bold text-slate-500">Nenhum compromisso encontrado</p>
-                                    <p className="text-xs uppercase tracking-widest font-black opacity-40 mt-1">Limpo por aqui!</p>
+                                    <h3 className="font-black text-slate-800 text-lg">Folga Merecida!</h3>
+                                    <p className="text-sm font-medium text-slate-500 mt-1 max-w-[200px] mx-auto">Tudo limpo para este dia. Que tal adiantar as tarefas de amanhã?</p>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="mt-6 rounded-xl font-black text-[10px] uppercase tracking-widest border-2"
+                                        onClick={() => setIsDialogOpen(true)}
+                                    >
+                                        Criar Agenda
+                                    </Button>
                                 </div>
                             </div>
                         ) : (
@@ -244,25 +309,31 @@ export default function AgendaPage() {
 
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1.5">
-                                                    <span className="text-sm font-black text-slate-900">{apt.hora}</span>
+                                                    <span className="text-sm font-black text-slate-900 group-hover:text-primary transition-colors">{apt.hora}</span>
                                                     <Badge className={cn(
-                                                        "rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest border-none",
-                                                        apt.tipo === 'Visita' ? "bg-blue-100 text-blue-700" :
-                                                            apt.tipo === 'Cobrança' ? "bg-amber-100 text-amber-700" :
-                                                                "bg-slate-100 text-slate-600"
+                                                        "rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest border-none transition-all",
+                                                        apt.tipo === 'Visita' ? "bg-blue-100 text-blue-700 group-hover:bg-blue-200" :
+                                                            apt.tipo === 'Cobrança' ? "bg-amber-100 text-amber-700 group-hover:bg-amber-200" :
+                                                                "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
                                                     )}>
                                                         {apt.tipo}
                                                     </Badge>
                                                     {apt.visibilidade === 'GLOBAL' && (
-                                                        <Badge className="bg-sidebar/10 text-sidebar-foreground rounded-full px-2 py-0.5 text-[8px] font-black border-none">GLOBAL</Badge>
+                                                        <Badge className="bg-sidebar/10 text-sidebar-foreground rounded-full px-2 py-0.5 text-[8px] font-black border-none animate-pulse">GLOBAL</Badge>
                                                     )}
                                                 </div>
                                                 <h4 className={cn(
-                                                    "font-bold text-slate-700 leading-tight transition-all",
+                                                    "font-bold text-slate-700 text-base leading-tight transition-all",
                                                     apt.status === "CONCLUIDO" && "line-through text-slate-400"
                                                 )}>
                                                     {apt.observacao || "Compromisso sem descrição"}
                                                 </h4>
+                                                {apt.localizacao && (
+                                                    <div className="flex items-center gap-1.5 mt-2 text-slate-400">
+                                                        <MapPin className="h-3 w-3" />
+                                                        <span className="text-[11px] font-medium">{apt.localizacao}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
 
