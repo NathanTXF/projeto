@@ -26,6 +26,13 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
     ResponsiveContainer,
     BarChart,
     Bar,
@@ -37,7 +44,8 @@ import {
     Pie,
     Cell,
     AreaChart,
-    Area
+    Area,
+    Legend
 } from "recharts";
 
 interface CardStat {
@@ -78,15 +86,19 @@ export default function OverviewPage() {
     const [loansByMonth, setLoansByMonth] = useState<{ name: string, total: number }[]>([]);
     const [loansByBank, setLoansByBank] = useState<{ name: string, value: number }[]>([]);
     const [loansByType, setLoansByType] = useState<{ name: string, value: number }[]>([]);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchStats();
-    }, []);
+    const years = Array.from({ length: 5 }, (_, i) => (new Date().getFullYear() - i).toString());
 
-    const fetchStats = async () => {
+    useEffect(() => {
+        fetchStats(selectedYear);
+    }, [selectedYear]);
+
+    const fetchStats = async (year: string) => {
         try {
-            const response = await fetch('/api/dashboard/stats');
+            setLoading(true);
+            const response = await fetch(`/api/dashboard/stats?year=${year}`);
             const data = await response.json();
             if (data.error) throw new Error(data.error);
 
@@ -159,7 +171,19 @@ export default function OverviewPage() {
                                 <h1 className="text-4xl font-black tracking-tighter text-white">Painel Estratégico</h1>
                                 <Badge className="bg-primary/20 text-primary border-primary/30 font-bold uppercase tracking-widest text-[10px]">Senior BI</Badge>
                             </div>
-                            <p className="text-primary-foreground/70 font-medium text-lg">Visão 360º da performance corporativa e saúde financeira.</p>
+                            <div className="flex items-center gap-2">
+                                <p className="text-primary-foreground/70 font-medium text-lg">Visão 360º da performance em {selectedYear}.</p>
+                                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                                    <SelectTrigger className="w-[100px] h-8 bg-white/10 border-white/20 text-white rounded-lg focus:ring-0">
+                                        <SelectValue placeholder="Ano" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {years.map(y => (
+                                            <SelectItem key={y} value={y}>{y}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     </div>
                     <div className="flex gap-4">
@@ -253,43 +277,38 @@ export default function OverviewPage() {
                     </div>
                 </Card>
 
-                {/* Donut: Mix de Produtos */}
-                <Card className="border-none shadow-xl rounded-2xl bg-card p-8">
+                {/* Perfil de Clientes (Sexo) - MVP Requirement */}
+                <Card className="border-none shadow-xl rounded-2xl bg-card p-8 group">
                     <CardHeader className="px-0 pt-0 pb-4 text-center">
-                        <CardTitle className="text-xl font-black text-foreground">Mix de Produtos</CardTitle>
-                        <CardDescription>Distribuição por tipo de operação.</CardDescription>
+                        <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 mb-2">
+                            <PieChartIcon className="h-6 w-6" />
+                        </div>
+                        <CardTitle className="text-xl font-black text-foreground">Perfil: Sexo</CardTitle>
+                        <CardDescription>Distribuição da base de clientes.</CardDescription>
                     </CardHeader>
-                    <div className="h-[300px] w-full">
+                    <div className="h-[250px] w-full">
                         {loading ? (
-                            <div className="h-full flex items-center justify-center text-muted-foreground">Analizando...</div>
+                            <div className="h-full flex items-center justify-center text-muted-foreground">Analizando base...</div>
                         ) : (
-                            <div className="h-full flex flex-col justify-center">
-                                <ResponsiveContainer width="100%" height="90%">
+                            <div className="h-full">
+                                <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie
-                                            data={loansByType}
-                                            innerRadius={70}
-                                            outerRadius={100}
-                                            paddingAngle={8}
+                                            data={clientsBySex}
+                                            innerRadius={60}
+                                            outerRadius={80}
+                                            paddingAngle={5}
                                             dataKey="value"
                                         >
-                                            {loansByType.map((_, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
+                                            <Cell key="cell-male" fill="#00355E" />
+                                            <Cell key="cell-female" fill="#E11D48" />
                                         </Pie>
                                         <ChartTooltip
-                                            contentStyle={{ borderRadius: '1rem', background: 'var(--card)', border: '1px solid var(--border)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                                            contentStyle={{ borderRadius: '1rem', background: 'var(--card)', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                                         />
+                                        <Legend verticalAlign="bottom" height={36} wrapperStyle={{ paddingTop: '20px', fontWeight: 'bold', fontSize: '10px', textTransform: 'uppercase' }} />
                                     </PieChart>
                                 </ResponsiveContainer>
-                                <div className="grid grid-cols-2 gap-2 mt-4 px-2">
-                                    {loansByType.map((item, index) => (
-                                        <div key={item.name} className="flex items-center gap-2">
-                                            <div className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                                            <span className="text-[10px] font-black text-muted-foreground truncate">{item.name}</span>
-                                        </div>
-                                    ))}
-                                </div>
                             </div>
                         )}
                     </div>
@@ -309,34 +328,37 @@ export default function OverviewPage() {
                             {loading ? (
                                 <div className="p-12 text-center text-muted-foreground">Carregando ranking...</div>
                             ) : topSellers.map((seller, index) => (
-                                <div key={seller.id} className="p-5 flex items-center justify-between hover:bg-muted/30 transition-all group">
-                                    <div className="flex items-center gap-4">
-                                        <div className="relative">
-                                            <div className="h-12 w-12 rounded-full border-2 border-white shadow-md overflow-hidden bg-primary/10">
-                                                {seller.fotoUrl ? (
-                                                    <img src={seller.fotoUrl} alt={seller.nome} className="h-full w-full object-cover" />
-                                                ) : (
-                                                    <div className="h-full w-full flex items-center justify-center text-primary font-black text-sm">
-                                                        {seller.nome.substring(0, 2).toUpperCase()}
+                                <Link key={seller.id} href={`/dashboard/clients?vendedorId=${seller.id}`}>
+                                    <div className="p-5 flex items-center justify-between hover:bg-muted/30 transition-all group cursor-pointer">
+                                        <div className="flex items-center gap-4">
+                                            <div className="relative">
+                                                <div className="h-12 w-12 rounded-full border-2 border-white shadow-md overflow-hidden bg-primary/10">
+                                                    {seller.fotoUrl ? (
+                                                        <img src={seller.fotoUrl} alt={seller.nome} className="h-full w-full object-cover" />
+                                                    ) : (
+                                                        <div className="h-full w-full flex items-center justify-center text-primary font-black text-sm">
+                                                            {seller.nome.substring(0, 2).toUpperCase()}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                {index < 3 && (
+                                                    <div className={`absolute -top-1 -right-1 h-6 w-6 rounded-full flex items-center justify-center text-[10px] text-white font-black border-2 border-white shadow-sm
+                                                        ${index === 0 ? 'bg-amber-400' : index === 1 ? 'bg-slate-300' : 'bg-orange-400'}`}>
+                                                        {index + 1}
                                                     </div>
                                                 )}
                                             </div>
-                                            {index < 3 && (
-                                                <div className={`absolute -top-1 -right-1 h-6 w-6 rounded-full flex items-center justify-center text-[10px] text-white font-black border-2 border-white shadow-sm
-                                                    ${index === 0 ? 'bg-amber-400' : index === 1 ? 'bg-slate-300' : 'bg-orange-400'}`}>
-                                                    {index + 1}
-                                                </div>
-                                            )}
+                                            <div>
+                                                <h4 className="font-black text-foreground text-sm tracking-tight group-hover:text-primary transition-colors">{seller.nome}</h4>
+                                                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">{seller.vendas} contratos fechados</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 className="font-black text-foreground text-sm tracking-tight">{seller.nome}</h4>
-                                            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">{seller.vendas} contratos fechados</p>
+                                        <div className="flex flex-col items-end">
+                                            <ArrowUpRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                                            <Badge className="bg-primary/10 text-primary border-none font-black text-[9px] mt-1">Ver Clientes</Badge>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col items-end">
-                                        <Badge className="bg-primary/10 text-primary border-none font-black text-[9px]">+12%</Badge>
-                                    </div>
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     </CardContent>

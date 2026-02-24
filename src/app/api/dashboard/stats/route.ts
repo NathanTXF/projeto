@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/core/auth/getUser';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
         const user = await getAuthUser();
         if (!user) {
@@ -11,10 +11,14 @@ export async function GET() {
         }
 
         const now = new Date();
+        const { searchParams } = new URL(request.url);
+        const year = searchParams.get('year') ? parseInt(searchParams.get('year')!) : now.getFullYear();
+
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        const startOfYear = new Date(year, 0, 1);
+        const endOfYear = new Date(year, 11, 31, 23, 59, 59);
 
         const isAdmin = hasPermission(user.permissions || [], PERMISSIONS.VIEW_DASHBOARD) && hasPermission(user.permissions || [], PERMISSIONS.VIEW_FINANCIAL);
         const whereVendedor = isAdmin ? {} : { vendedorId: user.id };
@@ -29,7 +33,7 @@ export async function GET() {
             pendingCommissions,
             topSellers,
             clientsBySex,
-            loansThisYear,
+            loansOfSelectedYear,
             loansByBankRaw,
             loansByTypeRaw,
             volumeMonthRaw,
@@ -132,8 +136,8 @@ export async function GET() {
                 value: c._count
             })),
             loansByMonth: Array.from({ length: 12 }, (_, i) => ({
-                name: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(new Date(now.getFullYear(), i, 1)),
-                total: loansThisYear.filter(l => new Date(l.dataInicio).getMonth() === i).length
+                name: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(new Date(year, i, 1)),
+                total: loansOfSelectedYear.filter(l => new Date(l.dataInicio).getMonth() === i).length
             })),
             loansByBank: loansByBankRaw.map(b => ({
                 name: bankMap.get(b.bancoId) || 'Outros',

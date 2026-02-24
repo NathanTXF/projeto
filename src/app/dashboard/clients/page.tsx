@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { CustomerList } from "@/modules/clients/presentation/components/CustomerList";
 import { CustomerForm } from "@/modules/clients/presentation/components/CustomerForm";
 import { Customer } from "@/modules/clients/domain/entities";
@@ -17,17 +18,21 @@ import { toast } from "sonner";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { exportToCsv, exportToPdf, ExportColumn } from "@/lib/exportUtils";
 
-export default function ClientsPage() {
+function ClientsContent() {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | undefined>();
     const [loading, setLoading] = useState(true);
     const [userLevel, setUserLevel] = useState<number | null>(null);
 
+    const searchParams = useSearchParams();
+    const vendedorId = searchParams.get("vendedorId");
+
     const fetchCustomers = async () => {
         try {
             setLoading(true);
-            const response = await fetch("/api/clients");
+            const query = vendedorId ? `?vendedorId=${vendedorId}` : "";
+            const response = await fetch(`/api/clients${query}`);
             if (response.ok) {
                 const data = await response.json();
                 setCustomers(data);
@@ -45,7 +50,7 @@ export default function ClientsPage() {
 
     useEffect(() => {
         fetchCustomers();
-    }, []);
+    }, [vendedorId]);
 
     const handleEdit = (customer: Customer) => {
         setSelectedCustomer(customer);
@@ -174,7 +179,6 @@ export default function ClientsPage() {
             {/* ── Dialog Novo/Editar Cliente ── */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="max-w-[95vw] sm:max-w-4xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
-                    {/* Solid Primary Header */}
                     <div className="relative bg-primary px-6 py-5">
                         <div className="relative flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
@@ -190,7 +194,6 @@ export default function ClientsPage() {
                             </div>
                         </div>
                     </div>
-                    {/* Scrollable Form Body */}
                     <div className="max-h-[calc(90vh-120px)] overflow-y-auto px-6 py-4">
                         <CustomerForm
                             initialData={selectedCustomer}
@@ -203,5 +206,17 @@ export default function ClientsPage() {
                 </DialogContent>
             </Dialog>
         </div>
+    );
+}
+
+export default function ClientsPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/20 border-t-primary"></div>
+            </div>
+        }>
+            <ClientsContent />
+        </Suspense>
     );
 }

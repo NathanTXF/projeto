@@ -9,8 +9,6 @@ export class UserUseCases {
         const user = await this.repository.findByUsername(usuario);
         if (!user) return { error: 'Usuário não encontrado' };
 
-        // REGRA MVP: Restrição de Horário (Temporariamente desativada para auditoria)
-        /*
         if (user.horarioInicio && user.horarioFim) {
             const now = new Date();
             const currentTime = now.getHours() * 100 + now.getMinutes();
@@ -31,7 +29,6 @@ export class UserUseCases {
                 return { error: `Acesso negado fora do horário permitido (${user.horarioInicio} - ${user.horarioFim})` };
             }
         }
-        */
 
         // Verificar se está bloqueado (mais de 3 tentativas)
         if (user.failedAttempts && user.failedAttempts >= 3) {
