@@ -115,7 +115,32 @@ export async function GET(request: Request) {
             });
         }
 
+        // 7. Dados de Hub (Global) para Admins
+        const isAdmin = user.nivelAcesso === 1;
+        let hub = null;
+
+        if (isAdmin) {
+            const [pendingApproval, toPayFinancial, totalLoans] = await Promise.all([
+                prisma.commission.count({ where: { status: 'EM_ABERTO' } }),
+                prisma.financial.aggregate({
+                    _sum: { valorTotal: true },
+                    where: { status: 'Em aberto' }
+                }),
+                prisma.loan.count({ where: { dataInicio: { gte: thisMonth } } })
+            ]);
+
+            hub = {
+                pendingApproval,
+                totalToPay: Number(toPayFinancial._sum?.valorTotal || 0),
+                totalLoansMonth: totalLoans
+            };
+        }
+
         return NextResponse.json({
+            user: {
+                nome: user.nome,
+                nivelAcesso: user.nivelAcesso
+            },
             metrics: {
                 customers: { today: todayCount, month: monthCount, year: yearCount },
                 commissions: { received: totalReceivedMonth, pending: totalPendingMonth },
@@ -124,7 +149,8 @@ export async function GET(request: Request) {
             },
             pipeline,
             appointments,
-            history
+            history,
+            hub
         });
 
     } catch (error: any) {

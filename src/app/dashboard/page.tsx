@@ -15,10 +15,15 @@ import {
     Trophy,
     Activity,
     ClipboardCheck,
-    AlertCircle,
     CheckCircle2,
-    Search
+    Search,
+    Plus,
+    FileText,
+    PieChart,
+    Shield,
+    Wallet
 } from "lucide-react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/Badge";
@@ -64,7 +69,7 @@ export default function DashboardPage() {
         );
     }
 
-    const { metrics, appointments, history, pipeline } = data || {};
+    const { user: authUser, metrics, appointments, history, pipeline, hub } = data || {};
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
@@ -75,63 +80,154 @@ export default function DashboardPage() {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
 
-            {/* ── Senior Personal Hero ── */}
-            <div className="relative overflow-hidden rounded-[2rem] bg-slate-900 p-8 md:p-12 shadow-2xl border border-white/5">
+            {/* ── Strategic Hero Banner ── */}
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 p-8 md:p-12 shadow-2xl border border-white/5">
                 <div className="absolute top-0 right-0 -mt-20 -mr-20 h-96 w-96 rounded-full bg-primary/20 blur-[100px]" />
                 <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-indigo-500/10 blur-[80px]" />
 
-                <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="space-y-4">
+                <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="space-y-6">
                         <div className="flex items-center gap-3">
                             <Badge className="bg-primary/20 text-primary border-primary/30 font-black px-3 py-1 text-[10px] uppercase tracking-widest rounded-full">
-                                Performance Hub
+                                {authUser?.nivelAcesso === 1 ? "Painel do Gestor" : "Performance Hub"}
                             </Badge>
                             {metrics?.rankingPosition && (
                                 <div className="flex items-center gap-1.5 text-amber-400 font-black text-xs">
                                     <Trophy className="h-4 w-4" />
-                                    <span>#{metrics.rankingPosition} no Ranking Geral</span>
+                                    <span>#{metrics.rankingPosition} no Ranking</span>
                                 </div>
                             )}
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white leading-tight">
-                            Vamos bater essa <br />
-                            <span className="text-primary italic">meta hoje?</span>
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white leading-[1.1]">
+                            Olá, <span className="text-primary">{authUser?.nome?.split(' ')[0]}</span>. <br />
+                            Pronto para <span className="italic underline decoration-primary/30">vencer?</span>
                         </h1>
-                        <p className="text-slate-400 font-medium max-w-md text-lg">
-                            Você já conquistou {formatCurrency(metrics?.commissions.received)} este mês. Faltam apenas {formatCurrency(Math.max(0, metrics?.metaMensal - metrics?.commissions.received))} para o seu objetivo!
+                        <p className="text-slate-400 font-medium max-w-md text-lg leading-relaxed">
+                            {authUser?.nivelAcesso === 1
+                                ? "Seu sistema está operacional. Confira os indicadores estratégicos e tome decisões baseadas em dados."
+                                : `Você já conquistou ${formatCurrency(metrics?.commissions.received)} este mês. Faltam ${formatCurrency(Math.max(0, metrics?.metaMensal - metrics?.commissions.received))} para a meta!`}
                         </p>
                     </div>
 
-                    <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-8 min-w-[320px] shadow-2xl">
-                        <div className="flex justify-between items-end mb-4">
-                            <div>
-                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Meta Mensal</p>
-                                <p className="text-3xl font-black text-white">{Math.round(goalPercent)}%</p>
+                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-8 min-w-[340px] shadow-2xl relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="relative z-10">
+                            <div className="flex justify-between items-end mb-5">
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{authUser?.nivelAcesso === 1 ? "Meta Global" : "Sua Meta"}</p>
+                                    <p className="text-4xl font-black text-white tracking-tighter">{Math.round(goalPercent)}%</p>
+                                </div>
+                                <div className="text-right">
+                                    <Badge className="bg-white/10 text-white border-white/10 mb-2">{goalPercent >= 100 ? "🏆 Meta Batida!" : "Em progresso"}</Badge>
+                                </div>
                             </div>
-                            <div className="text-right">
-                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Status</p>
-                                <p className="text-xs font-bold text-primary">{goalPercent >= 100 ? "🏆 Meta Batida!" : "Em progresso"}</p>
+                            <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden mb-6">
+                                <div
+                                    className="h-full bg-gradient-to-r from-primary to-indigo-500 transition-all duration-1000 shadow-[0_0_20px_rgba(var(--primary-rgb),0.5)]"
+                                    style={{ width: `${goalPercent}%` }}
+                                />
                             </div>
-                        </div>
-                        <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden mb-6">
-                            <div
-                                className="h-full bg-primary transition-all duration-1000 shadow-[0_0_20px_rgba(var(--primary-rgb),0.5)]"
-                                style={{ width: `${goalPercent}%` }}
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-3 rounded-2xl bg-white/5 border border-white/5">
-                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-tighter mb-0.5">Pendentes</p>
-                                <p className="text-sm font-bold text-white">{formatCurrency(metrics?.commissions.pending)}</p>
-                            </div>
-                            <div className="p-3 rounded-2xl bg-primary/10 border border-primary/10">
-                                <p className="text-[9px] font-black text-primary uppercase tracking-tighter mb-0.5">Cadastros</p>
-                                <p className="text-sm font-bold text-white">{metrics?.customers.month}</p>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-tighter mb-1">Pendentes</p>
+                                    <p className="text-md font-bold text-white leading-none">{formatCurrency(metrics?.commissions.pending)}</p>
+                                </div>
+                                <div className="p-4 rounded-3xl bg-primary/10 border border-primary/10 hover:bg-primary/20 transition-colors">
+                                    <p className="text-[9px] font-black text-primary uppercase tracking-tighter mb-1">Cadastros</p>
+                                    <p className="text-md font-bold text-white leading-none">{metrics?.customers.month}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* ── Quick Actions Grid (The Hub) ── */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                    { label: "Novo Cliente", icon: Plus, href: "/dashboard/clients", color: "text-blue-600", bg: "bg-blue-50" },
+                    { label: "Novo Contrato", icon: FileText, href: "/dashboard/loans", color: "text-indigo-600", bg: "bg-indigo-50" },
+                    { label: "Comissões", icon: PieChart, href: "/dashboard/commissions", color: "text-emerald-600", bg: "bg-emerald-50" },
+                    { label: "Financeiro", icon: Wallet, href: "/dashboard/financial", color: "text-amber-600", bg: "bg-amber-50" },
+                ].map((action) => (
+                    <Link key={action.label} href={action.href}>
+                        <Button
+                            variant="ghost"
+                            className={cn(
+                                "w-full h-auto p-6 rounded-[2rem] flex flex-col items-center gap-3 transition-all hover:scale-[1.02] border border-slate-100 bg-white shadow-sm hover:shadow-md",
+                                "hover:bg-white"
+                            )}
+                        >
+                            <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shadow-inner", action.bg, action.color)}>
+                                <action.icon className="h-6 w-6" />
+                            </div>
+                            <span className="font-bold text-slate-700 text-xs uppercase tracking-wider">{action.label}</span>
+                        </Button>
+                    </Link>
+                ))}
+            </div>
+
+            {/* ── Admin Specific Strategic View ── */}
+            {authUser?.nivelAcesso === 1 && hub && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in slide-in-from-left-4 duration-500 delay-150">
+                    <Card className="border-none shadow-xl rounded-[2rem] bg-gradient-to-br from-indigo-600 to-primary p-1">
+                        <div className="bg-white rounded-[1.9rem] p-6 h-full">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                                    <Shield className="h-5 w-5" />
+                                </div>
+                                <Badge className="bg-indigo-100 text-indigo-700 border-none">Gestão Global</Badge>
+                            </div>
+                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Aprovação Pendente</h3>
+                            <p className="text-3xl font-black text-slate-900">{hub.pendingApproval}</p>
+                            <p className="text-xs text-slate-500 mt-2 font-medium">Comissões aguardando sua revisão.</p>
+                            <Link href="/dashboard/commissions">
+                                <Button variant="link" className="p-0 h-auto mt-4 text-primary font-bold text-xs gap-1 group">
+                                    Acessar Comissões <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+                                </Button>
+                            </Link>
+                        </div>
+                    </Card>
+
+                    <Card className="border-none shadow-xl rounded-[2rem] bg-gradient-to-br from-emerald-500 to-teal-500 p-1">
+                        <div className="bg-white rounded-[1.9rem] p-6 h-full">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="h-10 w-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                                    <DollarSign className="h-5 w-5" />
+                                </div>
+                                <Badge className="bg-emerald-100 text-emerald-700 border-none">Fluxo de Caixa</Badge>
+                            </div>
+                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total a Pagar</h3>
+                            <p className="text-3xl font-black text-slate-900">{formatCurrency(hub.totalToPay)}</p>
+                            <p className="text-xs text-slate-500 mt-2 font-medium">Compromissos financeiros em aberto.</p>
+                            <Link href="/dashboard/financial">
+                                <Button variant="link" className="p-0 h-auto mt-4 text-emerald-600 font-bold text-xs gap-1 group">
+                                    Ver Financeiro <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+                                </Button>
+                            </Link>
+                        </div>
+                    </Card>
+
+                    <Card className="border-none shadow-xl rounded-[2rem] bg-gradient-to-br from-amber-500 to-orange-500 p-1">
+                        <div className="bg-white rounded-[1.9rem] p-6 h-full">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="h-10 w-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+                                    <TrendingUp className="h-5 w-5" />
+                                </div>
+                                <Badge className="bg-amber-100 text-amber-700 border-none">Performance</Badge>
+                            </div>
+                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Vendas do Mês</h3>
+                            <p className="text-3xl font-black text-slate-900">{hub.totalLoansMonth}</p>
+                            <p className="text-xs text-slate-500 mt-2 font-medium">Contratos gerados globalmente.</p>
+                            <Link href="/dashboard/loans">
+                                <Button variant="link" className="p-0 h-auto mt-4 text-amber-600 font-bold text-xs gap-1 group">
+                                    Explorar Vendas <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+                                </Button>
+                            </Link>
+                        </div>
+                    </Card>
+                </div>
+            )}
 
             {/* ── Pipeline Section (Senior Action Grid) ── */}
             <div className="space-y-4">
