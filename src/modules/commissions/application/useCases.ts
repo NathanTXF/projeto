@@ -16,6 +16,14 @@ export class CommissionUseCases {
         return await this.repository.findByFilters(filters);
     }
 
+    async getWithPendingLoans(filters: { mesAno?: string; vendedorId?: string }) {
+        const approvedAndOpen = await this.repository.findByFilters(filters);
+        const pendingGeneration = await this.repository.findPendingLoans(filters);
+
+        // Combinar os dois. No topo o que já existe, depois os pendentes.
+        return [...approvedAndOpen, ...pendingGeneration];
+    }
+
     async calculateAndCreate(params: {
         loanId: string;
         vendedorId: string;

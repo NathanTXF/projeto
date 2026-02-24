@@ -109,9 +109,16 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
         try {
             const res = await fetch(`/api/clients/search?q=${query}`);
             const data = await res.json();
-            setSearchResults(data || []);
+
+            if (data.error) {
+                console.error("Search API Error:", data.error);
+                setSearchResults([]);
+            } else {
+                setSearchResults(Array.isArray(data) ? data : []);
+            }
         } catch (error) {
             console.error("Search error", error);
+            setSearchResults([]);
         } finally {
             setIsSearching(false);
         }
@@ -130,7 +137,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
             valorBruto: 0,
             valorLiquido: 0,
             clienteId: "",
-            vendedorId: "",
+            vendedorId: undefined,
             orgaoId: undefined,
             bancoId: undefined,
             tipoId: undefined,

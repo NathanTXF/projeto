@@ -64,19 +64,47 @@ export default function CommissionsPage() {
         fetchCommissions();
     }, [period, vendedorId]);
 
-    const handleApprove = async (id: string) => {
+    const handleApprove = async (id: string, data?: any) => {
         try {
-            const response = await fetch(`/api/commissions/${id}`, {
-                method: "PATCH",
-                body: JSON.stringify({ action: "APPROVE" }),
-                headers: { "Content-Type": "application/json" },
-            });
-            if (response.ok) {
-                toast.success("Comissão aprovada!");
-                fetchCommissions();
+            if (id.startsWith('pending-')) {
+                // Criar nova comissão
+                const response = await fetch("/api/commissions", {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: { "Content-Type": "application/json" },
+                });
+
+                if (response.ok) {
+                    const commission = await response.json();
+                    // Após criar, aprovar automaticamente (ou o POST já faz isso?)
+                    // O MVP diz que ao aprovar, vai para o financeiro.
+                    // Vou fazer o POST ja criar como APROVADO se vier da UI de aprovação, 
+                    // ou fazer um PATCH logo em seguida.
+                    // Melhorei o backend para o POST suportar status opcional.
+                    const approveRes = await fetch(`/api/commissions/${commission.id}`, {
+                        method: "PATCH",
+                        body: JSON.stringify({ action: "APPROVE" }),
+                        headers: { "Content-Type": "application/json" },
+                    });
+
+                    if (approveRes.ok) {
+                        toast.success("Comissão gerada e aprovada!");
+                        fetchCommissions();
+                    }
+                }
+            } else {
+                const response = await fetch(`/api/commissions/${id}`, {
+                    method: "PATCH",
+                    body: JSON.stringify({ action: "APPROVE" }),
+                    headers: { "Content-Type": "application/json" },
+                });
+                if (response.ok) {
+                    toast.success("Comissão aprovada!");
+                    fetchCommissions();
+                }
             }
         } catch (error) {
-            toast.error("Erro ao aprovar comissão");
+            toast.error("Erro ao processar comissão");
         }
     };
 

@@ -73,6 +73,52 @@ export class PrismaCommissionRepository implements CommissionRepository {
         return commissions as unknown as Commission[];
     }
 
+    async findPendingLoans(filters: { mesAno?: string; vendedorId?: string }): Promise<any[]> {
+        const where: any = {
+            vendedorId: filters.vendedorId,
+            commission: null, // Loans that don't have a commission record yet
+        };
+
+        if (filters.mesAno) {
+            const [month, year] = filters.mesAno.split('/').map(Number);
+            const startDate = new Date(year, month - 1, 1);
+            const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+
+            where.dataInicio = {
+                gte: startDate,
+                lte: endDate,
+            };
+        }
+
+        const loans = await prisma.loan.findMany({
+            where,
+            include: {
+                cliente: true,
+                vendedor: true,
+            },
+            orderBy: { dataInicio: 'desc' },
+        });
+
+        // Map loans to a structure that the frontend can easily handle next to commissions
+        return loans.map(loan => ({
+            id: `pending-${loan.id}`,
+            loanId: loan.id,
+            vendedorId: loan.vendedorId,
+            mesAno: filters.mesAno || new Intl.DateTimeFormat('pt-BR', { month: '2-digit', year: 'numeric' }).format(loan.dataInicio),
+            status: 'PENDENTE_GERACAO',
+            valorCalculado: 0,
+            tipoComissao: 'PORCENTAGEM',
+            valorReferencia: 0,
+            loan: {
+                id: loan.id,
+                cod: loan.cod,
+                cliente: loan.cliente,
+                valorLiquido: Number(loan.valorLiquido),
+            },
+            vendedor: loan.vendedor,
+        }));
+    }
+
     async create(data: Commission): Promise<Commission> {
         const commission = await prisma.commission.create({
             data: data as any,

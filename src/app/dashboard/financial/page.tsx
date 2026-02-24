@@ -8,7 +8,7 @@ import {
     Clock,
     Filter,
     Loader2,
-    Link as LinkIcon
+    FileText
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,7 +46,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const paymentFormSchema = z.object({
     pagoEm: z.string().min(1, "Data de pagamento é obrigatória"),
-    comprovanteUrl: z.string().url("URL inválida").optional().or(z.literal("")),
+    comprovante: z.any().optional(),
 });
 
 type PaymentFormValues = z.infer<typeof paymentFormSchema>;
@@ -75,7 +75,7 @@ export default function FinancialPage() {
         resolver: zodResolver(paymentFormSchema),
         defaultValues: {
             pagoEm: new Date().toISOString().split('T')[0],
-            comprovanteUrl: "",
+            comprovante: undefined,
         },
     });
 
@@ -102,7 +102,7 @@ export default function FinancialPage() {
         setSelectedTransaction(transaction);
         form.reset({
             pagoEm: new Date().toISOString().split('T')[0],
-            comprovanteUrl: "",
+            comprovante: undefined,
         });
         setIsDialogOpen(true);
     };
@@ -112,13 +112,31 @@ export default function FinancialPage() {
 
         try {
             setIsSubmitting(true);
+
+            let uploadedUrl = "";
+
+            // Upload do arquivo se existir
+            if (values.comprovante && values.comprovante[0]) {
+                const formData = new FormData();
+                formData.append('file', values.comprovante[0]);
+
+                const uploadRes = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!uploadRes.ok) throw new Error("Falha ao subir comprovante");
+                const uploadData = await uploadRes.json();
+                uploadedUrl = uploadData.url;
+            }
+
             const response = await fetch(`/api/financial/${selectedTransaction.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: 'PAY',
                     pagoEm: values.pagoEm,
-                    comprovanteUrl: values.comprovanteUrl || undefined,
+                    comprovanteUrl: uploadedUrl || undefined,
                 }),
             });
 
@@ -248,7 +266,19 @@ export default function FinancialPage() {
                                                     Pagar
                                                 </Button>
                                             ) : (
-                                                <div className="flex justify-end pr-2 text-slate-400">
+                                                <div className="flex justify-end gap-2 pr-2">
+                                                    {t.comprovanteUrl && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                                                            asChild
+                                                        >
+                                                            <a href={t.comprovanteUrl} target="_blank" rel="noopener noreferrer">
+                                                                <FileText className="h-4 w-4" />
+                                                            </a>
+                                                        </Button>
+                                                    )}
                                                     <CheckCircle2 className="h-5 w-5 text-emerald-500/50" />
                                                 </div>
                                             )}
@@ -313,17 +343,19 @@ export default function FinancialPage() {
 
                                 <FormField
                                     control={form.control}
-                                    name="comprovanteUrl"
-                                    render={({ field }) => (
+                                    name="comprovante"
+                                    render={({ field: { value, onChange, ...fieldProps } }) => (
                                         <FormItem className="space-y-1.5">
-                                            <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Link do Comprovante (Opcional)</FormLabel>
+                                            <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Anexar Comprovante (Opcional)</FormLabel>
                                             <FormControl>
                                                 <div className="relative">
-                                                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                    <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                                     <Input
-                                                        placeholder="https://..."
-                                                        {...field}
-                                                        className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:bg-white transition-colors"
+                                                        type="file"
+                                                        accept="application/pdf,image/*"
+                                                        className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:bg-white transition-colors file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                                                        onChange={(event) => onChange(event.target.files)}
+                                                        {...fieldProps}
                                                     />
                                                 </div>
                                             </FormControl>

@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         }
 
         if (mesAno || vendedorId) {
-            const commissions = await useCases.getByFilters({ mesAno, vendedorId });
+            const commissions = await useCases.getWithPendingLoans({ mesAno, vendedorId });
             return NextResponse.json(commissions);
         }
 
