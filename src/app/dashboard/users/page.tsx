@@ -16,6 +16,8 @@ import {
 import { UserList } from "@/modules/users/presentation/components/UserList";
 import { UserForm } from "@/modules/users/presentation/components/UserForm";
 import { User } from "@/modules/users/domain/entities";
+import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { SystemIntegrityAlert } from "@/components/shared/SystemIntegrityAlert";
 
 export default function UsersPage() {
     const [users, setUsers] = useState<User[]>([]);
@@ -25,6 +27,13 @@ export default function UsersPage() {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentUserLevel, setCurrentUserLevel] = useState<number | null>(null);
+
+    // Modern modal states
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [isIntegrityAlertOpen, setIsIntegrityAlertOpen] = useState(false);
+    const [userIdToDelete, setUserIdToDelete] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [integrityErrorMessage, setIntegrityErrorMessage] = useState("");
 
     useEffect(() => {
         fetchUsers();
@@ -75,31 +84,41 @@ export default function UsersPage() {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
+    const handleDelete = (id: string) => {
+        setUserIdToDelete(id);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!userIdToDelete) return;
 
         try {
-            const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+            setIsDeleting(true);
+            const response = await fetch(`/api/users/${userIdToDelete}`, { method: 'DELETE' });
             if (response.ok) {
                 toast.success("Usuário excluído com sucesso!");
+                setIsDeleteConfirmOpen(false);
+                setUserIdToDelete(null);
                 fetchUsers();
             } else {
-                let errorMessage = "Erro desconhecido ao excluir.";
+                let errorMessage = "Este usuário não pode ser excluído pois possui registros vinculados no sistema.";
                 try {
                     const errorData = await response.json();
                     if (errorData.error) errorMessage = errorData.error;
-                } catch (e) {
-                    // Ignora
+                } catch (e) { }
+
+                if (response.status === 400) {
+                    setIntegrityErrorMessage(errorMessage);
+                    setIsIntegrityAlertOpen(true);
+                    setIsDeleteConfirmOpen(false);
+                } else {
+                    toast.error(errorMessage);
                 }
-
-                // Fallback nativo crítico de integridade:
-                alert("Aviso do Sistema:\n\n" + errorMessage);
-
-                toast.error(errorMessage, { duration: 6000 });
             }
         } catch (error: any) {
-            alert("Erro na requisição: " + error.message);
             toast.error("Erro na requisição: " + error.message);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -224,6 +243,20 @@ export default function UsersPage() {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <DeleteConfirmDialog
+                open={isDeleteConfirmOpen}
+                onOpenChange={setIsDeleteConfirmOpen}
+                onConfirm={confirmDelete}
+                isDeleting={isDeleting}
+                itemName="usuário"
+            />
+
+            <SystemIntegrityAlert
+                open={isIntegrityAlertOpen}
+                onOpenChange={setIsIntegrityAlertOpen}
+                message={integrityErrorMessage}
+            />
         </div>
     );
 }

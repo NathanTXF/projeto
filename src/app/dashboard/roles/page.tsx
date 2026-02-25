@@ -15,6 +15,8 @@ import {
 import { RoleList } from "@/app/dashboard/roles/components/RoleList";
 import { RoleForm } from "@/app/dashboard/roles/components/RoleForm";
 import { Role } from "@/modules/roles/domain/entities";
+import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { SystemIntegrityAlert } from "@/components/shared/SystemIntegrityAlert";
 
 export default function RolesPage() {
     const [roles, setRoles] = useState<Role[]>([]);
@@ -23,6 +25,13 @@ export default function RolesPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedRole, setSelectedRole] = useState<Role | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Modern modal states
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [isIntegrityAlertOpen, setIsIntegrityAlertOpen] = useState(false);
+    const [roleIdToDelete, setRoleIdToDelete] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [integrityErrorMessage, setIntegrityErrorMessage] = useState("");
 
     useEffect(() => {
         fetchRoles();
@@ -72,20 +81,41 @@ export default function RolesPage() {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Tem certeza que deseja excluir este perfil?")) return;
+    const handleDelete = (id: string) => {
+        setRoleIdToDelete(id);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!roleIdToDelete) return;
 
         try {
-            const response = await fetch(`/api/roles/${id}`, { method: 'DELETE' });
+            setIsDeleting(true);
+            const response = await fetch(`/api/roles/${roleIdToDelete}`, { method: 'DELETE' });
             if (response.ok) {
                 toast.success("Perfil excluído!");
+                setIsDeleteConfirmOpen(false);
+                setRoleIdToDelete(null);
                 fetchRoles();
             } else {
-                const errorData = await response.json();
-                toast.error("Erro: " + errorData.error);
+                let errorMessage = "Este perfil não pode ser excluído pois possui usuários vinculados ou permissões críticas.";
+                try {
+                    const errorData = await response.json();
+                    if (errorData.error) errorMessage = errorData.error;
+                } catch (e) { }
+
+                if (response.status === 400) {
+                    setIntegrityErrorMessage(errorMessage);
+                    setIsIntegrityAlertOpen(true);
+                    setIsDeleteConfirmOpen(false);
+                } else {
+                    toast.error(errorMessage);
+                }
             }
         } catch (error: any) {
             toast.error("Erro ao excluir: " + error.message);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -194,6 +224,20 @@ export default function RolesPage() {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <DeleteConfirmDialog
+                open={isDeleteConfirmOpen}
+                onOpenChange={setIsDeleteConfirmOpen}
+                onConfirm={confirmDelete}
+                isDeleting={isDeleting}
+                itemName="perfil"
+            />
+
+            <SystemIntegrityAlert
+                open={isIntegrityAlertOpen}
+                onOpenChange={setIsIntegrityAlertOpen}
+                message={integrityErrorMessage}
+            />
         </div>
     );
 }

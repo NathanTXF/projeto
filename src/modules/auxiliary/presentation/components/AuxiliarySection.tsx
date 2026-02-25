@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, Loader2, Database, AlertCircle } from "lucide-react";
+import { Plus, Edit, Trash2, Loader2, Database, AlertCircle, AlertTriangle } from "lucide-react";
+import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { SystemIntegrityAlert } from "@/components/shared/SystemIntegrityAlert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -40,6 +42,13 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
     const [selectedItem, setSelectedItem] = useState<AuxiliaryItem | null>(null);
     const [nome, setNome] = useState("");
     const [submitting, setSubmitting] = useState(false);
+
+    // Modern modal states
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [isIntegrityAlertOpen, setIsIntegrityAlertOpen] = useState(false);
+    const [itemIdToDelete, setItemIdToDelete] = useState<number | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [integrityErrorMessage, setIntegrityErrorMessage] = useState("");
 
     const fetchItems = async () => {
         try {
@@ -87,18 +96,41 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!confirm("Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.")) return;
+    const handleDelete = (id: number) => {
+        setItemIdToDelete(id);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (itemIdToDelete === null) return;
+
+        setIsDeleting(true);
         try {
-            const response = await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+            const response = await fetch(`${apiUrl}/${itemIdToDelete}`, { method: "DELETE" });
             if (response.ok) {
                 toast.success("Excluído com sucesso");
+                setIsDeleteConfirmOpen(false);
+                setItemIdToDelete(null);
                 fetchItems();
             } else {
-                throw new Error("Erro ao excluir. O registro pode estar em uso.");
+                let errorMessage = `Este ${title.toLowerCase().slice(0, -1)} não pode ser excluído pois está sendo utilizado no sistema.`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData.error) errorMessage = errorData.error;
+                } catch (e) { }
+
+                if (response.status === 400) {
+                    setIntegrityErrorMessage(errorMessage);
+                    setIsIntegrityAlertOpen(true);
+                    setIsDeleteConfirmOpen(false);
+                } else {
+                    toast.error(errorMessage);
+                }
             }
         } catch (error) {
-            toast.error("Erro ao excluir. Verifique se o registro está sendo utilizado em outro lugar.");
+            toast.error("Erro na requisição ao excluir.");
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -268,6 +300,20 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <DeleteConfirmDialog
+                open={isDeleteConfirmOpen}
+                onOpenChange={setIsDeleteConfirmOpen}
+                onConfirm={confirmDelete}
+                isDeleting={isDeleting}
+                itemName={title.endsWith('s') ? title.slice(0, -1) : title}
+            />
+
+            <SystemIntegrityAlert
+                open={isIntegrityAlertOpen}
+                onOpenChange={setIsIntegrityAlertOpen}
+                message={integrityErrorMessage}
+            />
         </div>
     );
 }
