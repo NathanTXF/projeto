@@ -81,14 +81,25 @@ export default function UsersPage() {
         try {
             const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
             if (response.ok) {
-                toast.success("Usuário excluído!");
+                toast.success("Usuário excluído com sucesso!");
                 fetchUsers();
             } else {
-                const errorData = await response.json();
-                toast.error("Erro: " + errorData.error);
+                let errorMessage = "Erro desconhecido ao excluir.";
+                try {
+                    const errorData = await response.json();
+                    if (errorData.error) errorMessage = errorData.error;
+                } catch (e) {
+                    // Ignora
+                }
+
+                // Fallback nativo crítico de integridade:
+                alert("Aviso do Sistema:\n\n" + errorMessage);
+
+                toast.error(errorMessage, { duration: 6000 });
             }
         } catch (error: any) {
-            toast.error("Erro ao excluir: " + error.message);
+            alert("Erro na requisição: " + error.message);
+            toast.error("Erro na requisição: " + error.message);
         }
     };
 

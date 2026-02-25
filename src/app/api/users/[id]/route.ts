@@ -53,6 +53,7 @@ export async function DELETE(
         await useCases.removeUser(id);
         return NextResponse.json({ success: true });
     } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        const status = error.message?.includes('não pode ser excluído') ? 400 : 500;
+        return NextResponse.json({ error: error.message }, { status });
     }
 }

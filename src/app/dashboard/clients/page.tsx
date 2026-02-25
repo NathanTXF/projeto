@@ -62,12 +62,29 @@ function ClientsContent() {
 
         try {
             const response = await fetch(`/api/clients/${id}`, { method: "DELETE" });
+
             if (response.ok) {
-                toast.success("Cliente excluído");
+                toast.success("Cliente excluído com sucesso!");
                 fetchCustomers();
+            } else {
+                let errorMessage = "Erro desconhecido ao excluir.";
+                try {
+                    const errorData = await response.json();
+                    if (errorData.error) errorMessage = errorData.error;
+                } catch (e) {
+                    // Ignora
+                }
+
+                // Fallback nativo crítico de integridade:
+                alert("Aviso do Sistema:\n\n" + errorMessage);
+
+                toast.error(errorMessage, {
+                    duration: 6000,
+                });
             }
-        } catch (error) {
-            toast.error("Erro ao excluir cliente");
+        } catch (error: any) {
+            alert("Erro na requisição: " + error.message);
+            toast.error("Erro na requisição: " + error.message);
         }
     };
 

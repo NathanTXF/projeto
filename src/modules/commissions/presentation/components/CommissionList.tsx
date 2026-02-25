@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/Badge";
-import { CheckCircle, XCircle, Save } from "lucide-react";
+import { CheckCircle, XCircle, Save, Edit } from "lucide-react";
 import { Commission } from "../../domain/entities";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -31,6 +31,7 @@ const statusColors: Record<string, string> = {
 
 export function CommissionList({ commissions, onApprove, onCancel }: CommissionListProps) {
     const [pendingData, setPendingData] = useState<Record<string, { tipo: string, referencia: number }>>({});
+    const [editingId, setEditingId] = useState<string | null>(null);
 
     const handleDataChange = (id: string, field: string, value: any) => {
         setPendingData(prev => ({
@@ -67,12 +68,15 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
                     ) : (
                         commissions.map((c) => {
                             const isPending = c.status === 'PENDENTE_GERACAO';
+                            const isEditing = editingId === c.id;
+                            const showInputs = isPending || isEditing;
+
                             const currentData = pendingData[c.id] || {
                                 tipo: c.tipoComissao || 'PORCENTAGEM',
                                 referencia: c.valorReferencia || 0
                             };
 
-                            const valorCalculado = isPending
+                            const valorCalculado = showInputs
                                 ? (currentData.tipo === 'PORCENTAGEM'
                                     ? (Number(c.loan.valorLiquido) * currentData.referencia) / 100
                                     : currentData.referencia)
@@ -84,7 +88,7 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
                                     <TableCell className="font-semibold text-slate-500 font-outfit text-xs">#{c.loan?.cod || 'N/A'}</TableCell>
                                     <TableCell className="text-slate-600">{c.loan?.cliente?.nome || 'N/A'}</TableCell>
                                     <TableCell className="text-center min-w-[120px]">
-                                        {isPending ? (
+                                        {showInputs ? (
                                             <Input
                                                 type="number"
                                                 className="h-9 w-24 mx-auto text-center font-bold rounded-lg border-slate-200 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
@@ -98,7 +102,7 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
                                         )}
                                     </TableCell>
                                     <TableCell>
-                                        {isPending ? (
+                                        {showInputs ? (
                                             <Select
                                                 value={currentData.tipo}
                                                 onValueChange={(v) => handleDataChange(c.id, 'tipo', v)}
@@ -121,24 +125,58 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
                                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorCalculado)}
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant="outline" className={`${statusColors[c.status]} font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 border-none`}>
-                                            {c.status.replace('_', ' ').replace('PENDENTE GERACAO', 'NÃO GERADA')}
+                                        <Badge variant="outline" className={`${statusColors[(c.status || '').toUpperCase().replace(' ', '_')]} font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 border-none`}>
+                                            {(c.status || '').replace('_', ' ').replace('PENDENTE GERACAO', 'NÃO GERADA')}
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-right space-x-2">
                                         <div className="flex justify-end gap-1">
-                                            {(c.status === 'EM_ABERTO' || isPending) && (
+                                            {(c.status?.toUpperCase() === 'APROVADO' || ['EM_ABERTO', 'EM ABERTO'].includes(c.status?.toUpperCase() || '')) && !isEditing && (
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className={`h-8 w-8 rounded-xl transition-colors ${isPending ? 'text-blue-500 hover:bg-blue-50' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
-                                                    onClick={() => onApprove(c.id, isPending ? { ...currentData, loanId: c.loanId, vendedorId: c.vendedorId, mesAno: c.mesAno, valorBase: Number(c.loan.valorLiquido) } : undefined)}
+                                                    className="h-8 w-8 rounded-xl transition-colors text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                                    onClick={() => {
+                                                        handleDataChange(c.id, 'tipo', c.tipoComissao);
+                                                        handleDataChange(c.id, 'referencia', Number(c.valorReferencia));
+                                                        setEditingId(c.id);
+                                                    }}
+                                                    title="Editar Comissão"
                                                 >
-                                                    {isPending ? <Save className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                                                    <Edit className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                            {(c.status === 'EM_ABERTO' || showInputs) && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className={`h-8 w-8 rounded-xl transition-colors ${showInputs ? 'text-blue-500 hover:bg-blue-50' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
+                                                    onClick={() => {
+                                                        onApprove(
+                                                            c.id,
+                                                            showInputs ? {
+                                                                ...currentData,
+                                                                loanId: c.loanId,
+                                                                vendedorId: c.vendedorId,
+                                                                mesAno: c.mesAno,
+                                                                valorBase: Number(c.loan.valorLiquido),
+                                                                isEdit: isEditing
+                                                            } : undefined
+                                                        );
+                                                        if (isEditing) setEditingId(null);
+                                                    }}
+                                                    title={showInputs ? "Salvar" : "Aprovar"}
+                                                >
+                                                    {showInputs ? <Save className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
                                                 </Button>
                                             )}
                                             {c.status === 'EM_ABERTO' && (
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors" onClick={() => onCancel(c.id)}>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors" onClick={() => onCancel(c.id)} title="Cancelar Comissão">
+                                                    <XCircle className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                            {isEditing && (
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors" onClick={() => setEditingId(null)} title="Cancelar Edição">
                                                     <XCircle className="h-4 w-4" />
                                                 </Button>
                                             )}

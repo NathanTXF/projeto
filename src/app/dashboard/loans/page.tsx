@@ -58,11 +58,23 @@ export default function LoansPage() {
         try {
             const response = await fetch(`/api/loans/${id}`, { method: "DELETE" });
             if (response.ok) {
-                toast.success("Registro excluído");
+                toast.success("Registro excluído com sucesso!");
                 fetchLoans();
+            } else {
+                let errorMessage = "Erro desconhecido ao excluir.";
+                try {
+                    const errorData = await response.json();
+                    if (errorData.error) errorMessage = errorData.error;
+                } catch (e) {
+                    // Ignora
+                }
+
+                alert("Aviso do Sistema:\n\n" + errorMessage);
+                toast.error(errorMessage, { duration: 6000 });
             }
-        } catch (error) {
-            toast.error("Erro ao excluir registro");
+        } catch (error: any) {
+            alert("Erro na requisição: " + error.message);
+            toast.error("Erro na requisição: " + error.message);
         }
     };
 

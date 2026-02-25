@@ -39,6 +39,20 @@ export class PrismaCustomerRepository implements CustomerRepository {
     }
 
     async delete(id: string): Promise<void> {
+        // Safe deletion check: verify if there are any loans (vendas) associated with this customer
+        const customerWithLoans = await prisma.customer.findUnique({
+            where: { id },
+            include: { loans: true }
+        });
+
+        if (!customerWithLoans) {
+            throw new Error(`Cliente não encontrado com ID: ${id}`);
+        }
+
+        if (customerWithLoans.loans && customerWithLoans.loans.length > 0) {
+            throw new Error('Este cliente não pode ser excluído pois possui vendas registradas.');
+        }
+
         await prisma.customer.delete({
             where: { id },
         });

@@ -37,7 +37,37 @@ export async function PATCH(
             return NextResponse.json(financial);
         }
 
+        if (action === 'EDIT') {
+            const { valorTotal } = body;
+            const financial = await useCases.editPaid(id, { valorTotal: Number(valorTotal) }, user.id);
+            return NextResponse.json(financial);
+        }
+
+        if (action === 'CANCEL_PAYMENT') {
+            const financial = await useCases.cancelPayment(id, user.id);
+            return NextResponse.json(financial);
+        }
+
         return NextResponse.json({ error: 'Ação inválida' }, { status: 400 });
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
+
+export async function DELETE(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params;
+        const user = await getAuthUser();
+
+        if (!user || (!hasPermission(user.permissions || [], PERMISSIONS.MANAGE_FINANCIAL) && user.nivelAcesso !== 1)) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
+        }
+
+        await useCases.reverseTransaction(id, user.id);
+        return new NextResponse(null, { status: 204 });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }

@@ -79,6 +79,28 @@ export class PrismaUserRepository implements UserRepository {
     }
 
     async delete(id: string): Promise<void> {
+        // Safe deletion check: verify if the user has associated loans, commissions, or financials
+        const userWithRelations = await prisma.user.findUnique({
+            where: { id },
+            include: {
+                loans: true,
+                commissions: true,
+                financials: true,
+            }
+        });
+
+        if (!userWithRelations) {
+            throw new Error(`Usuário não encontrado com ID: ${id}`);
+        }
+
+        if (
+            (userWithRelations.loans && userWithRelations.loans.length > 0) ||
+            (userWithRelations.commissions && userWithRelations.commissions.length > 0) ||
+            (userWithRelations.financials && userWithRelations.financials.length > 0)
+        ) {
+            throw new Error('Este usuário não pode ser excluído pois possui histórico de vendas ou financeiro no sistema. Considere reatribuir ou gerenciar os acessos.');
+        }
+
         await prisma.user.delete({
             where: { id }
         });

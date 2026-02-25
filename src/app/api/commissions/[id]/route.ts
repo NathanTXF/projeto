@@ -37,6 +37,13 @@ export async function PATCH(
             return NextResponse.json(commission);
         }
 
+        if (action === 'EDIT') {
+            const { tipo, referencia, valorBase } = body;
+            // A autorização já foi feita acima (user.nivelAcesso === 1 || hasPermission(MANAGE_COMMISSIONS))
+            const commission = await useCases.editApproved(id, { tipo, referencia, valorBase }, user.id);
+            return NextResponse.json(commission);
+        }
+
         return NextResponse.json({ error: 'Ação inválida' }, { status: 400 });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });

@@ -66,6 +66,7 @@ export async function DELETE(
         await useCases.remove(id, user.id);
         return new NextResponse(null, { status: 204 });
     } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        const status = error.message?.includes('não pode ser excluído') ? 400 : 500;
+        return NextResponse.json({ error: error.message }, { status });
     }
 }

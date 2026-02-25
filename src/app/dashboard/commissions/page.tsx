@@ -109,14 +109,32 @@ export default function CommissionsPage() {
                     }
                 }
             } else {
-                const response = await fetch(`/api/commissions/${id}`, {
-                    method: "PATCH",
-                    body: JSON.stringify({ action: "APPROVE" }),
-                    headers: { "Content-Type": "application/json" },
-                });
-                if (response.ok) {
-                    toast.success("Comissão aprovada!");
-                    fetchCommissions();
+                if (data?.isEdit) {
+                    const response = await fetch(`/api/commissions/${id}`, {
+                        method: "PATCH",
+                        body: JSON.stringify({ action: "EDIT", ...data }),
+                        headers: { "Content-Type": "application/json" },
+                    });
+                    if (response.ok) {
+                        toast.success("Comissão editada com sucesso!");
+                        fetchCommissions();
+                    } else {
+                        const errorData = await response.json();
+                        toast.error(errorData.error || "Erro ao editar comissão");
+                    }
+                } else {
+                    const response = await fetch(`/api/commissions/${id}`, {
+                        method: "PATCH",
+                        body: JSON.stringify({ action: "APPROVE" }),
+                        headers: { "Content-Type": "application/json" },
+                    });
+                    if (response.ok) {
+                        toast.success("Comissão aprovada!");
+                        fetchCommissions();
+                    } else {
+                        const errorData = await response.json();
+                        toast.error(errorData.error || "Erro ao aprovar comissão");
+                    }
                 }
             }
         } catch (error) {
@@ -143,8 +161,8 @@ export default function CommissionsPage() {
     const formatCurrency = (value: number) =>
         new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
-    const totalAprovado = commissions.filter(c => c.status === 'APROVADO').reduce((acc, c) => acc + Number(c.valorCalculado), 0);
-    const totalPendente = commissions.filter(c => c.status === 'EM_ABERTO').reduce((acc, c) => acc + Number(c.valorCalculado), 0);
+    const totalAprovado = commissions.filter(c => c.status?.toUpperCase() === 'APROVADO').reduce((acc, c) => acc + Number(c.valorCalculado), 0);
+    const totalPendente = commissions.filter(c => ['EM_ABERTO', 'EM ABERTO', 'PENDENTE_GERACAO'].includes(c.status?.toUpperCase())).reduce((acc, c) => acc + Number(c.valorCalculado), 0);
 
     const exportColumns: ExportColumn<any>[] = [
         { header: "Cód.", accessor: (c) => c.cod || "-" },

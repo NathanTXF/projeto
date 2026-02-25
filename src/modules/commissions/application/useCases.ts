@@ -98,4 +98,25 @@ export class CommissionUseCases {
 
         return commission;
     }
+
+    async editApproved(id: string, params: { tipo: 'PORCENTAGEM' | 'VALOR_FIXO'; referencia: number; valorBase: number }, requesterId: string) {
+        const valorCalculado = params.tipo === 'PORCENTAGEM'
+            ? (params.valorBase * params.referencia) / 100
+            : params.referencia;
+
+        const commission = await this.repository.update(id, {
+            tipoComissao: params.tipo,
+            valorReferencia: params.referencia,
+            valorCalculado,
+        });
+
+        await logAudit({
+            usuarioId: requesterId,
+            modulo: 'COMMISSIONS',
+            acao: 'EDIT_APPROVED',
+            entidadeId: id,
+        });
+
+        return commission;
+    }
 }

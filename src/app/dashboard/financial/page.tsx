@@ -8,7 +8,10 @@ import {
     Clock,
     Filter,
     Loader2,
-    FileText
+    FileText,
+    Trash2,
+    RotateCcw,
+    AlertCircle
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ExportButton } from "@/components/ui/ExportButton";
@@ -49,6 +52,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const paymentFormSchema = z.object({
     pagoEm: z.string().min(1, "Data de pagamento é obrigatória"),
     comprovante: z.any().optional(),
+    valorTotal: z.preprocess((val) => Number(val), z.number().min(0)).optional(),
 });
 
 type PaymentFormValues = z.infer<typeof paymentFormSchema>;
@@ -71,6 +75,9 @@ export default function FinancialPage() {
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState<FinancialTransaction | null>(null);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [isReversingPending, setIsReversingPending] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const form = useForm<PaymentFormValues>({
@@ -78,7 +85,8 @@ export default function FinancialPage() {
         defaultValues: {
             pagoEm: new Date().toISOString().split('T')[0],
             comprovante: undefined,
-        },
+            valorTotal: undefined,
+        } as PaymentFormValues, // Casting here ensures correct type inference
     });
 
     useEffect(() => {
@@ -102,14 +110,54 @@ export default function FinancialPage() {
 
     const handleOpenPaymentDialog = (transaction: FinancialTransaction) => {
         setSelectedTransaction(transaction);
+        setIsReversingPending(false); // Reset reversal state
         form.reset({
-            pagoEm: new Date().toISOString().split('T')[0],
+            pagoEm: transaction.pagoEm ? new Date(transaction.pagoEm).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            valorTotal: transaction.valorTotal,
             comprovante: undefined,
         });
         setIsDialogOpen(true);
     };
 
-    const onSubmit = async (values: PaymentFormValues) => {
+    const handleReverse = (id: string) => {
+        setDeletingId(id);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!deletingId) return;
+
+        setIsSubmitting(true);
+        try {
+            const response = await fetch(`/api/financial/${deletingId}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                toast.success("Registro financeiro excluído e comissão estornada!");
+                setIsDeleteConfirmOpen(false);
+                setDeletingId(null);
+                fetchData();
+            } else {
+                let errorMessage = "Erro desconhecido ao estornar.";
+                try {
+                    const errorData = await response.json();
+                    if (errorData.error) errorMessage = errorData.error;
+                } catch (e) { }
+                toast.error(errorMessage, { duration: 6000 });
+            }
+        } catch (error: any) {
+            toast.error("Erro na requisição: " + error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const toggleReversalPending = () => {
+        setIsReversingPending(!isReversingPending);
+    };
+
+    const onSubmit = async (values: any) => { // Using any to accomodate dynamic valorTotal
         if (!selectedTransaction) return;
 
         try {
@@ -132,18 +180,28 @@ export default function FinancialPage() {
                 uploadedUrl = uploadData.url;
             }
 
+            const isEdit = selectedTransaction.status === 'Pago';
+            const actionPayload = isReversingPending ? {
+                action: 'CANCEL_PAYMENT'
+            } : (isEdit ? {
+                action: 'EDIT',
+                pagoEm: values.pagoEm,
+                valorTotal: Number(values.valorTotal),
+                comprovanteUrl: uploadedUrl || undefined,
+            } : {
+                action: 'PAY',
+                pagoEm: values.pagoEm,
+                comprovanteUrl: uploadedUrl || undefined,
+            });
+
             const response = await fetch(`/api/financial/${selectedTransaction.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'PAY',
-                    pagoEm: values.pagoEm,
-                    comprovanteUrl: uploadedUrl || undefined,
-                }),
+                body: JSON.stringify(actionPayload),
             });
 
             if (response.ok) {
-                toast.success("Comissão paga com sucesso!");
+                toast.success(isReversingPending ? "Pagamento estornado com sucesso!" : "Comissão salva com sucesso!");
                 setIsDialogOpen(false);
                 fetchData();
             } else {
@@ -274,17 +332,8 @@ export default function FinancialPage() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            {t.status === 'Em aberto' ? (
-                                                <Button
-                                                    size="sm"
-                                                    onClick={() => handleOpenPaymentDialog(t)}
-                                                    className="rounded-xl shadow-md transition-all hover:shadow-lg bg-primary hover:bg-primary/90 border-none text-primary-foreground font-semibold gap-1.5 hover:scale-[1.02]"
-                                                >
-                                                    <DollarSign className="h-4 w-4" />
-                                                    Pagar
-                                                </Button>
-                                            ) : (
-                                                <div className="flex justify-end gap-2 pr-2">
+                                            {(t.status === 'Em aberto' || t.status === 'Pago') ? (
+                                                <div className="flex justify-end gap-2">
                                                     {t.comprovanteUrl && (
                                                         <Button
                                                             variant="ghost"
@@ -297,6 +346,29 @@ export default function FinancialPage() {
                                                             </a>
                                                         </Button>
                                                     )}
+                                                    {t.status === 'Em aberto' && (
+                                                        <Button
+                                                            size="icon"
+                                                            variant="ghost"
+                                                            onClick={() => handleReverse(t.id)}
+                                                            className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors shadow-none"
+                                                            title="Excluir Financeiro e Estornar Comissão"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                    <Button
+                                                        size="sm"
+                                                        variant={t.status === 'Pago' ? "outline" : "default"}
+                                                        onClick={() => handleOpenPaymentDialog(t)}
+                                                        className={`rounded-xl shadow-md transition-all font-semibold gap-1.5 hover:scale-[1.02] ${t.status === 'Pago' ? 'border-primary text-primary hover:bg-primary/5' : 'bg-primary hover:bg-primary/90 border-none text-primary-foreground hover:shadow-lg'}`}
+                                                    >
+                                                        <DollarSign className="h-4 w-4" />
+                                                        {t.status === 'Pago' ? 'Editar' : 'Pagar'}
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <div className="flex justify-end gap-2 pr-2">
                                                     <CheckCircle2 className="h-5 w-5 text-primary/50" />
                                                 </div>
                                             )}
@@ -329,85 +401,204 @@ export default function FinancialPage() {
 
                     {/* Form Body */}
                     <div className="px-6 py-4">
-                        {selectedTransaction && (
-                            <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-100">
-                                <p className="text-sm text-slate-500 font-medium mb-1">Valor a ser pago</p>
-                                <p className="text-3xl font-bold text-primary font-outfit">{formatCurrency(selectedTransaction.valorTotal)}</p>
-                                <div className="mt-3 pt-3 border-t border-slate-200/60 flex justify-between items-center text-sm">
-                                    <span className="text-slate-500 font-medium">Vendedor</span>
-                                    <span className="font-semibold text-slate-700">{selectedTransaction.vendedorNome}</span>
-                                </div>
-                            </div>
-                        )}
-
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                                <FormField
-                                    control={form.control}
-                                    name="pagoEm"
-                                    render={({ field }) => (
-                                        <FormItem className="space-y-1.5">
-                                            <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Data de Pagamento</FormLabel>
-                                            <FormControl>
-                                                <div className="relative">
-                                                    <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                    <Input type="date" {...field} className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors" />
-                                                </div>
-                                            </FormControl>
-                                            <FormMessage className="text-xs" />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="comprovante"
-                                    render={({ field: { value, onChange, ...fieldProps } }) => (
-                                        <FormItem className="space-y-1.5">
-                                            <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Anexar Comprovante (Opcional)</FormLabel>
-                                            <FormControl>
-                                                <div className="relative">
-                                                    <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                    <Input
-                                                        type="file"
-                                                        accept="application/pdf,image/*"
-                                                        className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                                                        onChange={(event) => onChange(event.target.files)}
-                                                        {...fieldProps}
-                                                    />
-                                                </div>
-                                            </FormControl>
-                                            <FormMessage className="text-xs" />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <DialogFooter className="pt-6 gap-2 sm:gap-0">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => setIsDialogOpen(false)}
-                                        className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 font-semibold"
-                                    >
-                                        Cancelar
-                                    </Button>
-                                    <Button
-                                        type="submit"
-                                        disabled={isSubmitting}
-                                        className="rounded-xl bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground shadow-lg shadow-sidebar/20 transition-all hover:scale-[1.02] border-none font-semibold gap-2"
-                                    >
-                                        {isSubmitting ? (
-                                            <><Loader2 className="h-4 w-4 animate-spin" />Processando...</>
+                            <form onSubmit={form.handleSubmit(onSubmit)}>
+                                {selectedTransaction && (
+                                    <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                        <p className="text-sm text-slate-500 font-medium mb-1">Valor a ser pago</p>
+                                        {selectedTransaction.status === 'Pago' ? (
+                                            <FormField
+                                                control={form.control as any}
+                                                name="valorTotal"
+                                                render={({ field }) => (
+                                                    <FormItem className="space-y-1.5 mt-2">
+                                                        <FormControl>
+                                                            <div className="relative">
+                                                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                                <Input
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    {...field}
+                                                                    className="pl-10 h-10 rounded-xl border-slate-200 bg-white font-bold text-lg text-primary focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
+                                                                />
+                                                            </div>
+                                                        </FormControl>
+                                                        <FormMessage className="text-xs" />
+                                                    </FormItem>
+                                                )}
+                                            />
                                         ) : (
-                                            "Confirmar Pagamento"
+                                            <p className="text-3xl font-bold text-primary font-outfit">{formatCurrency(selectedTransaction.valorTotal)}</p>
                                         )}
-                                    </Button>
+                                        <div className="mt-3 pt-3 border-t border-slate-200/60 flex justify-between items-center text-sm">
+                                            <span className="text-slate-500 font-medium">Vendedor</span>
+                                            <span className="font-semibold text-slate-700">{selectedTransaction.vendedorNome}</span>
+                                        </div>
+
+                                        {isReversingPending && (
+                                            <div className="mt-4 p-3 rounded-lg bg-orange-100 border border-orange-200 flex items-start gap-3 animate-in slide-in-from-top-2 duration-300">
+                                                <RotateCcw className="h-5 w-5 text-orange-600 mt-0.5 shrink-0" />
+                                                <div>
+                                                    <p className="font-bold text-orange-800 text-xs uppercase">Estorno em Andamento</p>
+                                                    <p className="text-xs text-orange-700 mt-0.5 leading-relaxed">
+                                                        Ao salvar, este pagamento será **cancelado** e voltará ao status pendente. O comprovante será removido.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {!isReversingPending ? (
+                                    <div className="space-y-4 animate-in fade-in duration-300">
+                                        <FormField
+                                            control={form.control as any}
+                                            name="pagoEm"
+                                            render={({ field }) => (
+                                                <FormItem className="space-y-1.5">
+                                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Data de Pagamento</FormLabel>
+                                                    <FormControl>
+                                                        <div className="relative">
+                                                            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                            <Input type="date" {...(field as any)} className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors" />
+                                                        </div>
+                                                    </FormControl>
+                                                    <FormMessage className="text-xs" />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control as any}
+                                            name="comprovante"
+                                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                                <FormItem className="space-y-1.5">
+                                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Anexar Comprovante (Opcional)</FormLabel>
+                                                    <FormControl>
+                                                        <div className="relative">
+                                                            <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                            <Input
+                                                                type="file"
+                                                                accept="application/pdf,image/*"
+                                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                                                                onChange={(event) => onChange(event.target.files)}
+                                                                {...(fieldProps as any)}
+                                                            />
+                                                        </div>
+                                                    </FormControl>
+                                                    <FormMessage className="text-xs" />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="h-40 flex flex-col items-center justify-center bg-orange-50/30 border-2 border-dashed border-orange-200 rounded-2xl mb-6">
+                                        <RotateCcw className="h-10 w-10 text-orange-300 mb-2 animate-pulse" />
+                                        <p className="text-orange-600 font-bold text-sm">Pronto para Estornar</p>
+                                        <p className="text-orange-500 text-xs px-10 text-center mt-1">Clique em "Salvar Alterações" para confirmar.</p>
+                                    </div>
+                                )}
+
+                                <DialogFooter className="pt-6 gap-2 sm:gap-0 flex-col sm:flex-row border-t border-slate-100 mt-2">
+                                    <div className="flex gap-2">
+                                        {selectedTransaction?.status === 'Pago' && (
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                onClick={toggleReversalPending}
+                                                className={`rounded-xl border-none font-semibold gap-2 transition-all mr-auto ${isReversingPending
+                                                    ? "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                                    : "bg-orange-50 text-orange-600 hover:bg-orange-100 hover:text-orange-700"
+                                                    }`}
+                                            >
+                                                <RotateCcw className="h-4 w-4" />
+                                                {isReversingPending ? "Desfazer Estorno" : "Estornar Pagamento"}
+                                            </Button>
+                                        )}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setIsDialogOpen(false)}
+                                            className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 font-semibold"
+                                        >
+                                            Cancelar
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            className={`rounded-xl shadow-lg transition-all hover:scale-[1.02] border-none font-semibold gap-2 ${isReversingPending
+                                                ? "bg-orange-500 hover:bg-orange-600 text-white shadow-orange-200"
+                                                : "bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground shadow-sidebar/20"
+                                                }`}
+                                        >
+                                            {isSubmitting ? (
+                                                <><Loader2 className="h-4 w-4 animate-spin" />Processando...</>
+                                            ) : isReversingPending ? (
+                                                "Confirmar Estorno"
+                                            ) : selectedTransaction?.status === 'Pago' ? (
+                                                "Salvar Alterações"
+                                            ) : (
+                                                "Confirmar Pagamento"
+                                            )}
+                                        </Button>
+                                    </div>
                                 </DialogFooter>
                             </form>
                         </Form>
                     </div>
                 </DialogContent>
             </Dialog>
+
+            {/* Delete Confirmation Modal */}
+            <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+                <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                    <div className="bg-rose-600 px-6 py-5">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+                                <Trash2 className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-lg font-bold text-white leading-none">Confirmar Exclusão</DialogTitle>
+                                <DialogDescription className="text-white/80 text-sm mt-1">
+                                    Esta ação não pode ser desfeita.
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="p-6">
+                        <div className="flex items-start gap-4 p-4 rounded-xl bg-rose-50 border border-rose-100 mb-6">
+                            <AlertCircle className="h-5 w-5 text-rose-600 mt-0.5" />
+                            <div className="text-sm">
+                                <p className="font-bold text-rose-900 mb-1 leading-tight">Impacto Sistêmico</p>
+                                <p className="text-rose-700/90 leading-relaxed font-medium">
+                                    Ao apagar este registro, a **Comissão original será reaberta**. Você terá que aprová-la novamente se quiser que este pagamento volte a existir.
+                                </p>
+                            </div>
+                        </div>
+
+                        <DialogFooter className="gap-2 sm:gap-0">
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsDeleteConfirmOpen(false)}
+                                className="rounded-xl border-slate-200 text-slate-600"
+                            >
+                                Manter Registro
+                            </Button>
+                            <Button
+                                onClick={confirmDelete}
+                                disabled={isSubmitting}
+                                className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg shadow-rose-200 border-none font-bold gap-2"
+                            >
+                                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                                Excluir e Reabrir Comissão
+                            </Button>
+                        </DialogFooter>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
         </div>
     );
 }
