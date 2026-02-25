@@ -47,6 +47,20 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
         }, {} as Record<string, typeof ALL_PERMISSIONS>);
     }, []);
 
+    const MODULE_TRANSLATIONS: Record<string, string> = {
+        DASHBOARD: "DASHBOARD",
+        USERS: "USUÁRIOS",
+        ROLES: "PERFIS DE ACESSO",
+        CLIENTS: "CLIENTES",
+        LOANS: "VENDAS",
+        COMMISSIONS: "COMISSÕES",
+        FINANCIAL: "FINANCEIRO",
+        AGENDA: "AGENDA",
+        AUDIT: "AUDITORIA",
+        AUXILIARY: "CADASTROS AUXILIARES",
+        SETTINGS: "CONFIGURAÇÕES",
+    };
+
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 gap-5">
@@ -93,7 +107,7 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
                                 {Object.entries(groupedPermissions).map(([moduleName, permissions]) => (
                                     <div key={moduleName} className="bg-slate-50 rounded-xl p-5 border border-slate-100 shadow-sm">
                                         <h4 className="font-bold text-slate-700 mb-3 border-b border-slate-200 pb-2 capitalize">
-                                            {moduleName.toLowerCase().replace('_', ' ')}
+                                            {MODULE_TRANSLATIONS[moduleName] || moduleName.toLowerCase().replace('_', ' ')}
                                         </h4>
                                         <div className="space-y-3">
                                             {permissions.map((perm) => (
