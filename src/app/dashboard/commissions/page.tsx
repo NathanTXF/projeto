@@ -12,8 +12,15 @@ import {
     SelectValue
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Filter, Coins, Users as UsersIcon, Calendar as CalendarIcon, RefreshCcw, CheckCircle, Clock } from "lucide-react";
+import { Filter, Coins, Users as UsersIcon, Calendar as CalendarIcon, RefreshCcw, CheckCircle, Clock, Trash2, AlertCircle, AlertTriangle, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription
+} from "@/components/ui/dialog";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { exportToCsv, exportToPdf, ExportColumn } from "@/lib/exportUtils";
 
@@ -23,6 +30,9 @@ export default function CommissionsPage() {
     const [loading, setLoading] = useState(true);
     const [period, setPeriod] = useState<string>("all");
     const [vendedorId, setVendedorId] = useState<string>("all");
+    const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
+    const [commissionIdToCancel, setCommissionIdToCancel] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Dynamic Periods Generation
     const getRecentPeriods = () => {
@@ -142,19 +152,34 @@ export default function CommissionsPage() {
         }
     };
 
-    const handleCancel = async (id: string) => {
+    const handleCancel = (id: string) => {
+        setCommissionIdToCancel(id);
+        setIsCancelConfirmOpen(true);
+    };
+
+    const confirmCancel = async () => {
+        if (!commissionIdToCancel) return;
+
         try {
-            const response = await fetch(`/api/commissions/${id}`, {
+            setIsSubmitting(true);
+            const response = await fetch(`/api/commissions/${commissionIdToCancel}`, {
                 method: "PATCH",
                 body: JSON.stringify({ action: "CANCEL" }),
                 headers: { "Content-Type": "application/json" },
             });
             if (response.ok) {
                 toast.success("Comissão cancelada");
+                setIsCancelConfirmOpen(false);
+                setCommissionIdToCancel(null);
                 fetchCommissions();
+            } else {
+                const errorData = await response.json();
+                toast.error(errorData.error || "Erro ao cancelar comissão");
             }
         } catch (error) {
             toast.error("Erro ao cancelar comissão");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -331,6 +356,47 @@ export default function CommissionsPage() {
                     )}
                 </CardContent>
             </Card>
+
+            {/* ── Modal de Confirmação de Cancelamento ── */}
+            <Dialog open={isCancelConfirmOpen} onOpenChange={setIsCancelConfirmOpen}>
+                <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                    <div className="bg-amber-600 px-6 py-5">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+                                <XCircle className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-lg font-bold text-white leading-none">Cancelar Comissão</DialogTitle>
+                                <DialogDescription className="text-white/80 text-sm mt-1">
+                                    Esta ação marcará a comissão como cancelada.
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="p-6">
+                        <p className="text-slate-600 font-medium mb-6">
+                            Tem certeza que deseja cancelar esta comissão? Ela não será considerada para pagamentos futuros.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-3 justify-end">
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsCancelConfirmOpen(false)}
+                                className="rounded-xl border-slate-200 text-slate-600 font-bold order-2 sm:order-1"
+                            >
+                                Manter Ativa
+                            </Button>
+                            <Button
+                                onClick={confirmCancel}
+                                disabled={isSubmitting}
+                                className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-lg shadow-amber-100 border-none font-bold gap-2 order-1 sm:order-2"
+                            >
+                                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+                                Confirmar Cancelamento
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

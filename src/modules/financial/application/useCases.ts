@@ -19,7 +19,7 @@ export class FinancialUseCases {
     async createFinancialRecord(data: Omit<FinancialTransaction, 'id' | 'createdAt' | 'status'>, requesterId: string) {
         const financial = await this.repository.create({
             ...data,
-            status: 'EM_ABERTO' as FinancialStatus
+            status: 'Em aberto' as FinancialStatus
         });
 
         await logAudit({

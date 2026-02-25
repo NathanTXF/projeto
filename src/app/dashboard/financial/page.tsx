@@ -11,7 +11,8 @@ import {
     FileText,
     Trash2,
     RotateCcw,
-    AlertCircle
+    AlertCircle,
+    AlertTriangle
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ExportButton } from "@/components/ui/ExportButton";
@@ -79,6 +80,8 @@ export default function FinancialPage() {
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [isReversingPending, setIsReversingPending] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isIntegrityAlertOpen, setIsIntegrityAlertOpen] = useState(false);
+    const [integrityErrorMessage, setIntegrityErrorMessage] = useState("");
 
     const form = useForm<PaymentFormValues>({
         resolver: zodResolver(paymentFormSchema),
@@ -144,7 +147,14 @@ export default function FinancialPage() {
                     const errorData = await response.json();
                     if (errorData.error) errorMessage = errorData.error;
                 } catch (e) { }
-                toast.error(errorMessage, { duration: 6000 });
+
+                if (response.status === 400) {
+                    setIntegrityErrorMessage(errorMessage);
+                    setIsIntegrityAlertOpen(true);
+                    setIsDeleteConfirmOpen(false);
+                } else {
+                    toast.error(errorMessage);
+                }
             }
         } catch (error: any) {
             toast.error("Erro na requisição: " + error.message);
@@ -351,10 +361,15 @@ export default function FinancialPage() {
                                                             size="icon"
                                                             variant="ghost"
                                                             onClick={() => handleReverse(t.id)}
+                                                            disabled={deletingId === t.id && isSubmitting}
                                                             className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors shadow-none"
                                                             title="Excluir Financeiro e Estornar Comissão"
                                                         >
-                                                            <Trash2 className="h-4 w-4" />
+                                                            {deletingId === t.id && isSubmitting ? (
+                                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                            ) : (
+                                                                <Trash2 className="h-4 w-4" />
+                                                            )}
                                                         </Button>
                                                     )}
                                                     <Button
@@ -595,6 +610,42 @@ export default function FinancialPage() {
                                 Excluir e Reabrir Comissão
                             </Button>
                         </DialogFooter>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* ── Modal de Alerta de Integridade (Bloqueio) ── */}
+            <Dialog open={isIntegrityAlertOpen} onOpenChange={setIsIntegrityAlertOpen}>
+                <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                    <div className="bg-amber-500 px-6 py-5">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+                                <AlertTriangle className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-lg font-bold text-white leading-none">Ação Bloqueada</DialogTitle>
+                                <DialogDescription className="text-white/80 text-sm mt-1">
+                                    Segurança de integridade financeira.
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="p-6">
+                        <div className="flex items-start gap-4 p-4 rounded-xl bg-amber-50 border border-amber-100 mb-6">
+                            <AlertCircle className="h-6 w-6 text-amber-600 shrink-0" />
+                            <div>
+                                <p className="font-bold text-amber-900 mb-1">Não é possível processar</p>
+                                <p className="text-amber-800 text-sm leading-relaxed">
+                                    {integrityErrorMessage}
+                                </p>
+                            </div>
+                        </div>
+                        <Button
+                            onClick={() => setIsIntegrityAlertOpen(false)}
+                            className="w-full bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold py-6"
+                        >
+                            Compreendido
+                        </Button>
                     </div>
                 </DialogContent>
             </Dialog>

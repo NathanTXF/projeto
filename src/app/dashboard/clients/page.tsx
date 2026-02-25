@@ -13,7 +13,7 @@ import {
     DialogDescription
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, UserCheck, UserPlus } from "lucide-react";
+import { Plus, Users, UserCheck, UserPlus, Trash2, AlertCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { exportToCsv, exportToPdf, ExportColumn } from "@/lib/exportUtils";
@@ -24,6 +24,11 @@ function ClientsContent() {
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | undefined>();
     const [loading, setLoading] = useState(true);
     const [userLevel, setUserLevel] = useState<number | null>(null);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [isIntegrityAlertOpen, setIsIntegrityAlertOpen] = useState(false);
+    const [integrityErrorMessage, setIntegrityErrorMessage] = useState("");
+    const [customerIdToDelete, setCustomerIdToDelete] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const searchParams = useSearchParams();
     const vendedorId = searchParams.get("vendedorId");
@@ -57,34 +62,42 @@ function ClientsContent() {
         setIsDialogOpen(true);
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Tem certeza que deseja excluir este cliente?")) return;
+    const handleDelete = (id: string) => {
+        setCustomerIdToDelete(id);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!customerIdToDelete) return;
 
         try {
-            const response = await fetch(`/api/clients/${id}`, { method: "DELETE" });
+            setIsSubmitting(true);
+            const response = await fetch(`/api/clients/${customerIdToDelete}`, { method: "DELETE" });
 
             if (response.ok) {
                 toast.success("Cliente excluído com sucesso!");
+                setIsDeleteConfirmOpen(false);
+                setCustomerIdToDelete(null);
                 fetchCustomers();
             } else {
                 let errorMessage = "Erro desconhecido ao excluir.";
                 try {
                     const errorData = await response.json();
                     if (errorData.error) errorMessage = errorData.error;
-                } catch (e) {
-                    // Ignora
+                } catch (e) { }
+
+                if (response.status === 400) {
+                    setIntegrityErrorMessage(errorMessage);
+                    setIsIntegrityAlertOpen(true);
+                    setIsDeleteConfirmOpen(false);
+                } else {
+                    toast.error(errorMessage);
                 }
-
-                // Fallback nativo crítico de integridade:
-                alert("Aviso do Sistema:\n\n" + errorMessage);
-
-                toast.error(errorMessage, {
-                    duration: 6000,
-                });
             }
         } catch (error: any) {
-            alert("Erro na requisição: " + error.message);
             toast.error("Erro na requisição: " + error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -219,6 +232,86 @@ function ClientsContent() {
                                 fetchCustomers();
                             }}
                         />
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* ── Modal de Confirmação de Exclusão ── */}
+            <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+                <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                    <div className="bg-rose-600 px-6 py-5">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+                                <Trash2 className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-lg font-bold text-white leading-none">Excluir Cliente</DialogTitle>
+                                <DialogDescription className="text-white/80 text-sm mt-1">
+                                    Esta ação é permanente e irreversível.
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="p-6">
+                        <p className="text-slate-600 font-medium mb-6">
+                            Tem certeza que deseja remover este cliente do sistema? Todos os dados básicos serão apagados.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-3 justify-end">
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsDeleteConfirmOpen(false)}
+                                className="rounded-xl border-slate-200 text-slate-600 font-bold order-2 sm:order-1"
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                onClick={confirmDelete}
+                                disabled={isSubmitting}
+                                className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg shadow-rose-100 border-none font-bold gap-2 order-1 sm:order-2"
+                            >
+                                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                                Confirmar Exclusão
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* ── Modal de Alerta de Integridade (Bloqueio) ── */}
+            <Dialog open={isIntegrityAlertOpen} onOpenChange={setIsIntegrityAlertOpen}>
+                <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                    <div className="bg-amber-500 px-6 py-5">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+                                <AlertTriangle className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-lg font-bold text-white leading-none">Ação Bloqueada</DialogTitle>
+                                <DialogDescription className="text-white/80 text-sm mt-1">
+                                    Integridade referencial do sistema.
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="p-6">
+                        <div className="flex items-start gap-4 p-4 rounded-xl bg-amber-50 border border-amber-100 mb-6">
+                            <AlertCircle className="h-6 w-6 text-amber-600 shrink-0" />
+                            <div>
+                                <p className="font-bold text-amber-900 mb-1">Não é possível excluir</p>
+                                <p className="text-amber-800 text-sm leading-relaxed">
+                                    {integrityErrorMessage}
+                                </p>
+                            </div>
+                        </div>
+                        <p className="text-slate-500 text-sm mb-6 text-center italic">
+                            Dica: Remova as vendas associadas antes de tentar excluir o cliente.
+                        </p>
+                        <Button
+                            onClick={() => setIsIntegrityAlertOpen(false)}
+                            className="w-full bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold py-6"
+                        >
+                            Compreendido
+                        </Button>
                     </div>
                 </DialogContent>
             </Dialog>
