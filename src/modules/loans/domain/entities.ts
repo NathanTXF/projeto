@@ -16,7 +16,7 @@ export const LoanSchema = z.object({
 
     // Relacionamentos (IDs)
     clienteId: z.string({ message: "Selecione um cliente" }).uuid('Selecione um cliente'),
-    vendedorId: z.string().uuid('Vendedor inválido').optional(),
+    vendedorId: z.string({ message: "Selecione o vendedor" }).uuid('Vendedor inválido'),
     orgaoId: z.number({ message: "Selecione o órgão" }).int('Selecione o órgão'),
     bancoId: z.number({ message: "Selecione o banco" }).int('Selecione o banco'),
     tipoId: z.number({ message: "Selecione o tipo" }).int('Selecione o tipo'),

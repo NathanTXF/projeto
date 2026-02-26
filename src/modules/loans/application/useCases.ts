@@ -12,8 +12,11 @@ export class LoanUseCases {
         return await this.repository.findById(id);
     }
 
-    async create(data: Loan, requesterId: string) {
-        const loan = await this.repository.create(data);
+    async create(data: Loan, requesterId: string, commissionUseCases?: any) {
+        // Garantir status inicial padrão como ATIVO de forma explícita se necessário, 
+        // embora venha do schema ou formulário por padrão.
+        const loanData = { ...data, status: data.status || 'ATIVO' as any };
+        const loan = await this.repository.create(loanData);
 
         await logAudit({
             usuarioId: requesterId,
@@ -21,6 +24,21 @@ export class LoanUseCases {
             acao: 'CREATE',
             entidadeId: loan.id,
         });
+
+        // Automação "Senior": Gerar comissão em aberto imediatamente no ato da venda
+        if (commissionUseCases) {
+            const mesAno = new Intl.DateTimeFormat('pt-BR', { month: '2-digit', year: 'numeric' }).format(new Date());
+
+            await commissionUseCases.calculateAndCreate({
+                loanId: loan.id,
+                vendedorId: loan.vendedorId,
+                valorBase: Number(loan.valorLiquido),
+                tipo: 'PORCENTAGEM',
+                referencia: 1, // 1% default - Pode ser futuramente buscado de configurações de usuário
+                mesAno,
+                requesterId,
+            });
+        }
 
         return loan;
     }
@@ -39,27 +57,12 @@ export class LoanUseCases {
             if (financialUseCases) {
                 await financialUseCases.registerTransaction({
                     data: new Date(),
-                    valor: Number(loan.valorLiquido), // Exemplo: Valor que a empresa recebe (ou base de faturamento)
+                    valor: Number(loan.valorLiquido),
                     tipo: 'ENTRADA',
                     categoria: 'EMPRESTIMO',
                     descricao: `Finalização de empréstimo - Contrato #${id}`,
                     referenciaId: id,
                 }, requesterId);
-            }
-
-            if (commissionUseCases) {
-                // Cálculo automático de comissão (exemplo: 1% padrão por enquanto ou vindo de algum lugar)
-                const mesAno = new Intl.DateTimeFormat('pt-BR', { month: '2-digit', year: 'numeric' }).format(new Date());
-
-                await commissionUseCases.calculateAndCreate({
-                    loanId: id,
-                    vendedorId: loan.vendedorId,
-                    valorBase: Number(loan.valorLiquido),
-                    tipo: 'PORCENTAGEM',
-                    referencia: 1, // 1% default
-                    mesAno,
-                    requesterId,
-                });
             }
         }
 

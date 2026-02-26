@@ -56,6 +56,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
     const [types, setTypes] = useState<AuxiliaryEntity[]>([]);
     const [groups, setGroups] = useState<AuxiliaryEntity[]>([]);
     const [tables, setTables] = useState<AuxiliaryEntity[]>([]);
+    const [sellers, setSellers] = useState<{ id: string; nome: string }[]>([]);
 
     // Autocomplete State
     const [clientSearch, setClientSearch] = useState("");
@@ -137,7 +138,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
             valorBruto: 0,
             valorLiquido: 0,
             clienteId: "",
-            vendedorId: undefined,
+            vendedorId: "",
             orgaoId: undefined,
             bancoId: undefined,
             tipoId: undefined,
@@ -151,12 +152,14 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
         const fetchData = async () => {
             try {
                 setLoadingData(true);
-                const [b, o, ty, g, ta] = await Promise.all([
+                const [b, o, ty, g, ta, s, p] = await Promise.all([
                     fetch("/api/auxiliary/banks").then((r) => r.json()),
                     fetch("/api/auxiliary/organs").then((r) => r.json()),
                     fetch("/api/auxiliary/loan-types").then((r) => r.json()),
                     fetch("/api/auxiliary/loan-groups").then((r) => r.json()),
                     fetch("/api/auxiliary/loan-tables").then((r) => r.json()),
+                    fetch("/api/users/list").then((r) => r.json()),
+                    fetch("/api/profile").then((r) => r.json())
                 ]);
 
                 if (initialData?.cliente) {
@@ -168,6 +171,12 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                 setTypes(ty || []);
                 setGroups(g || []);
                 setTables(ta || []);
+                setSellers(s || []);
+
+                // Definir vendedor padrão se for nova venda
+                if (!initialData) {
+                    form.setValue("vendedorId", p.id);
+                }
             } catch (error) {
                 toast.error("Erro ao carregar dados auxiliares");
             } finally {
@@ -571,31 +580,22 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         />
                         <FormField
                             control={form.control}
-                            name="status"
+                            name="vendedorId"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        Status
+                                        Vendedor (Responsável)
                                     </FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
-                                                <SelectValue placeholder="Selecione o status" />
+                                                <SelectValue placeholder="Selecione o vendedor" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="ATIVO">
-                                                <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500" />Ativo</span>
-                                            </SelectItem>
-                                            <SelectItem value="FINALIZADO">
-                                                <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-blue-500" />Finalizado</span>
-                                            </SelectItem>
-                                            <SelectItem value="CANCELADO">
-                                                <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-500" />Cancelado</span>
-                                            </SelectItem>
-                                            <SelectItem value="ATRASADO">
-                                                <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />Atrasado</span>
-                                            </SelectItem>
+                                            {sellers.map((s) => (
+                                                <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />

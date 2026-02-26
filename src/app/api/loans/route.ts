@@ -4,6 +4,8 @@ import { LoanUseCases } from '@/modules/loans/application/useCases';
 import { LoanSchema } from '@/modules/loans/domain/entities';
 import { getAuthUser } from '@/core/auth/getUser';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { CommissionUseCases } from '@/modules/commissions/application/useCases';
+import { PrismaCommissionRepository } from '@/modules/commissions/infrastructure/repositories';
 
 const repository = new PrismaLoanRepository();
 const useCases = new LoanUseCases(repository);
@@ -42,8 +44,12 @@ export async function POST(request: Request) {
             body.vendedorId = user.id;
         }
 
+        // Injetar CommissionUseCases para automação de geração
+        const commissionRepo = new PrismaCommissionRepository();
+        const commissionUseCases = new CommissionUseCases(commissionRepo);
+
         const validatedData = LoanSchema.parse(body);
-        const loan = await useCases.create(validatedData as any, user.id);
+        const loan = await useCases.create(validatedData as any, user.id, commissionUseCases);
 
         return NextResponse.json(loan, { status: 201 });
     } catch (error: any) {
