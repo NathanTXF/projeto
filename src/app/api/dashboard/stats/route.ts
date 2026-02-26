@@ -13,10 +13,15 @@ export async function GET(request: Request) {
         const now = new Date();
         const { searchParams } = new URL(request.url);
         const year = searchParams.get('year') ? parseInt(searchParams.get('year')!) : now.getFullYear();
+        const monthParam = searchParams.get('month');
+        const month = monthParam ? parseInt(monthParam) : now.getMonth() + 1; // 1-12
 
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+        const startOfMonth = new Date(year, month - 1, 1);
+        const endOfMonth = new Date(year, month, 0, 23, 59, 59);
+
+        const startOfLastMonth = new Date(year, month - 2, 1);
+        const endOfLastMonth = new Date(year, month - 1, 0, 23, 59, 59);
+
         const startOfYear = new Date(year, 0, 1);
         const endOfYear = new Date(year, 11, 31, 23, 59, 59);
 
@@ -38,7 +43,9 @@ export async function GET(request: Request) {
             loansByTypeRaw,
             volumeMonthRaw,
             company,
-            periodGoal
+            allUsers,
+            allGoals,
+            loansThisMonth
         ] = await Promise.all([
             prisma.customer.count({ where: isAdmin ? {} : { loans: { some: { vendedorId: user.id } } } }),
             prisma.customer.count({
@@ -50,11 +57,11 @@ export async function GET(request: Request) {
             prisma.loan.count({ where: { ...whereVendedor, status: 'ATIVO' } }),
             prisma.commission.aggregate({
                 _sum: { valorCalculado: true },
-                where: { ...whereVendedor, createdAt: { gte: startOfMonth } }
+                where: { ...whereVendedor, createdAt: { gte: startOfMonth, lte: endOfMonth } }
             }),
             prisma.commission.aggregate({
                 _sum: { valorCalculado: true },
-                where: { ...whereVendedor, createdAt: { gte: startOfLastMonth, lt: startOfMonth } }
+                where: { ...whereVendedor, createdAt: { gte: startOfLastMonth, lte: endOfLastMonth } }
             }),
             prisma.commission.count({ where: { ...whereVendedor, status: 'Em aberto' } }),
             prisma.user.findMany({
@@ -72,29 +79,55 @@ export async function GET(request: Request) {
                 by: ['bancoId'],
                 _count: true,
                 _sum: { valorBruto: true },
-                where: { ...whereVendedor, dataInicio: { gte: startOfMonth } },
+                where: { ...whereVendedor, dataInicio: { gte: startOfMonth, lte: endOfMonth } },
                 orderBy: { _sum: { valorBruto: 'desc' } },
                 take: 5
             }),
             prisma.loan.groupBy({
                 by: ['tipoId'],
                 _count: true,
-                where: { ...whereVendedor, dataInicio: { gte: startOfMonth } }
+                where: { ...whereVendedor, dataInicio: { gte: startOfMonth, lte: endOfMonth } }
             }),
             prisma.loan.aggregate({
                 _sum: { valorBruto: true },
                 _count: true,
-                where: { ...whereVendedor, dataInicio: { gte: startOfMonth } }
+                where: { ...whereVendedor, dataInicio: { gte: startOfMonth, lte: endOfMonth } }
             }),
-            prisma.company.findFirst(), // Buscar meta global default
-            prisma.goal.findFirst({ // Buscar meta global específica do período
+            prisma.company.findFirst(),
+            prisma.user.findMany({
+                select: { id: true, nome: true, metaVendasMensal: true }
+            }),
+            prisma.goal.findMany({
                 where: {
-                    tipo: 'GLOBAL',
-                    mes: now.getMonth() + 1,
-                    ano: now.getFullYear()
+                    mes: month,
+                    ano: year
                 }
+            }),
+            prisma.loan.groupBy({
+                by: ['vendedorId'],
+                _count: true,
+                where: { dataInicio: { gte: startOfMonth, lte: endOfMonth } }
+            }),
+            // Descoberta dinâmica de anos
+            prisma.loan.findMany({
+                select: { dataInicio: true },
+                distinct: ['dataInicio'],
+                where: isAdmin ? {} : { vendedorId: user.id }
             })
         ]);
+
+        const allLoanDates = (await prisma.loan.findMany({
+            select: { dataInicio: true },
+            distinct: ['dataInicio'],
+            where: isAdmin ? {} : { vendedorId: user.id }
+        })).map(l => new Date(l.dataInicio).getFullYear());
+
+        const availableYears = Array.from(new Set([
+            ...allLoanDates,
+            now.getFullYear(),
+            now.getFullYear() - 1,
+            now.getFullYear() + 1
+        ])).sort((a, b) => b - a);
 
         // Carregar nomes de Bancos e Tipos
         const [banks, loanTypes] = await Promise.all([
@@ -110,6 +143,24 @@ export async function GET(request: Request) {
         const currentComm = Number(totalCommissionsMonth._sum?.valorCalculado || 0);
         const lastComm = Number(lastMonthCommissions._sum?.valorCalculado || 0);
         const growthComm = lastComm === 0 ? (currentComm > 0 ? 100 : 0) : ((currentComm - lastComm) / lastComm) * 100;
+
+        // Cálculo de metas por vendedor
+        const sellersProgress = allUsers.map((u: any) => {
+            const specificGoal = allGoals.find((g: any) => g.tipo === 'INDIVIDUAL' && g.userId === u.id);
+            const goalValue = specificGoal ? specificGoal.valor : Number(u.metaVendasMensal || 10);
+            const salesCount = loansThisMonth.find((l: any) => l.vendedorId === u.id)?._count || 0;
+            const percentage = goalValue > 0 ? (salesCount / goalValue) * 100 : 0;
+
+            return {
+                id: u.id,
+                name: u.nome,
+                goal: goalValue,
+                sales: salesCount,
+                percentage: Math.min(percentage, 1000) // Limitar UI a 1000%
+            };
+        });
+
+        const aggregatedGlobalGoal = sellersProgress.reduce((acc: number, curr: any) => acc + curr.goal, 0);
 
         // Ticket Médio
         const totalVolumeMonth = Number(volumeMonthRaw._sum?.valorBruto || 0);
@@ -131,8 +182,9 @@ export async function GET(request: Request) {
                 pendingCommissions,
                 ticketMedio,
                 forecastVolume,
-                metaVendasGlobal: Number(periodGoal?.valor ?? company?.metaVendasMensal ?? 100),
-                totalSalesMonth: volumeMonthRaw._count || 0
+                metaVendasGlobal: aggregatedGlobalGoal,
+                totalSalesMonth: volumeMonthRaw._count || 0,
+                sellersProgress
             },
             topSellers: topSellers.map(s => ({
                 id: s.id,
@@ -155,7 +207,8 @@ export async function GET(request: Request) {
             loansByType: loansByTypeRaw.map(t => ({
                 name: typeMap.get(t.tipoId) || 'Outros',
                 value: t._count
-            }))
+            })),
+            availableYears
         });
     } catch (error: any) {
         console.error('Dashboard stats error:', error.message);

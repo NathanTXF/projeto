@@ -45,10 +45,22 @@ import { cn } from "@/lib/utils";
 export default function DashboardPage() {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        const timer = setTimeout(() => setIsMounted(true), 1000);
         fetchMetrics();
+        return () => clearTimeout(timer);
     }, []);
+
+    useEffect(() => {
+        if (isMounted) {
+            const timer = setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [isMounted]);
 
     const fetchMetrics = async () => {
         try {
@@ -295,8 +307,8 @@ export default function DashboardPage() {
                             <TrendingUp className="h-6 w-6 text-primary" />
                         </CardHeader>
                         <CardContent className="h-[300px]">
-                            <div style={{ width: '100%', height: '300px', position: 'relative' }}>
-                                <ResponsiveContainer width="99%" height="100%">
+                            <div style={{ width: '100%', height: '300px', position: 'relative', minWidth: 0 }}>
+                                <ResponsiveContainer id="dash-evolution" width="100%" height={300} debounce={50} minWidth={0}>
                                     <AreaChart data={history}>
                                         <defs>
                                             <linearGradient id="colorHistory" x1="0" y1="0" x2="0" y2="1">

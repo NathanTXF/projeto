@@ -14,6 +14,7 @@ import {
     Search
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { generateYearRange, getCurrentYear } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/Badge";
@@ -167,29 +168,33 @@ export default function GoalsManagementPage() {
 
                     {/* Period Selector */}
                     <div className="flex items-center gap-3 bg-white/10 p-2 rounded-2xl backdrop-blur-sm border border-white/10">
-                        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                            <SelectTrigger className="w-[140px] bg-transparent border-none text-white font-bold h-10 focus:ring-0 hover:bg-white/5 rounded-xl transition-colors">
-                                <SelectValue placeholder="Mês" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {MONTHS.map(m => (
-                                    <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-
-                        <div className="h-4 w-px bg-white/20" />
-
-                        <Select value={selectedYear} onValueChange={setSelectedYear}>
-                            <SelectTrigger className="w-[100px] bg-transparent border-none text-white font-bold h-10 focus:ring-0 hover:bg-white/5 rounded-xl transition-colors">
-                                <SelectValue placeholder="Ano" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {[2025, 2026, 2027].map(y => (
-                                    <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <div className="flex items-center gap-2 text-white/70 font-medium text-xs px-2">
+                            <span className="flex items-center gap-1.5 min-w-fit">
+                                <Search className="h-3.5 w-3.5" />
+                                Período:
+                            </span>
+                            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                                <SelectTrigger className="w-[120px] h-7 bg-white/10 border-white/20 text-white rounded-lg focus:ring-0 text-xs px-2 hover:bg-white/20 transition-all">
+                                    <SelectValue placeholder="Mês" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-active">
+                                    {MONTHS.map(m => (
+                                        <SelectItem key={m.value} value={m.value} className="rounded-lg text-xs">{m.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <span>de</span>
+                            <Select value={selectedYear} onValueChange={setSelectedYear}>
+                                <SelectTrigger className="w-[90px] h-7 bg-white/10 border-white/20 text-white rounded-lg focus:ring-0 text-xs px-2 hover:bg-white/20 transition-all">
+                                    <SelectValue placeholder="Ano" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-active">
+                                    {generateYearRange(getCurrentYear(), 1, 2).map(y => (
+                                        <SelectItem key={y} value={y.toString()} className="rounded-lg text-xs">{y}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -198,43 +203,51 @@ export default function GoalsManagementPage() {
 
                 {/* ── Company Global Goal ── */}
                 <div className="lg:col-span-1">
-                    <Card className="border-none shadow-2xl rounded-3xl overflow-hidden bg-slate-900 text-white relative h-full">
-                        <div className="absolute top-0 right-0 -mt-20 -mr-20 h-64 w-64 rounded-full bg-primary/20 blur-[100px]" />
+                    <Card className="border-none shadow-2xl rounded-3xl overflow-hidden bg-slate-900 text-white relative h-full transition-all duration-500 hover:shadow-primary/5">
+                        <div className="absolute top-0 right-0 -mt-20 -mr-20 h-64 w-64 rounded-full bg-primary/10 blur-[100px]" />
                         <CardHeader className="relative p-8">
                             <div className="flex items-center gap-2 mb-2">
                                 <Building2 className="h-5 w-5 text-primary" />
-                                <CardTitle className="text-xl font-black">Meta de Vendas Global</CardTitle>
+                                <CardTitle className="text-xl font-black">Meta Global Consolidada</CardTitle>
                             </div>
-                            <CardDescription className="text-slate-400 font-medium">
-                                Objetivo total de contratos liquidados pela empresa no mês.
+                            <CardDescription className="text-slate-400 font-medium font-sans">
+                                Calculada automaticamente com base na soma das metas individuais.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="relative p-8 pt-0 space-y-6">
+                        <CardContent className="relative p-8 pt-0 space-y-8">
                             <div className="space-y-4">
-                                <label className="text-xs font-black uppercase tracking-widest text-slate-500">Quantidade de Contratos</label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        type="number"
-                                        value={companyGoal}
-                                        onChange={(e) => setCompanyGoal(Number(e.target.value))}
-                                        className="bg-white/5 border-white/10 text-white font-black text-2xl h-16 rounded-2xl focus:ring-primary/50"
-                                    />
-                                    <Button
-                                        onClick={() => updateGoal('company', undefined, companyGoal)}
-                                        disabled={saving === 'company'}
-                                        className="h-16 w-16 rounded-2xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 flex items-center justify-center p-0 shrink-0"
-                                    >
-                                        {saving === 'company' ? <Loader2 className="h-6 w-6 animate-spin" /> : <Save className="h-6 w-6" />}
-                                    </Button>
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Alvo Total do Período</label>
+                                <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-6 rounded-3xl transition-all hover:bg-white/[0.07]">
+                                    <div className="text-5xl font-black text-white tracking-tighter tabular-nums drop-shadow-sm">
+                                        {companyGoal}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-primary uppercase tracking-tight">Contratos</span>
+                                        <Badge variant="outline" className="mt-1 border-white/20 text-white/40 text-[9px] font-bold px-2 py-0 h-5">
+                                            <Lock className="h-2.5 w-2.5 mr-1 opacity-50" />
+                                            Automático
+                                        </Badge>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-start gap-3">
-                                <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                                <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
-                                    Esta meta é usada para calcular a performance do painel estratégico ("Visão 360º").
-                                    A meta padrão atual é de 100 contratos.
-                                </p>
+                            <div className="space-y-4 pt-4">
+                                <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-widest px-1">
+                                    <span>Composição da Meta</span>
+                                    <span>100%</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div className="h-full bg-primary rounded-full w-full opacity-60 shadow-[0_0_10px_rgba(var(--primary),0.5)]" />
+                                </div>
+                                <div className="p-5 rounded-2xl bg-primary/10 border border-primary/20 flex items-start gap-4 transition-all hover:bg-primary/[0.15]">
+                                    <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                                        <Info className="h-5 w-5 text-primary" />
+                                    </div>
+                                    <p className="text-[11px] text-slate-300 font-medium leading-relaxed font-sans">
+                                        <strong className="text-white block mb-1">Estratégia Sênior</strong>
+                                        A meta global agora reflete a capacidade real do time. Para mudar este valor, altere as metas individuais dos consultores abaixo.
+                                    </p>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>

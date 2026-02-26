@@ -31,20 +31,23 @@ export async function GET(request: Request) {
             })
         ]);
 
-        const globalGoal = monthlyGoals.find(g => g.tipo === 'GLOBAL')?.valor ?? Number(company?.metaVendasMensal || 100);
+        // Cálculo da Meta Global (Soma das metas individuais dos usuários)
+        const userGoalsList = users.map(u => {
+            const specificGoal = monthlyGoals.find(g => g.tipo === 'INDIVIDUAL' && g.userId === u.id);
+            return {
+                id: u.id,
+                name: u.nome,
+                username: u.usuario,
+                goal: specificGoal ? specificGoal.valor : Number(u.metaVendasMensal || 10),
+                isAdmin: u.nivelAcesso === 1
+            };
+        });
+
+        const aggregatedGlobalGoal = userGoalsList.reduce((acc, curr) => acc + curr.goal, 0);
 
         return NextResponse.json({
-            companyGoal: globalGoal,
-            userGoals: users.map(u => {
-                const specificGoal = monthlyGoals.find(g => g.tipo === 'INDIVIDUAL' && g.userId === u.id);
-                return {
-                    id: u.id,
-                    name: u.nome,
-                    username: u.usuario,
-                    goal: specificGoal ? specificGoal.valor : Number(u.metaVendasMensal || 10),
-                    isAdmin: u.nivelAcesso === 1
-                };
-            })
+            companyGoal: aggregatedGlobalGoal,
+            userGoals: userGoalsList
         });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -68,31 +71,35 @@ export async function POST(request: Request) {
         const goalType = type === 'company' ? 'GLOBAL' : 'INDIVIDUAL';
         const targetUserId = type === 'company' ? null : id;
 
-        // Tentar encontrar meta existente para o período
-        const existing = await prisma.goal.findFirst({
-            where: {
-                tipo: goalType,
-                userId: targetUserId,
-                mes: m,
-                ano: y
-            }
-        });
-
-        if (existing) {
-            await prisma.goal.update({
-                where: { id: existing.id },
-                data: { valor: val }
-            });
-        } else {
-            await prisma.goal.create({
-                data: {
+        // Se for meta de empresa (GLOBAL), não salvamos na tabela Goal (pois é calculada como soma)
+        // Apenas atualizamos o fallback no modelo Company se for o mês atual abaixo.
+        if (type !== 'company') {
+            // Tentar encontrar meta existente para o período
+            const existing = await prisma.goal.findFirst({
+                where: {
                     tipo: goalType,
                     userId: targetUserId,
                     mes: m,
-                    ano: y,
-                    valor: val
+                    ano: y
                 }
             });
+
+            if (existing) {
+                await prisma.goal.update({
+                    where: { id: existing.id },
+                    data: { valor: val }
+                });
+            } else {
+                await prisma.goal.create({
+                    data: {
+                        tipo: goalType,
+                        userId: targetUserId,
+                        mes: m,
+                        ano: y,
+                        valor: val
+                    }
+                });
+            }
         }
 
         // Se for o mês atual, também atualizamos o fallback no User/Company para manter legibilidade rápida
