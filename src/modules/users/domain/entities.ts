@@ -9,11 +9,15 @@ export const UserSchema = z.object({
     nivelAcesso: z.number().int().optional().nullable(), // Deprecated in favor of roleId
     horarioInicio: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/).optional().nullable().or(z.literal('')),
     horarioFim: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/).optional().nullable().or(z.literal('')),
+    horarioInicioFds: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/).optional().nullable().or(z.literal('')),
+    horarioFimFds: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/).optional().nullable().or(z.literal('')),
     failedAttempts: z.number().int().optional(),
     lockUntil: z.date().optional().nullable(),
     roleId: z.string().uuid().optional().nullable().or(z.literal('')), // Novo padrão: RBAC
     contato: z.string().optional().nullable(),
     endereco: z.string().optional().nullable(),
+    ativo: z.boolean().default(true),
+    diasAcesso: z.string().optional().nullable(),
     createdAt: z.date().optional(),
     updatedAt: z.date().optional(),
 });

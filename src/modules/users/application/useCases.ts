@@ -9,12 +9,39 @@ export class UserUseCases {
         const user = await this.repository.findByUsername(usuario);
         if (!user) return { error: 'Usuário não encontrado' };
 
-        if (user.horarioInicio && user.horarioFim) {
-            const now = new Date();
+        // Verificar se a conta está ativa
+        if (user.ativo === false) {
+            return { error: 'Sua conta está desativada. Entre em contato com o administrador.' };
+        }
+
+        const now = new Date();
+
+        const currentDay = now.getDay(); // 0: Dom, 1: Seg, ..., 6: Sab
+        const isWeekend = currentDay === 0 || currentDay === 6;
+
+        // Verificar dias de acesso
+        if (user.diasAcesso) {
+            const allowedDays = user.diasAcesso.split(',').map(Number);
+
+            if (!allowedDays.includes(currentDay)) {
+                return { error: 'Seu acesso não é permitido hoje.' };
+            }
+        }
+
+        // Determinar horários a usar (Especial Fim de Semana ou Padrão)
+        let startTimeStr = user.horarioInicio;
+        let endTimeStr = user.horarioFim;
+
+        if (isWeekend && user.horarioInicioFds && user.horarioFimFds) {
+            startTimeStr = user.horarioInicioFds;
+            endTimeStr = user.horarioFimFds;
+        }
+
+        if (startTimeStr && endTimeStr) {
             const currentTime = now.getHours() * 100 + now.getMinutes();
 
-            const [startH, startM] = user.horarioInicio.split(':').map(Number);
-            const [endH, endM] = user.horarioFim.split(':').map(Number);
+            const [startH, startM] = startTimeStr.split(':').map(Number);
+            const [endH, endM] = endTimeStr.split(':').map(Number);
 
             const startTime = startH * 100 + startM;
             const endTime = endH * 100 + endM;
@@ -26,7 +53,7 @@ export class UserUseCases {
                     acao: 'LOGIN_REJECTED_OUT_OF_HOURS',
                     ip
                 });
-                return { error: `Acesso negado fora do horário permitido (${user.horarioInicio} - ${user.horarioFim})` };
+                return { error: `Acesso negado fora do horário permitido (${startTimeStr} - ${endTimeStr})` };
             }
         }
 
@@ -105,6 +132,8 @@ export class UserUseCases {
         if (updateData.roleId === "") updateData.roleId = null;
         if (updateData.horarioInicio === "") updateData.horarioInicio = null;
         if (updateData.horarioFim === "") updateData.horarioFim = null;
+        if (updateData.horarioInicioFds === "") updateData.horarioInicioFds = null;
+        if (updateData.horarioFimFds === "") updateData.horarioFimFds = null;
 
         return await this.repository.update(id, updateData);
     }
@@ -121,6 +150,8 @@ export class UserUseCases {
         if (sanitizedData.roleId === "") sanitizedData.roleId = null;
         if (sanitizedData.horarioInicio === "") sanitizedData.horarioInicio = null;
         if (sanitizedData.horarioFim === "") sanitizedData.horarioFim = null;
+        if (sanitizedData.horarioInicioFds === "") sanitizedData.horarioInicioFds = null;
+        if (sanitizedData.horarioFimFds === "") sanitizedData.horarioFimFds = null;
 
         return await this.repository.create({
             ...sanitizedData,

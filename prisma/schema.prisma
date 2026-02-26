@@ -23,11 +23,15 @@ model User {
   roleId       String?  // ID do Perfil de Acesso
   horarioInicio String? // HH:mm
   horarioFim    String? // HH:mm
+  horarioInicioFds String? // HH:mm (fim de semana)
+  horarioFimFds    String? // HH:mm (fim de semana)
   failedAttempts Int      @default(0)
   lockUntil      DateTime?
   contato        String?
   endereco       String?
   metaVendasMensal Int?   @default(10)
+  ativo          Boolean  @default(true)
+  diasAcesso     String?  @default("1,2,3,4,5") // Dias da semana: 0 (domingo) a 6 (sábado)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -236,7 +240,7 @@ model Goal {
   id        String   @id @default(uuid())
   tipo      String   // 'GLOBAL' | 'INDIVIDUAL'
   userId    String?
-  user      User?    @relation(fields: [userId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Restrict)
   mes       Int
   ano       Int
   valor     Int

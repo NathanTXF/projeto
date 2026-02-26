@@ -58,7 +58,7 @@ export class PrismaUserRepository implements UserRepository {
                 usuario: data.usuario,
                 senha: data.senha,
                 fotoUrl: data.fotoUrl,
-                nivelAcesso: data.nivelAcesso,
+                nivelAcesso: data.nivelAcesso ?? undefined,
                 horarioInicio: data.horarioInicio,
                 horarioFim: data.horarioFim,
                 failedAttempts: data.failedAttempts,
@@ -66,6 +66,10 @@ export class PrismaUserRepository implements UserRepository {
                 contato: data.contato,
                 endereco: data.endereco,
                 roleId: data.roleId,
+                ativo: data.ativo,
+                diasAcesso: data.diasAcesso,
+                horarioInicioFds: data.horarioInicioFds,
+                horarioFimFds: data.horarioFimFds,
             }
         });
         return user as any;
@@ -86,6 +90,8 @@ export class PrismaUserRepository implements UserRepository {
                 loans: true,
                 commissions: true,
                 financials: true,
+                customers: true,
+                goals: true,
             }
         });
 
@@ -96,9 +102,11 @@ export class PrismaUserRepository implements UserRepository {
         if (
             (userWithRelations.loans && userWithRelations.loans.length > 0) ||
             (userWithRelations.commissions && userWithRelations.commissions.length > 0) ||
-            (userWithRelations.financials && userWithRelations.financials.length > 0)
+            (userWithRelations.financials && userWithRelations.financials.length > 0) ||
+            (userWithRelations.customers && userWithRelations.customers.length > 0) ||
+            (userWithRelations.goals && userWithRelations.goals.length > 0)
         ) {
-            throw new Error('Este usuário não pode ser excluído pois possui histórico de vendas ou financeiro no sistema. Considere reatribuir ou gerenciar os acessos.');
+            throw new Error('Este usuário não pode ser excluído pois possui histórico de vendas, clientes ou metas no sistema. No entanto, você pode desativar o acesso mudando o status para "Inativo".');
         }
 
         await prisma.user.delete({

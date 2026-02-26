@@ -41,7 +41,8 @@ export function UserList({ users, userLevel, onEdit, onDelete }: UserListProps) 
                                 <TableHead className="font-semibold text-sidebar-foreground">Nome</TableHead>
                                 <TableHead className="font-semibold text-sidebar-foreground">Usuário</TableHead>
                                 <TableHead className="font-semibold text-sidebar-foreground">Nível</TableHead>
-                                <TableHead className="font-semibold text-sidebar-foreground">Horário</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground">Expediente</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground">Status</TableHead>
                                 <TableHead className="text-right font-semibold text-sidebar-foreground">Ações</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -54,7 +55,10 @@ export function UserList({ users, userLevel, onEdit, onDelete }: UserListProps) 
                                 </TableRow>
                             ) : (
                                 users.map((user) => (
-                                    <TableRow key={user.id} className="hover:bg-slate-50/50 transition-colors">
+                                    <TableRow key={user.id} className={cn(
+                                        "hover:bg-slate-50/50 transition-colors",
+                                        user.ativo === false && "bg-slate-50 opacity-60"
+                                    )}>
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs ring-2 ring-white">
@@ -92,10 +96,33 @@ export function UserList({ users, userLevel, onEdit, onDelete }: UserListProps) 
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium bg-slate-50 px-2 py-1 rounded-md w-fit border border-slate-100">
-                                                <Clock className="h-3 w-3 text-slate-400" />
-                                                {user.horarioInicio || '08:00'} - {user.horarioFim || '18:00'}
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold bg-white px-2 py-0.5 rounded-md w-fit border border-slate-100">
+                                                    <Clock className="h-3 w-3 text-slate-400" />
+                                                    {user.horarioInicio || '08:00'} - {user.horarioFim || '18:00'}
+                                                </div>
+                                                {user.horarioInicioFds && user.horarioFimFds && (
+                                                    <div className="flex items-center gap-1.5 text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded-md w-fit border border-amber-100">
+                                                        <Clock className="h-2.5 w-2.5 text-amber-500" />
+                                                        {user.horarioInicioFds} - {user.horarioFimFds} (FDS)
+                                                    </div>
+                                                )}
+                                                {user.diasAcesso && (
+                                                    <div className="text-[9px] text-slate-400 font-bold px-2 uppercase tracking-tighter">
+                                                        Dias: {user.diasAcesso.split(',').map(d => ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'][Number(d)]).join(', ')}
+                                                    </div>
+                                                )}
                                             </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge className={cn(
+                                                "text-[9px] font-black uppercase px-2 py-0.5 border-none",
+                                                user.ativo !== false
+                                                    ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                                                    : "bg-rose-100 text-rose-700 hover:bg-rose-200"
+                                            )}>
+                                                {user.ativo !== false ? "Ativo" : "Inativo"}
+                                            </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">
                                             {userLevel === 1 && (
