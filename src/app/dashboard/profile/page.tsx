@@ -170,14 +170,14 @@ export default function ProfilePage() {
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
-                <div className="relative flex items-center gap-4">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-6 md:p-8 shadow-sm">
+                <div className="relative flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
                         <UserCircle className="h-8 w-8 text-primary-foreground" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Meu Perfil</h1>
-                        <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Gerencie suas informações pessoais e segurança corporativa.</p>
+                        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Meu Perfil</h1>
+                        <p className="mt-1 text-primary-foreground/80 font-medium text-xs md:text-sm">Gerencie suas informações pessoais e segurança corporativa.</p>
                     </div>
                 </div>
             </div>

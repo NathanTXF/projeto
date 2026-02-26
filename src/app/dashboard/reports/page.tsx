@@ -196,17 +196,17 @@ export default function ReportsPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm print:hidden">
+            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-6 md:p-8 shadow-sm print:hidden">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                    <div className="flex items-center gap-4 text-center sm:text-left justify-center sm:justify-start">
+                        <div className="hidden sm:flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
                             <PieChart className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">
+                            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">
                                 Inteligência & Relatórios
                             </h1>
-                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-xs md:text-sm">
                                 Dashboards analíticos e documentos para gestão de alta performance.
                             </p>
                         </div>
@@ -321,13 +321,13 @@ export default function ReportsPage() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-end mt-8">
+                            <div className="flex justify-center md:justify-end mt-6 md:mt-8">
                                 <Button
-                                    className="h-14 px-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-xs tracking-[0.15em] gap-3 shadow-lg shadow-primary/20 transition-all active:scale-95"
+                                    className="h-12 md:h-14 w-full md:w-auto md:px-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-xs tracking-[0.15em] gap-3 shadow-lg shadow-primary/20 transition-all active:scale-95"
                                     onClick={fetchReport}
                                     disabled={loading}
                                 >
-                                    {loading ? "Processando Agregação..." : "Gerar Relatório Inteligente"}
+                                    {loading ? "Processando..." : "Gerar Relatório"}
                                     {!loading && <Search className="w-5 h-5" />}
                                 </Button>
                             </div>

@@ -75,35 +75,37 @@ export function AnalyticalTable({ columns, data, title }: AnalyticalTableProps) 
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm shadow-slate-200/50 print:border-none print:shadow-none">
-                <Table>
-                    <TableHeader className="bg-slate-50/50 print:bg-slate-50">
-                        <TableRow className="hover:bg-transparent">
-                            {columns.map((col, idx) => (
-                                <TableHead key={idx} className="text-[10px] font-black text-slate-500 uppercase tracking-wider py-4">
-                                    {col.header}
-                                </TableHead>
-                            ))}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {data.map((row, rowIdx) => (
-                            <TableRow key={rowIdx} className="hover:bg-slate-50/50 transition-colors">
-                                {columns.map((col, colIdx) => (
-                                    <TableCell key={colIdx} className="py-3 text-sm font-medium text-slate-700">
-                                        {col.format ? col.format(row[col.accessorKey]) : row[col.accessorKey]}
-                                    </TableCell>
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader className="bg-slate-50/50 print:bg-slate-50">
+                            <TableRow className="hover:bg-transparent">
+                                {columns.map((col, idx) => (
+                                    <TableHead key={idx} className="text-[10px] font-black text-slate-500 uppercase tracking-wider py-4">
+                                        {col.header}
+                                    </TableHead>
                                 ))}
                             </TableRow>
-                        ))}
-                        {data.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="h-32 text-center text-slate-400 font-medium italic">
-                                    Nenhum dado encontrado para o filtro selecionado.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {data.map((row, rowIdx) => (
+                                <TableRow key={rowIdx} className="hover:bg-slate-50/50 transition-colors">
+                                    {columns.map((col, colIdx) => (
+                                        <TableCell key={colIdx} className="py-3 text-sm font-medium text-slate-700">
+                                            {col.format ? col.format(row[col.accessorKey]) : row[col.accessorKey]}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))}
+                            {data.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={columns.length} className="h-32 text-center text-slate-400 font-medium italic">
+                                        Nenhum dado encontrado para o filtro selecionado.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
             </div>
 
             <div className="flex justify-between items-center py-2 px-2 print:hidden">

@@ -209,7 +209,7 @@ export default function OverviewPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-12">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-3xl bg-[#00355E] p-10 shadow-2xl border border-white/10">
+            <div className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-[#00355E] p-6 md:p-10 shadow-2xl border border-white/10">
                 <div className="absolute top-0 right-0 -mt-20 -mr-20 h-80 w-80 rounded-full bg-white/5 blur-3xl" />
                 <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex items-center gap-6">
@@ -272,7 +272,7 @@ export default function OverviewPage() {
             {/* ── Metric Cards ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {dashboardCards.map((stat) => (
-                    <Card key={stat.label} className="border-none shadow-xl hover:shadow-2xl transition-all duration-300 group overflow-hidden bg-card rounded-3xl p-6">
+                    <Card key={stat.label} className="border-none shadow-xl hover:shadow-2xl transition-all duration-300 group overflow-hidden bg-card rounded-2xl md:rounded-3xl p-5 md:p-6">
                         <div className="flex items-start justify-between mb-4">
                             <div className={`h-12 w-12 flex items-center justify-center rounded-2xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform shadow-inner`}>
                                 <stat.icon className="h-6 w-6" />
@@ -304,20 +304,20 @@ export default function OverviewPage() {
 
             {/* ── Performance por Consultor (Senior Update) ── */}
             {stats?.sellersProgress && (
-                <Card className="border-none shadow-2xl rounded-[32px] bg-card p-10 overflow-hidden relative">
+                <Card className="border-none shadow-2xl rounded-2xl md:rounded-[32px] bg-card p-6 md:p-10 overflow-hidden relative">
                     <div className="absolute top-0 left-0 w-1 h-full bg-primary/20" />
-                    <CardHeader className="px-0 pt-0 pb-10">
+                    <CardHeader className="px-0 pt-0 pb-6 md:pb-10">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                             <div className="flex items-center gap-4">
-                                <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                                    <Users className="h-7 w-7 text-primary" />
+                                <div className="h-12 w-12 md:h-14 md:w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                                    <Users className="h-6 w-6 md:h-7 md:w-7 text-primary" />
                                 </div>
                                 <div className="space-y-1">
-                                    <CardTitle className="text-3xl font-black tracking-tighter">Performance por Consultor</CardTitle>
-                                    <CardDescription className="text-muted-foreground font-medium text-base">Acompanhamento em tempo real do atingimento de metas individuais.</CardDescription>
+                                    <CardTitle className="text-2xl md:text-3xl font-black tracking-tighter">Performance por Consultor</CardTitle>
+                                    <CardDescription className="text-muted-foreground font-medium text-sm md:text-base">Acompanhamento em tempo real do atingimento de metas individuais.</CardDescription>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="hidden md:flex items-center gap-3">
                                 <Badge className="bg-primary/5 text-primary border-none font-black px-4 py-2 rounded-xl text-xs">Meta: Contratos Liquidados</Badge>
                                 <div className="h-10 w-10 rounded-full border-2 border-primary/20 flex items-center justify-center animate-pulse">
                                     <div className="h-3 w-3 rounded-full bg-primary" />
@@ -325,7 +325,7 @@ export default function OverviewPage() {
                             </div>
                         </div>
                     </CardHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
                         {stats.sellersProgress.map((seller) => (
                             <div key={seller.id} className="group p-6 rounded-3xl bg-muted/30 border border-transparent hover:border-primary/20 hover:bg-muted/50 transition-all duration-300">
                                 <div className="flex items-center justify-between mb-6">
@@ -377,8 +377,8 @@ export default function OverviewPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                 {/* Performance por Banco (Senior) */}
-                <Card className="lg:col-span-2 border-none shadow-xl rounded-2xl bg-card p-8">
-                    <CardHeader className="px-0 pt-0 pb-8">
+                <Card className="lg:col-span-2 border-none shadow-xl rounded-2xl bg-card p-6 md:p-8">
+                    <CardHeader className="px-0 pt-0 pb-6 md:pb-8">
                         <div className="flex justify-between items-center">
                             <div>
                                 <CardTitle className="text-2xl font-black text-foreground">Performance por Banco</CardTitle>
@@ -422,7 +422,7 @@ export default function OverviewPage() {
                 </Card>
 
                 {/* Perfil de Clientes (Sexo) - MVP Requirement */}
-                <Card className="border-none shadow-xl rounded-2xl bg-card p-8 group">
+                <Card className="border-none shadow-xl rounded-2xl bg-card p-6 md:p-8 group">
                     <CardHeader className="px-0 pt-0 pb-4 text-center">
                         <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 mb-2">
                             <PieChartIcon className="h-6 w-6" />
@@ -508,8 +508,8 @@ export default function OverviewPage() {
                 </Card>
 
                 {/* Histórico Consolidado */}
-                <Card className="lg:col-span-2 border-none shadow-xl rounded-2xl bg-card p-8">
-                    <CardHeader className="px-0 pt-0 pb-8">
+                <Card className="lg:col-span-2 border-none shadow-xl rounded-2xl bg-card p-6 md:p-8">
+                    <CardHeader className="px-0 pt-0 pb-6 md:pb-8">
                         <div className="flex items-center justify-between">
                             <div>
                                 <CardTitle className="text-2xl font-black text-foreground">Histórico Consolidado</CardTitle>
@@ -550,17 +550,17 @@ export default function OverviewPage() {
                 </Card>
 
                 {/* Atalhos Rápidos Corporativos */}
-                <Card className="lg:col-span-3 border-none shadow-2xl rounded-3xl bg-primary text-primary-foreground p-10 relative overflow-hidden group">
+                <Card className="lg:col-span-3 border-none shadow-2xl rounded-2xl md:rounded-3xl bg-primary text-primary-foreground p-6 md:p-10 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:scale-110 transition-transform duration-1000 rotate-12">
                         <TrendingUp className="h-64 w-64" />
                     </div>
                     <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div className="space-y-4 max-w-xl">
-                            <h2 className="text-3xl font-black tracking-tighter leading-none">Otimize a Operação</h2>
-                            <p className="text-primary-foreground/70 font-medium text-lg italic">
+                        <div className="space-y-4 max-w-xl text-center md:text-left">
+                            <h2 className="text-2xl md:text-3xl font-black tracking-tighter leading-none">Otimize a Operação</h2>
+                            <p className="text-primary-foreground/70 font-medium text-base md:text-lg italic">
                                 "O sucesso é a soma de pequenos esforços repetidos dia após dia." - Transforme dados em decisões agora.
                             </p>
-                            <div className="flex gap-4">
+                            <div className="flex gap-4 justify-center md:justify-start">
                                 <Link href="/dashboard/admin/goals">
                                     <Button className="bg-white text-primary hover:bg-white/90 font-black rounded-2xl px-8 h-12 shadow-xl">Configurar Metas</Button>
                                 </Link>

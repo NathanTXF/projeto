@@ -161,75 +161,77 @@ export function AuxiliarySection({ title, description, apiUrl }: AuxiliarySectio
             </div>
 
             <div className="rounded-xl border border-slate-100 bg-white shadow-sm overflow-hidden flex-1 flex flex-col">
-                <Table>
-                    <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold border-b border-sidebar">
-                        <TableRow className="hover:bg-transparent">
-                            <TableHead className="w-[80px] font-semibold text-sidebar-foreground h-11">Cód.</TableHead>
-                            <TableHead className="font-semibold text-sidebar-foreground h-11">Descrição</TableHead>
-                            <TableHead className="text-right font-semibold text-sidebar-foreground h-11">Ações</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={3} className="text-center h-40">
-                                    <div className="flex flex-col items-center justify-center gap-3 text-slate-400">
-                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                                        <span className="font-medium">Carregando {title.toLowerCase()}...</span>
-                                    </div>
-                                </TableCell>
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold border-b border-sidebar">
+                            <TableRow className="hover:bg-transparent">
+                                <TableHead className="w-[80px] font-semibold text-sidebar-foreground h-11">Cód.</TableHead>
+                                <TableHead className="font-semibold text-sidebar-foreground h-11">Descrição</TableHead>
+                                <TableHead className="text-right font-semibold text-sidebar-foreground h-11">Ações</TableHead>
                             </TableRow>
-                        ) : items.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={3} className="text-center h-40 border-b-0">
-                                    <div className="flex flex-col items-center justify-center gap-3 text-slate-400">
-                                        <div className="h-12 w-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center">
-                                            <AlertCircle className="h-6 w-6 text-slate-300" />
-                                        </div>
-                                        <span className="font-medium">Nenhum registro encontrado.</span>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            items.map((item) => (
-                                <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
-                                    <TableCell className="font-medium text-slate-500">
-                                        #{item.id.toString().padStart(3, '0')}
-                                    </TableCell>
-                                    <TableCell className="font-semibold text-slate-700">
-                                        {item.nome}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="h-8 w-8 p-0 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10"
-                                                onClick={() => {
-                                                    setSelectedItem(item);
-                                                    setNome(item.nome);
-                                                    setIsDialogOpen(true);
-                                                }}
-                                                title="Editar"
-                                            >
-                                                <Edit className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="h-8 w-8 p-0 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
-                                                onClick={() => handleDelete(item.id)}
-                                                title="Excluir"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
+                        </TableHeader>
+                        <TableBody>
+                            {loading ? (
+                                <TableRow>
+                                    <TableCell colSpan={3} className="text-center h-40">
+                                        <div className="flex flex-col items-center justify-center gap-3 text-slate-400">
+                                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                            <span className="font-medium">Carregando {title.toLowerCase()}...</span>
                                         </div>
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                            ) : items.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={3} className="text-center h-40 border-b-0">
+                                        <div className="flex flex-col items-center justify-center gap-3 text-slate-400">
+                                            <div className="h-12 w-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center">
+                                                <AlertCircle className="h-6 w-6 text-slate-300" />
+                                            </div>
+                                            <span className="font-medium">Nenhum registro encontrado.</span>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                items.map((item) => (
+                                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
+                                        <TableCell className="font-medium text-slate-500">
+                                            #{item.id.toString().padStart(3, '0')}
+                                        </TableCell>
+                                        <TableCell className="font-semibold text-slate-700">
+                                            {item.nome}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-8 w-8 p-0 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10"
+                                                    onClick={() => {
+                                                        setSelectedItem(item);
+                                                        setNome(item.nome);
+                                                        setIsDialogOpen(true);
+                                                    }}
+                                                    title="Editar"
+                                                >
+                                                    <Edit className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-8 w-8 p-0 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                                    onClick={() => handleDelete(item.id)}
+                                                    title="Excluir"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
