@@ -53,6 +53,12 @@ export async function GET(request: Request) {
             case 'CUSTOMERS':
                 data = await repository.getCustomersReport(params);
                 break;
+            case 'GOALS_GENERAL':
+                data = await repository.getGoalsReport(params);
+                break;
+            case 'GOALS_INDIVIDUAL':
+                data = await repository.getUserGoalsReport(params);
+                break;
             case 'BANKS':
             case 'ORGANS':
             case 'GROUPS':

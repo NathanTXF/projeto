@@ -56,6 +56,8 @@ const REPORT_TYPES = [
     { id: 'TABLES', label: 'Produção por Tabela', icon: TableProperties, color: 'slate', description: 'Desempenho por coeficiente de tabela.' },
     { id: 'LOAN_TYPES', label: 'Produção por Produto', icon: Layers, color: 'rose', description: 'Vendas por tipo de operação (Refin, Novo, etc).' },
     { id: 'OPERATORS', label: 'Produção por Operador', icon: UserCircle, color: 'teal', description: 'Ranking de vendas por usuário do sistema.' },
+    { id: 'GOALS_GENERAL', label: 'Relatório Geral de Metas', icon: Target, color: 'sky', description: 'Visão mensal consolidada de metas vs. contratos realizados.' },
+    { id: 'GOALS_INDIVIDUAL', label: 'Relatório Individual de Metas', icon: Users, color: 'orange', description: 'Desempenho mensal detalhado de metas por vendedor.' },
 ];
 
 export default function ReportsPage() {
@@ -183,6 +185,23 @@ export default function ReportsPage() {
                             <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${v === 'RECORRENTE' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
                                 {v}
                             </span>
+                        )
+                    },
+                ];
+            case 'GOALS_GENERAL':
+            case 'GOALS_INDIVIDUAL':
+                return [
+                    { header: 'MÊS', accessorKey: 'mes' },
+                    { header: 'META (CONTRATOS)', accessorKey: 'meta' },
+                    { header: 'REALIZADO', accessorKey: 'realizado' },
+                    {
+                        header: 'ATINGIMENTO', accessorKey: 'percentual', format: (v: number) => (
+                            <div className="flex items-center gap-2">
+                                <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div className={`h-full ${v >= 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`} style={{ width: `${Math.min(v, 100)}%` }} />
+                                </div>
+                                <span className="font-bold">{v.toFixed(1)}%</span>
+                            </div>
                         )
                     },
                 ];

@@ -4,14 +4,14 @@ export const UserSchema = z.object({
     id: z.string().uuid().optional(),
     nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
     usuario: z.string().min(3, 'Usuário deve ter no mínimo 3 caracteres'),
-    senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').optional(),
-    fotoUrl: z.string().url().optional().nullable(),
+    senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').optional().or(z.literal('')),
+    fotoUrl: z.string().url().optional().nullable().or(z.literal('')),
     nivelAcesso: z.number().int().optional().nullable(), // Deprecated in favor of roleId
-    horarioInicio: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/).optional().nullable(),
-    horarioFim: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/).optional().nullable(),
+    horarioInicio: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/).optional().nullable().or(z.literal('')),
+    horarioFim: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/).optional().nullable().or(z.literal('')),
     failedAttempts: z.number().int().optional(),
     lockUntil: z.date().optional().nullable(),
-    roleId: z.string().uuid().optional().nullable(), // Novo padrão: RBAC
+    roleId: z.string().uuid().optional().nullable().or(z.literal('')), // Novo padrão: RBAC
     contato: z.string().optional().nullable(),
     endereco: z.string().optional().nullable(),
     createdAt: z.date().optional(),

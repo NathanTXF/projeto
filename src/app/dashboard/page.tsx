@@ -212,7 +212,7 @@ export default function DashboardPage() {
                                 <div className="h-10 w-10 bg-sidebar/10 rounded-xl flex items-center justify-center text-sidebar">
                                     <Shield className="h-5 w-5" />
                                 </div>
-                                <Badge className="bg-sidebar/10 text-sidebar-foreground border-none">Gestão Global</Badge>
+                                <Badge className="bg-indigo-100/50 text-indigo-700 border-none font-bold">Gestão Global</Badge>
                             </div>
                             <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Aprovação Pendente</h3>
                             <p className="text-3xl font-black text-slate-900">{hub.pendingApproval}</p>
@@ -231,7 +231,7 @@ export default function DashboardPage() {
                                 <div className="h-10 w-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
                                     <DollarSign className="h-5 w-5" />
                                 </div>
-                                <Badge className="bg-primary/20 text-primary border-none">Fluxo de Caixa</Badge>
+                                <Badge className="bg-emerald-100 text-emerald-700 border-none font-bold">Fluxo de Caixa</Badge>
                             </div>
                             <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Total Recebido</h3>
                             <p className="text-3xl font-black text-slate-900">{formatCurrency(metrics?.commissions.received || 0)}</p>
@@ -250,7 +250,7 @@ export default function DashboardPage() {
                                 <div className="h-10 w-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
                                     <TrendingUp className="h-5 w-5" />
                                 </div>
-                                <Badge className="bg-amber-100 text-amber-700 border-none">Performance</Badge>
+                                <Badge className="bg-amber-100 text-amber-900 border-none font-bold">Performance</Badge>
                             </div>
                             <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Vendas do Mês</h3>
                             <p className="text-3xl font-black text-slate-900">{hub.totalLoansMonth}</p>

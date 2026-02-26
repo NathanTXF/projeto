@@ -280,4 +280,115 @@ export class PrismaReportRepository {
             items
         };
     }
+
+    async getGoalsReport(params: ReportParams): Promise<ReportData> {
+        const year = params.startDate ? new Date(params.startDate).getFullYear() : new Date().getFullYear();
+
+        const [goals, loans] = await Promise.all([
+            prisma.goal.findMany({
+                where: { ano: year, tipo: 'INDIVIDUAL' }
+            }),
+            prisma.loan.findMany({
+                where: {
+                    status: 'ATIVO',
+                    dataInicio: {
+                        gte: new Date(`${year}-01-01`),
+                        lte: new Date(`${year}-12-31`)
+                    }
+                }
+            })
+        ]);
+
+        const items = Array.from({ length: 12 }, (_, i) => {
+            const month = i + 1;
+            const monthLabel = [
+                "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+            ][i];
+
+            const monthGoals = goals.filter(g => g.mes === month);
+            const totalGoal = monthGoals.reduce((acc, curr) => acc + curr.valor, 0);
+
+            const monthLoans = loans.filter(l => {
+                const d = new Date(l.dataInicio);
+                return (d.getMonth() + 1) === month;
+            });
+
+            const realizado = monthLoans.length; // Count of contracts as per user request
+            const percentual = totalGoal > 0 ? (realizado / totalGoal) * 100 : 0;
+
+            return {
+                mes: monthLabel,
+                meta: totalGoal,
+                realizado,
+                percentual
+            };
+        });
+
+        return {
+            summary: {
+                totalItems: 12,
+                totalGoal: items.reduce((acc, curr) => acc + curr.meta, 0),
+                totalRealizado: items.reduce((acc, curr) => acc + curr.realizado, 0)
+            },
+            items
+        };
+    }
+
+    async getUserGoalsReport(params: ReportParams): Promise<ReportData> {
+        const year = params.startDate ? new Date(params.startDate).getFullYear() : new Date().getFullYear();
+        const sellerId = params.sellerId;
+
+        if (!sellerId) throw new Error("Vendedor não especificado");
+
+        const [goals, loans] = await Promise.all([
+            prisma.goal.findMany({
+                where: { ano: year, tipo: 'INDIVIDUAL', userId: sellerId }
+            }),
+            prisma.loan.findMany({
+                where: {
+                    status: 'ATIVO',
+                    vendedorId: sellerId,
+                    dataInicio: {
+                        gte: new Date(`${year}-01-01`),
+                        lte: new Date(`${year}-12-31`)
+                    }
+                }
+            })
+        ]);
+
+        const items = Array.from({ length: 12 }, (_, i) => {
+            const month = i + 1;
+            const monthLabel = [
+                "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+            ][i];
+
+            const goal = goals.find(g => g.mes === month)?.valor || 0;
+
+            const monthLoans = loans.filter(l => {
+                const d = new Date(l.dataInicio);
+                return (d.getMonth() + 1) === month;
+            });
+
+            const realizado = monthLoans.length;
+            const percentual = goal > 0 ? (realizado / goal) * 100 : 0;
+
+            return {
+                mes: monthLabel,
+                meta: goal,
+                realizado,
+                percentual
+            };
+        });
+
+        return {
+            summary: {
+                totalItems: 12,
+                totalGoal: items.reduce((acc, curr) => acc + curr.meta, 0),
+                totalRealizado: items.reduce((acc, curr) => acc + curr.realizado, 0)
+            },
+            items
+        };
+    }
 }

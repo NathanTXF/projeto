@@ -11,11 +11,29 @@ export async function GET(request: Request) {
         }
 
         const { searchParams } = new URL(request.url);
-        const month = searchParams.get('month') ? parseInt(searchParams.get('month')!) : new Date().getMonth() + 1;
+        const month = searchParams.get('month') ? parseInt(searchParams.get('month')!) : undefined;
         const year = searchParams.get('year') ? parseInt(searchParams.get('year')!) : new Date().getFullYear();
+        const userId = searchParams.get('userId') || undefined;
 
-        const [company, users, monthlyGoals] = await Promise.all([
-            prisma.company.findFirst(),
+        if (userId && !month) {
+            // Case 1: Fetch all 12 goals for a specific user and year
+            const monthlyGoals = await prisma.goal.findMany({
+                where: {
+                    tipo: 'INDIVIDUAL',
+                    userId: userId,
+                    ano: year
+                }
+            });
+
+            return NextResponse.json({
+                userGoals: monthlyGoals
+            });
+        }
+
+        // Default or single month logic
+        const targetMonth = month || new Date().getMonth() + 1;
+
+        const [users, monthlyGoals] = await Promise.all([
             prisma.user.findMany({
                 select: {
                     id: true,
@@ -27,11 +45,10 @@ export async function GET(request: Request) {
                 orderBy: { nome: 'asc' }
             }),
             prisma.goal.findMany({
-                where: { mes: month, ano: year }
+                where: { mes: targetMonth, ano: year }
             })
         ]);
 
-        // Cálculo da Meta Global (Soma das metas individuais dos usuários)
         const userGoalsList = users.map(u => {
             const specificGoal = monthlyGoals.find(g => g.tipo === 'INDIVIDUAL' && g.userId === u.id);
             return {
@@ -62,48 +79,88 @@ export async function POST(request: Request) {
         }
 
         const data = await request.json();
-        const { type, id, value, month, year } = data; // type: 'company' | 'user'
+        const { type, id, value, month, year, goals, action } = data;
 
         const m = month || new Date().getMonth() + 1;
         const y = year || new Date().getFullYear();
-        const val = Math.round(Number(value || 0));
+        const isCurrentMonth = m === (new Date().getMonth() + 1) && y === new Date().getFullYear();
 
-        const goalType = type === 'company' ? 'GLOBAL' : 'INDIVIDUAL';
-        const targetUserId = type === 'company' ? null : id;
-
-        // Se for meta de empresa (GLOBAL), não salvamos na tabela Goal (pois é calculada como soma)
-        // Apenas atualizamos o fallback no modelo Company se for o mês atual abaixo.
-        if (type !== 'company') {
-            // Tentar encontrar meta existente para o período
-            const existing = await prisma.goal.findFirst({
+        if (action === 'delete' && type === 'user' && id) {
+            await prisma.goal.deleteMany({
                 where: {
-                    tipo: goalType,
-                    userId: targetUserId,
+                    tipo: 'INDIVIDUAL',
+                    userId: id,
                     mes: m,
                     ano: y
                 }
             });
-
-            if (existing) {
-                await prisma.goal.update({
-                    where: { id: existing.id },
-                    data: { valor: val }
-                });
-            } else {
-                await prisma.goal.create({
-                    data: {
-                        tipo: goalType,
-                        userId: targetUserId,
-                        mes: m,
-                        ano: y,
-                        valor: val
-                    }
-                });
-            }
+            return NextResponse.json({ success: true });
         }
 
-        // Se for o mês atual, também atualizamos o fallback no User/Company para manter legibilidade rápida
-        const isCurrentMonth = m === (new Date().getMonth() + 1) && y === new Date().getFullYear();
+        if (type === 'batch' && Array.isArray(goals)) {
+            // Processamento em lote
+            await prisma.$transaction(
+                goals.map((g: any) => {
+                    const val = Math.round(Number(g.valor || 0));
+                    return prisma.goal.upsert({
+                        where: {
+                            tipo_userId_mes_ano: {
+                                tipo: 'INDIVIDUAL',
+                                userId: g.userId,
+                                mes: m,
+                                ano: y
+                            }
+                        },
+                        update: { valor: val },
+                        create: {
+                            tipo: 'INDIVIDUAL',
+                            mes: m,
+                            ano: y,
+                            userId: g.userId,
+                            valor: val
+                        }
+                    });
+                })
+            );
+
+            // Atualizar fallbacks de usuários se for o mês atual
+            if (isCurrentMonth) {
+                await Promise.all(goals.map((g: any) =>
+                    prisma.user.update({
+                        where: { id: g.userId },
+                        data: { metaVendasMensal: Math.round(Number(g.valor || 0)) }
+                    })
+                ));
+            }
+
+            return NextResponse.json({ success: true });
+        }
+
+        const val = Math.round(Number(value || 0));
+        const goalType = type === 'company' ? 'GLOBAL' : 'INDIVIDUAL';
+        const targetUserId = type === 'company' ? null : id;
+
+        if (type !== 'company') {
+            await prisma.goal.upsert({
+                where: {
+                    tipo_userId_mes_ano: {
+                        tipo: goalType,
+                        userId: targetUserId as string,
+                        mes: m,
+                        ano: y
+                    }
+                },
+                update: { valor: val },
+                create: {
+                    tipo: goalType,
+                    mes: m,
+                    ano: y,
+                    userId: targetUserId!,
+                    valor: val
+                }
+            });
+        }
+
         if (isCurrentMonth) {
             if (type === 'company') {
                 const company = await prisma.company.findFirst();
@@ -127,3 +184,4 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+

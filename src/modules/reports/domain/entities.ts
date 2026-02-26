@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const ReportTypeEnum = z.enum(['SALES', 'COMMISSIONS', 'FINANCIAL', 'PERFORMANCE', 'AUDIT', 'CUSTOMERS', 'BANKS', 'ORGANS', 'GROUPS', 'TABLES', 'LOAN_TYPES', 'OPERATORS']);
+export const ReportTypeEnum = z.enum(['SALES', 'COMMISSIONS', 'FINANCIAL', 'PERFORMANCE', 'AUDIT', 'CUSTOMERS', 'BANKS', 'ORGANS', 'GROUPS', 'TABLES', 'LOAN_TYPES', 'OPERATORS', 'GOALS_GENERAL', 'GOALS_INDIVIDUAL']);
 export type ReportType = z.infer<typeof ReportTypeEnum>;
 
 export interface ReportParams {
