@@ -13,7 +13,7 @@ export async function GET(request: Request) {
         // Fetch user from DB to get the specific metaMensal
         const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { metaMensal: true }
+            select: { metaVendasMensal: true }
         });
 
         const now = new Date();
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
         const thisYear = startOfYear(now);
 
         // 1. Métricas de Clientes (Cadastrados por ele)
-        const [todayCount, monthCount, yearCount] = await Promise.all([
+        const [todayCount, monthCount, yearCount, specificGoal] = await Promise.all([
             prisma.customer.count({
                 where: { vendedorId: user.id, createdAt: { gte: today } }
             }),
@@ -31,6 +31,14 @@ export async function GET(request: Request) {
             }),
             prisma.customer.count({
                 where: { vendedorId: user.id, createdAt: { gte: thisYear } }
+            }),
+            prisma.goal.findFirst({
+                where: {
+                    tipo: 'INDIVIDUAL',
+                    userId: user.id,
+                    mes: now.getMonth() + 1,
+                    ano: now.getFullYear()
+                }
             })
         ]);
 
@@ -149,7 +157,8 @@ export async function GET(request: Request) {
             metrics: {
                 customers: { today: todayCount, month: monthCount, year: yearCount },
                 commissions: { received: totalReceivedMonth, pending: totalPendingMonth },
-                metaMensal: Number(dbUser?.metaMensal || 5000),
+                metaVendasMensal: Number(specificGoal?.valor ?? dbUser?.metaVendasMensal ?? 10),
+                totalSalesMonth: pipelineRaw.reduce((acc, p) => acc + p._count, 0),
                 rankingPosition: myPosition || '-'
             },
             pipeline,

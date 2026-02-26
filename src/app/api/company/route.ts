@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/core/auth/getUser';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-// Force Next.js to reload Prisma schema
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
     try {
@@ -21,6 +18,7 @@ export async function GET() {
                     id: 1,
                     nome: "Dinheiro Fácil Ltda",
                     cnpj: "00.000.000/0001-00",
+                    metaVendasMensal: 100
                 }
             });
         }

@@ -67,7 +67,8 @@ interface DashboardStats {
     pendingCommissions: number;
     ticketMedio: number;
     forecastVolume: number;
-    metaGlobal: number;
+    metaVendasGlobal: number;
+    totalSalesMonth: number;
 }
 
 interface TopSeller {
@@ -191,9 +192,17 @@ export default function OverviewPage() {
                             <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Contratos Ativos</p>
                             <p className="text-3xl font-black text-white">{stats?.activeLoans ?? 0}</p>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 min-w-[160px]">
-                            <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Pendências</p>
-                            <p className="text-3xl font-black text-amber-400">{stats?.pendingCommissions ?? 0}</p>
+                        <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 min-w-[200px]">
+                            <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1 text-center">Progresso Meta Global</p>
+                            <div className="flex items-center gap-3">
+                                <p className="text-3xl font-black text-amber-400">{stats?.totalSalesMonth ?? 0}<span className="text-sm text-white/40 ml-1">/ {stats?.metaVendasGlobal ?? 100}</span></p>
+                                <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-amber-400 transition-all duration-1000"
+                                        style={{ width: `${Math.min(100, ((stats?.totalSalesMonth || 0) / (stats?.metaVendasGlobal || 100)) * 100)}%` }}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

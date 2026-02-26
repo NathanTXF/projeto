@@ -99,7 +99,7 @@ export default function DashboardPage() {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
     };
 
-    const goalPercent = metrics?.metaMensal ? Math.min(100, ((metrics?.commissions.received || 0) / metrics.metaMensal) * 100) : 0;
+    const goalPercent = metrics?.metaVendasMensal ? Math.min(100, ((metrics?.totalSalesMonth || 0) / metrics.metaVendasMensal) * 100) : 0;
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
@@ -129,7 +129,7 @@ export default function DashboardPage() {
                         <p className="text-white/80 font-medium max-w-md text-lg leading-relaxed">
                             {authUser?.nivelAcesso === 1
                                 ? "Seu sistema está operacional. Confira os indicadores estratégicos e tome decisões baseadas em dados."
-                                : `Você já conquistou ${formatCurrency(metrics?.commissions.received)} este mês. Faltam ${formatCurrency(Math.max(0, metrics?.metaMensal - metrics?.commissions.received))} para a meta!`}
+                                : `Você já realizou ${metrics?.totalSalesMonth || 0} vendas este mês. Faltam ${Math.max(0, (metrics?.metaVendasMensal || 0) - (metrics?.totalSalesMonth || 0))} para bater sua meta!`}
                         </p>
                     </div>
 

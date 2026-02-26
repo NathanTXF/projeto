@@ -17,6 +17,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/Badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +35,25 @@ interface UserGoal {
     isAdmin: boolean;
 }
 
+const MONTHS = [
+    { value: "1", label: "Janeiro" },
+    { value: "2", label: "Fevereiro" },
+    { value: "3", label: "Março" },
+    { value: "4", label: "Abril" },
+    { value: "5", label: "Maio" },
+    { value: "6", label: "Junho" },
+    { value: "7", label: "Julho" },
+    { value: "8", label: "Agosto" },
+    { value: "9", label: "Setembro" },
+    { value: "10", label: "Outubro" },
+    { value: "11", label: "Novembro" },
+    { value: "12", label: "Dezembro" },
+];
+
 export default function GoalsManagementPage() {
+    const now = new Date();
+    const [selectedMonth, setSelectedMonth] = useState<string>((now.getMonth() + 1).toString());
+    const [selectedYear, setSelectedYear] = useState<string>(now.getFullYear().toString());
     const [companyGoal, setCompanyGoal] = useState<number>(0);
     const [userGoals, setUserGoals] = useState<UserGoal[]>([]);
     const [loading, setLoading] = useState(true);
@@ -38,11 +63,12 @@ export default function GoalsManagementPage() {
 
     useEffect(() => {
         fetchGoals();
-    }, []);
+    }, [selectedMonth, selectedYear]);
 
     const fetchGoals = async () => {
+        setLoading(true);
         try {
-            const response = await fetch('/api/admin/goals');
+            const response = await fetch(`/api/admin/goals?month=${selectedMonth}&year=${selectedYear}`);
             if (response.status === 403) {
                 setUnauthorized(true);
                 return;
@@ -71,7 +97,13 @@ export default function GoalsManagementPage() {
             const response = await fetch('/api/admin/goals', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type, id, value })
+                body: JSON.stringify({
+                    type,
+                    id,
+                    value,
+                    month: parseInt(selectedMonth),
+                    year: parseInt(selectedYear)
+                })
             });
             const data = await response.json();
             if (data.error) throw new Error(data.error);
@@ -122,13 +154,42 @@ export default function GoalsManagementPage() {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
             {/* ── Enterprise Hero Banner ── */}
             <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
-                <div className="relative flex items-center gap-4">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
-                        <Target className="h-8 w-8 text-primary-foreground" />
+                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                            <Target className="h-8 w-8 text-primary-foreground" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Gestão de Metas</h1>
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Configure os objetivos de vendas (contagem de contratos) por período.</p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Gestão de Metas</h1>
-                        <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Configure os objetivos financeiros da empresa e de cada colaborador.</p>
+
+                    {/* Period Selector */}
+                    <div className="flex items-center gap-3 bg-white/10 p-2 rounded-2xl backdrop-blur-sm border border-white/10">
+                        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                            <SelectTrigger className="w-[140px] bg-transparent border-none text-white font-bold h-10 focus:ring-0 hover:bg-white/5 rounded-xl transition-colors">
+                                <SelectValue placeholder="Mês" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {MONTHS.map(m => (
+                                    <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <div className="h-4 w-px bg-white/20" />
+
+                        <Select value={selectedYear} onValueChange={setSelectedYear}>
+                            <SelectTrigger className="w-[100px] bg-transparent border-none text-white font-bold h-10 focus:ring-0 hover:bg-white/5 rounded-xl transition-colors">
+                                <SelectValue placeholder="Ano" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {[2025, 2026, 2027].map(y => (
+                                    <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
             </div>
@@ -145,12 +206,12 @@ export default function GoalsManagementPage() {
                                 <CardTitle className="text-xl font-black">Meta de Vendas Global</CardTitle>
                             </div>
                             <CardDescription className="text-slate-400 font-medium">
-                                Objetivo total de crédito bruto liquidado pela empresa no mês.
+                                Objetivo total de contratos liquidados pela empresa no mês.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="relative p-8 pt-0 space-y-6">
                             <div className="space-y-4">
-                                <label className="text-xs font-black uppercase tracking-widest text-slate-500">Valor Bruto (R$)</label>
+                                <label className="text-xs font-black uppercase tracking-widest text-slate-500">Quantidade de Contratos</label>
                                 <div className="flex gap-2">
                                     <Input
                                         type="number"
@@ -172,7 +233,7 @@ export default function GoalsManagementPage() {
                                 <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                                 <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
                                     Esta meta é usada para calcular a performance do painel estratégico ("Visão 360º").
-                                    A meta padrão atual é de R$ 50.000,00.
+                                    A meta padrão atual é de 100 contratos.
                                 </p>
                             </div>
                         </CardContent>
@@ -189,12 +250,12 @@ export default function GoalsManagementPage() {
                                         <Users className="h-5 w-5 text-primary" />
                                         <CardTitle className="text-xl font-black tracking-tight">Metas por Colaborador</CardTitle>
                                     </div>
-                                    <CardDescription>Defina a meta individual de comissões para cada vendedor.</CardDescription>
+                                    <CardDescription>Defina a meta individual de vendas para cada vendedor (número de contratos).</CardDescription>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-3">
                                     <Badge className="hidden md:flex bg-primary/10 text-primary border-none font-black px-3 py-1 text-[10px] rounded-full uppercase tracking-tighter">
                                         <TrendingUp className="h-3 w-3 mr-1" />
-                                        Baseado em Comissões
+                                        Baseado em Contratos
                                     </Badge>
                                     <div className="relative w-full md:w-auto">
                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -234,13 +295,12 @@ export default function GoalsManagementPage() {
 
                                                 <div className="flex items-center gap-3 md:min-w-[320px]">
                                                     <div className="relative flex-1">
-                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground/40">R$</span>
                                                         <Input
                                                             type="number"
                                                             defaultValue={u.goal}
                                                             id={`input-goal-${u.id}`}
-                                                            className="pl-8 h-12 rounded-xl border-border/60 font-black text-sm focus:ring-primary/20"
-                                                            placeholder="0,00"
+                                                            className="h-12 rounded-xl border-border/60 font-black text-sm focus:ring-primary/20"
+                                                            placeholder="0"
                                                         />
                                                     </div>
                                                     <Button

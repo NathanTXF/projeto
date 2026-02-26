@@ -37,7 +37,8 @@ export async function GET(request: Request) {
             loansByBankRaw,
             loansByTypeRaw,
             volumeMonthRaw,
-            company
+            company,
+            periodGoal
         ] = await Promise.all([
             prisma.customer.count({ where: isAdmin ? {} : { loans: { some: { vendedorId: user.id } } } }),
             prisma.customer.count({
@@ -85,13 +86,20 @@ export async function GET(request: Request) {
                 _count: true,
                 where: { ...whereVendedor, dataInicio: { gte: startOfMonth } }
             }),
-            prisma.company.findFirst() // Buscar meta global
+            prisma.company.findFirst(), // Buscar meta global default
+            prisma.goal.findFirst({ // Buscar meta global específica do período
+                where: {
+                    tipo: 'GLOBAL',
+                    mes: now.getMonth() + 1,
+                    ano: now.getFullYear()
+                }
+            })
         ]);
 
         // Carregar nomes de Bancos e Tipos
         const [banks, loanTypes] = await Promise.all([
-            prisma.bank.findMany({ where: { id: { in: loansByBankRaw.map(b => b.bancoId) } } }),
-            prisma.loanType.findMany({ where: { id: { in: loansByTypeRaw.map(t => t.tipoId) } } })
+            prisma.bank.findMany({ where: { id: { in: loansByBankRaw.map((b: any) => b.bancoId) } } }),
+            prisma.loanType.findMany({ where: { id: { in: loansByTypeRaw.map((t: any) => t.tipoId) } } })
         ]);
 
         const bankMap = new Map(banks.map(b => [b.id, b.nome]));
@@ -123,7 +131,8 @@ export async function GET(request: Request) {
                 pendingCommissions,
                 ticketMedio,
                 forecastVolume,
-                metaGlobal: Number(company?.metaMensal || 50000)
+                metaVendasGlobal: Number(periodGoal?.valor ?? company?.metaVendasMensal ?? 100),
+                totalSalesMonth: volumeMonthRaw._count || 0
             },
             topSellers: topSellers.map(s => ({
                 id: s.id,

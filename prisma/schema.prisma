@@ -27,7 +27,7 @@ model User {
   lockUntil      DateTime?
   contato        String?
   endereco       String?
-  metaMensal     Decimal? @db.Decimal(10, 2) @default(5000)
+  metaVendasMensal Int?   @default(10)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -39,6 +39,7 @@ model User {
   customers   Customer[]    @relation("SellerCustomers")
   commissions  Commission[]
   financials   Financial[]
+  goals        Goal[]
 }
 
 model Role {
@@ -226,7 +227,21 @@ model Company {
   endereco  String?
   cidade    String?
   logoUrl   String?
-  metaMensal Decimal? @db.Decimal(10, 2) @default(50000)
+  metaVendasMensal Int? @default(100)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Goal {
+  id        String   @id @default(uuid())
+  tipo      String   // 'GLOBAL' | 'INDIVIDUAL'
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  mes       Int
+  ano       Int
+  valor     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tipo, userId, mes, ano])
 }
