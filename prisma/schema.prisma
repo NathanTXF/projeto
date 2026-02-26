@@ -226,6 +226,7 @@ model Company {
   endereco  String?
   cidade    String?
   logoUrl   String?
+  metaMensal Decimal? @db.Decimal(10, 2) @default(50000)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

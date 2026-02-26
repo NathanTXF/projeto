@@ -9,7 +9,7 @@ const useCases = new AgendaUseCases(repository);
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const currentUser = await getAuthUser();
@@ -47,7 +47,7 @@ export async function PATCH(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const currentUser = await getAuthUser();

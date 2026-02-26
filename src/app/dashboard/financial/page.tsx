@@ -53,7 +53,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const paymentFormSchema = z.object({
     pagoEm: z.string().min(1, "Data de pagamento é obrigatória"),
     comprovante: z.any().optional(),
-    valorTotal: z.preprocess((val) => Number(val), z.number().min(0)).optional(),
+    valorTotal: z.number().min(0).optional(),
 });
 
 type PaymentFormValues = z.infer<typeof paymentFormSchema>;
@@ -434,6 +434,7 @@ export default function FinancialPage() {
                                                                     type="number"
                                                                     step="0.01"
                                                                     {...field}
+                                                                    onChange={(e) => field.onChange(e.target.value === "" ? undefined : Number(e.target.value))}
                                                                     className="pl-10 h-10 rounded-xl border-slate-200 bg-white font-bold text-lg text-primary focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
                                                                 />
                                                             </div>
