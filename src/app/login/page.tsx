@@ -58,7 +58,7 @@ export default function LoginPage() {
     return (
         <div className="flex min-h-screen bg-white">
             {/* Left Side: Hero Branding */}
-            <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden bg-[#002D4E]">
+            <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-center p-12 overflow-hidden bg-[#002D4E]">
                 {/* Background Pattern/Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#00477E] to-[#002D4E]" />
                 <div className="absolute inset-0 opacity-10" style={{
@@ -68,15 +68,7 @@ export default function LoginPage() {
 
                 {/* Content */}
                 <div className="relative z-10 animate-in fade-in slide-in-from-left-8 duration-700">
-                    <div className="flex items-center mb-12">
-                        {branding.logoUrl ? (
-                            <img src={branding.logoUrl} alt="Logo" className="h-16 w-auto object-contain" />
-                        ) : (
-                            <div className="h-12 w-12 rounded-xl bg-[#8CC63F] flex items-center justify-center shadow-lg">
-                                <Building2 className="h-7 w-7 text-white" />
-                            </div>
-                        )}
-                    </div>
+                    {/* Logo removed from here as per request */}
 
                     <div className="max-w-md space-y-6">
                         <h1 className="text-5xl font-black text-white leading-tight tracking-tight">
@@ -94,18 +86,8 @@ export default function LoginPage() {
             <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-50/50">
                 <div className="w-full max-w-md space-y-10 animate-in fade-in zoom-in-95 duration-700">
                     {/* Compact Header for Mobile/Title */}
-                    <div className="text-center lg:text-left space-y-2">
-                        <div className="lg:hidden flex justify-center mb-6">
-                            {branding.logoUrl ? (
-                                <img src={branding.logoUrl} alt="Logo" className="h-12 w-auto object-contain" />
-                            ) : (
-                                <div className="h-12 w-12 rounded-xl bg-[#8CC63F] flex items-center justify-center shadow-md">
-                                    <Building2 className="h-7 w-7 text-white" />
-                                </div>
-                            )}
-                        </div>
-                        <h2 className="text-3xl font-black text-slate-900 tracking-tight">Login Acesso</h2>
-                        <p className="text-slate-500 font-medium italic">Informe suas credenciais para prosseguir.</p>
+                    <div className="flex justify-center mb-8">
+                        <img src="/logo_v2.png" alt="Dinheiro Fácil" className="h-16 w-auto object-contain" />
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-6">
