@@ -33,7 +33,8 @@ const menuGroups = [
         items: [
             { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", permission: 'view_dashboard' },
             { icon: TrendingUp, label: "Visão Geral (Gestor)", href: "/dashboard/overview", permission: 'view_dashboard' },
-            { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", permission: 'view_agenda' }
+            { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", permission: 'view_agenda' },
+            { icon: FileText, label: "Relatórios", href: "/dashboard/reports", permission: 'view_audit' }
         ]
     },
     {

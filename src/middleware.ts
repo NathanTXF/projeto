@@ -29,6 +29,7 @@ export async function middleware(request: NextRequest) {
             '/dashboard/users': 'manage_users',
             '/dashboard/roles': 'manage_roles',
             '/dashboard/audit': 'view_audit',
+            '/dashboard/reports': 'view_audit',
             '/dashboard/company': 'manage_settings',
             '/dashboard/financial': 'view_financial',
             '/dashboard/commissions': 'view_commissions',
