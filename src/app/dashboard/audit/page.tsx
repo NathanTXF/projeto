@@ -9,8 +9,12 @@ import {
     FileCode,
     Calendar as CalendarIcon,
     ChevronRight,
-    RefreshCcw
+    RefreshCcw,
+    Users,
+    LayoutGrid,
+    TrendingUp
 } from "lucide-react";
+import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,162 +49,266 @@ interface AuditLog {
 
 export default function AuditPage() {
     const [logs, setLogs] = useState<AuditLog[]>([]);
+    const [stats, setStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [isMounted, setIsMounted] = useState(false);
     const [filters, setFilters] = useState({
         modulo: "all",
         usuarioId: "",
+        startDate: format(new Date(), 'yyyy-MM-01'),
+        endDate: format(new Date(), 'yyyy-MM-dd')
     });
 
     useEffect(() => {
         setIsMounted(true);
-        fetchLogs();
+        fetchData();
     }, []);
 
-    const fetchLogs = async () => {
+    const fetchData = async () => {
+        setLoading(true);
         try {
-            setLoading(true);
-            const queryParams = new URLSearchParams();
-            if (filters.modulo !== "all") queryParams.append("modulo", filters.modulo);
-            if (filters.usuarioId) queryParams.append("usuarioId", filters.usuarioId);
+            // Concurrent fetch for logs and stats
+            const [logsRes, statsRes] = await Promise.all([
+                fetch(`/api/audit?${new URLSearchParams({
+                    ...(filters.modulo !== 'all' && { modulo: filters.modulo }),
+                    ...(filters.usuarioId && { usuarioId: filters.usuarioId }),
+                    startDate: filters.startDate,
+                    endDate: filters.endDate
+                }).toString()}`),
+                fetch('/api/audit?stats=true')
+            ]);
 
-            const response = await fetch(`/api/audit?${queryParams.toString()}`);
-            const data = await response.json();
-            if (data.error) throw new Error(data.error);
+            const logsData = await logsRes.json();
+            const statsData = await statsRes.json();
 
-            setLogs(data);
+            setLogs(logsData);
+            setStats(statsData);
         } catch (error: any) {
-            toast.error("Erro ao carregar auditoria: " + error.message);
+            toast.error("Erro ao sincronizar dados: " + error.message);
         } finally {
             setLoading(false);
         }
     };
 
     const getActionBadgeColor = (action: string) => {
-        if (action.includes('CREATE')) return 'bg-emerald-100 text-emerald-700 border-emerald-200 font-black';
-        if (action.includes('DELETE')) return 'bg-rose-100 text-rose-700 border-rose-200 font-black';
-        if (action.includes('UPDATE')) return 'bg-amber-100 text-amber-700 border-amber-200 font-black';
-        if (action.includes('LOGIN_FAILED')) return 'bg-red-500 text-white border-none font-black animate-pulse';
-        if (action.includes('LOGIN_SUCCESS')) return 'bg-blue-100 text-blue-700 border-blue-200 font-black';
-        return 'bg-slate-100 text-slate-600 border-slate-200 font-black';
+        const a = action.toUpperCase();
+        if (a.includes('CREATE')) return 'bg-emerald-50 text-emerald-600 border-emerald-100 font-bold';
+        if (a.includes('DELETE')) return 'bg-rose-50 text-rose-600 border-rose-100 font-extrabold shadow-sm';
+        if (a.includes('UPDATE')) return 'bg-amber-50 text-amber-600 border-amber-100 font-bold';
+        if (a.includes('LOGIN_FAILED')) return 'bg-red-600 text-white border-none font-black animate-pulse';
+        if (a.includes('LOGIN_SUCCESS')) return 'bg-blue-50 text-blue-600 border-blue-100 font-bold';
+        return 'bg-slate-50 text-slate-500 border-slate-100 font-medium';
+    };
+
+    const getModuleIcon = (modulo: string) => {
+        switch (modulo.toUpperCase()) {
+            case 'CLIENTS': return <Users className="h-3.5 w-3.5" />;
+            case 'LOANS': return <FileCode className="h-3.5 w-3.5" />;
+            case 'AUTH': return <LayoutGrid className="h-3.5 w-3.5" />;
+            case 'FINANCIAL': return <TrendingUp className="h-3.5 w-3.5" />;
+            default: return <History className="h-3.5 w-3.5" />;
+        }
     };
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            {/* ── Enterprise Hero Banner ── */}
+            {/* ── Senior Management Header ── */}
             <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
-                <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
                         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
                             <History className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Auditoria do Sistema</h1>
-                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Rastreamento completo de atividades e mudanças.</p>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Painel de Auditoria</h1>
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Monitoramento senior de integridade e segurança do sistema.</p>
                         </div>
                     </div>
                     <Button
-                        onClick={fetchLogs}
+                        onClick={fetchData}
+                        disabled={loading}
                         variant="outline"
-                        className="gap-2 rounded-xl bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground transition-all font-bold px-6 py-3 h-auto"
+                        className="gap-2 rounded-xl bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 transition-all font-bold px-6 py-4 h-auto active:scale-95"
                     >
                         <RefreshCcw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-                        Atualizar Logs
+                        Sincronizar Logs
                     </Button>
+                </div>
+
+                {/* Insight Cards Strip */}
+                <div className="relative mt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="flex items-center gap-4 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                        <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${stats?.failedLogins > 5 ? 'bg-red-500 animate-pulse' : 'bg-white/10'}`}>
+                            <LayoutGrid className="h-5 w-5 text-primary-foreground" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold text-primary-foreground/60 uppercase tracking-widest mb-1 leading-none">Falhas de Login</p>
+                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : (stats?.failedLogins || 0)}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                        <div className="h-10 w-10 rounded-lg bg-white/10 flex items-center justify-center">
+                            <RefreshCcw className="h-5 w-5 text-amber-400" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold text-primary-foreground/60 uppercase tracking-widest mb-1 leading-none">Deleções Críticas</p>
+                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : (stats?.criticalDeletes || 0)}</p>
+                        </div>
+                    </div>
+                    <div className="hidden md:flex items-center gap-4 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                        <div className="h-10 w-10 rounded-lg bg-white/10 flex items-center justify-center">
+                            <TrendingUp className="h-5 w-5 text-emerald-400" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold text-primary-foreground/60 uppercase tracking-widest mb-1 leading-none">Módulo Ativo</p>
+                            <p className="text-xl font-black text-primary-foreground leading-none truncate max-w-[100px]">{loading ? "..." : (stats?.mostActiveModule || '---')}</p>
+                        </div>
+                    </div>
+                    <div className="hidden md:flex items-center gap-4 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                        <div className="h-10 w-10 rounded-lg bg-white/10 flex items-center justify-center">
+                            <FileCode className="h-5 w-5 text-indigo-400" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold text-primary-foreground/60 uppercase tracking-widest mb-1 leading-none">Total Logs 24h</p>
+                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : (stats?.totalActivities || 0)}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <Card className="border border-slate-100 shadow-sm overflow-hidden rounded-2xl bg-white">
-                <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
-                    <div className="flex flex-wrap gap-4 items-center justify-between">
-                        <div className="flex gap-4 flex-wrap">
-                            <div className="w-48">
-                                <Select value={filters.modulo} onValueChange={(val) => setFilters(f => ({ ...f, modulo: val }))}>
-                                    <SelectTrigger className="rounded-xl bg-white h-10 font-medium border-slate-200 shadow-sm focus:ring-sidebar/20 focus:border-sidebar">
-                                        <SelectValue placeholder="Módulo" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">Todos os Módulos</SelectItem>
-                                        <SelectItem value="CLIENTS">Clientes</SelectItem>
-                                        <SelectItem value="LOANS">Empréstimos</SelectItem>
-                                        <SelectItem value="COMMISSIONS">Comissões</SelectItem>
-                                        <SelectItem value="FINANCIAL">Financeiro</SelectItem>
-                                        <SelectItem value="AUTH">Autenticação</SelectItem>
-                                    </SelectContent>
-                                </Select>
+            {/* Smart Filters Area */}
+            <Card className="border-none shadow-xl shadow-slate-200/50 overflow-hidden rounded-2xl bg-white">
+                <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+                        <div className="md:col-span-3 space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                <Filter className="w-3 h-3 text-indigo-500" />
+                                Filtrar Módulo
+                            </label>
+                            <Select value={filters.modulo} onValueChange={(val) => setFilters(f => ({ ...f, modulo: val }))}>
+                                <SelectTrigger className="rounded-xl bg-white h-11 font-bold border-slate-200 shadow-sm">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                    <SelectItem value="all">Todos os Módulos</SelectItem>
+                                    <SelectItem value="CLIENTS">Clientes</SelectItem>
+                                    <SelectItem value="LOANS">Empréstimos</SelectItem>
+                                    <SelectItem value="COMMISSIONS">Comissões</SelectItem>
+                                    <SelectItem value="FINANCIAL">Financeiro</SelectItem>
+                                    <SelectItem value="AUTH">Autenticação</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="md:col-span-4 grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Início</label>
+                                <Input
+                                    type="date"
+                                    className="h-11 rounded-xl bg-white border-slate-200 font-bold"
+                                    value={filters.startDate}
+                                    onChange={(e) => setFilters(f => ({ ...f, startDate: e.target.value }))}
+                                />
                             </div>
-                            <div className="flex bg-white rounded-xl border border-slate-200 px-3 py-1 items-center gap-2 shadow-sm h-10 focus-within:ring-1 focus-within:ring-sidebar/20 focus-within:border-sidebar">
-                                <Search className="h-4 w-4 text-slate-400" />
-                                <input
-                                    placeholder="Filtrar por Usuário ID..."
-                                    className="border-none focus:outline-none text-sm w-40 bg-transparent font-medium"
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fim</label>
+                                <Input
+                                    type="date"
+                                    className="h-11 rounded-xl bg-white border-slate-200 font-bold"
+                                    value={filters.endDate}
+                                    onChange={(e) => setFilters(f => ({ ...f, endDate: e.target.value }))}
+                                />
+                            </div>
+                        </div>
+                        <div className="md:col-span-3 space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-mono">Buscar por UUID</label>
+                            <div className="relative group">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 transition-colors group-focus-within:text-primary" />
+                                <Input
+                                    placeholder="ID do Usuário..."
+                                    className="pl-9 h-11 rounded-xl bg-white border-slate-200 font-medium"
                                     value={filters.usuarioId}
                                     onChange={(e) => setFilters(f => ({ ...f, usuarioId: e.target.value }))}
                                 />
                             </div>
                         </div>
-                        <Button onClick={fetchLogs} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm font-bold px-6 h-10">
-                            <Filter className="h-4 w-4 mr-2" />
-                            Aplicar Filtros
-                        </Button>
+                        <div className="md:col-span-2">
+                            <Button
+                                onClick={fetchData}
+                                className="w-full rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black uppercase text-xs tracking-widest h-11 transition-all shadow-lg shadow-slate-200 active:scale-95"
+                            >
+                                Filtrar logs
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
                     <Table>
-                        <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold">
-                            <TableRow>
-                                <TableHead className="font-semibold text-sidebar-foreground w-[180px]">Data/Hora</TableHead>
-                                <TableHead className="font-semibold text-sidebar-foreground">Usuário</TableHead>
-                                <TableHead className="font-semibold text-sidebar-foreground">Módulo</TableHead>
-                                <TableHead className="font-semibold text-sidebar-foreground">Ação</TableHead>
-                                <TableHead className="font-semibold text-sidebar-foreground">Entidade ID</TableHead>
-                                <TableHead className="text-right font-semibold text-sidebar-foreground">IP</TableHead>
+                        <TableHeader className="bg-slate-50/50">
+                            <TableRow className="hover:bg-transparent border-b border-slate-100">
+                                <TableHead className="text-[11px] font-black text-slate-400 uppercase tracking-widest w-[160px]">Timestamp</TableHead>
+                                <TableHead className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Operador</TableHead>
+                                <TableHead className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Módulo</TableHead>
+                                <TableHead className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Ação Executada</TableHead>
+                                <TableHead className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Referência</TableHead>
+                                <TableHead className="text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">Endereço IP</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {loading ? (
+                            {loading && logs.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-32 text-center text-slate-400">
-                                        Buscando logs de auditoria...
+                                    <TableCell colSpan={6} className="h-64 text-center">
+                                        <div className="flex flex-col items-center gap-3 opacity-40">
+                                            <RefreshCcw className="h-8 w-8 animate-spin text-primary" />
+                                            <p className="font-black uppercase text-[10px] tracking-widest">Cruzando logs de atividade...</p>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ) : logs.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-32 text-center text-slate-400 italic">
-                                        Nenhum registro encontrado para os filtros selecionados.
+                                    <TableCell colSpan={6} className="h-64 text-center">
+                                        <div className="flex flex-col items-center gap-3 opacity-40 pt-10">
+                                            <div className="h-16 w-16 bg-slate-100 rounded-2xl flex items-center justify-center">
+                                                <Filter className="h-8 w-8 text-slate-300" />
+                                            </div>
+                                            <p className="font-black uppercase text-[10px] tracking-widest">Nenhum evento registrado no critério</p>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 logs.map((log) => (
-                                    <TableRow key={log.id} className="hover:bg-slate-50/50 transition-colors group">
-                                        <TableCell className="text-slate-600 font-mono text-xs">
+                                    <TableRow key={log.id} className={`hover:bg-slate-50/80 transition-all border-b border-slate-50 group ${log.acao.includes('DELETE') ? 'bg-red-50/10' : ''}`}>
+                                        <TableCell className="font-mono text-[10px] text-slate-500 font-bold whitespace-nowrap">
                                             {new Intl.DateTimeFormat('pt-BR', {
                                                 day: '2-digit', month: '2-digit', year: 'numeric',
                                                 hour: '2-digit', minute: '2-digit', second: '2-digit'
                                             }).format(new Date(log.timestamp))}
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center">
-                                                    <UserIcon className="h-3 w-3 text-slate-600" />
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="h-7 w-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                    <UserIcon className="h-3.5 w-3.5 text-slate-600" />
                                                 </div>
-                                                <span className="text-sm font-medium text-slate-700">{log.usuario?.nome || 'Sistema'}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-black text-slate-800 uppercase leading-none mb-0.5">{log.usuario?.nome || 'Sistema'}</span>
+                                                    <span className="text-[9px] text-slate-400 font-mono tracking-tighter truncate max-w-[80px]">{log.usuarioId}</span>
+                                                </div>
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant="outline" className="bg-slate-50 text-slate-500 border-slate-200 uppercase text-[10px] font-bold">
-                                                {log.modulo}
-                                            </Badge>
+                                            <div className="flex items-center gap-2 px-2 py-1 bg-slate-100 rounded-lg w-fit border border-slate-200/50">
+                                                <span className="text-slate-500">{getModuleIcon(log.modulo)}</span>
+                                                <span className="text-[10px] font-black text-slate-600 uppercase tracking-tight">{log.modulo}</span>
+                                            </div>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge className={getActionBadgeColor(log.acao)}>
-                                                {log.acao}
+                                            <Badge variant="outline" className={`${getActionBadgeColor(log.acao)} px-3 py-1 text-[10px] tracking-tight uppercase border-2`}>
+                                                {log.acao.replace(/_/g, ' ')}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-slate-400 font-mono text-[10px] truncate max-w-[120px]">
-                                            {log.entidadeId || '-'}
+                                        <TableCell className="font-mono text-[10px] text-slate-400 select-all group-hover:text-slate-600">
+                                            {log.entidadeId || 'N/A'}
                                         </TableCell>
-                                        <TableCell className="text-right text-slate-400 text-xs">
+                                        <TableCell className="text-right text-slate-400 text-[10px] font-mono select-all">
                                             {log.ip || 'Local'}
                                         </TableCell>
                                     </TableRow>
@@ -209,15 +317,13 @@ export default function AuditPage() {
                         </TableBody>
                     </Table>
                 </CardContent>
+                <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                    <div className="flex items-center gap-6">
+                        <span className="flex items-center gap-1.5"><FileCode className="h-3.5 w-3.5" /> Eventos: {logs.length}</span>
+                        <span className="flex items-center gap-1.5"><History className="h-3.5 w-3.5" /> {isMounted ? new Date().toLocaleTimeString() : '--:--:--'}</span>
+                    </div>
+                </div>
             </Card>
-
-            <div className="flex justify-end pr-4 text-xs text-slate-400 gap-4">
-                <span className="flex items-center gap-1"><FileCode className="h-3 w-3" /> Registros: {logs.length}</span>
-                <span className="flex items-center gap-1">
-                    <History className="h-3 w-3" />
-                    Última atualização: {isMounted ? new Date().toLocaleTimeString() : '--:--:--'}
-                </span>
-            </div>
         </div>
     );
 }

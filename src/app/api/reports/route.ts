@@ -9,7 +9,7 @@ const repository = new PrismaReportRepository();
 export async function GET(request: Request) {
     try {
         const user = await getAuthUser();
-        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.MANAGE_USERS)) {
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.VIEW_AUDIT)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
