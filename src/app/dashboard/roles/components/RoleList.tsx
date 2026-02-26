@@ -27,7 +27,7 @@ export function RoleList({ roles, onEdit, onDelete }: RoleListProps) {
                 <thead className="text-xs text-slate-600 bg-slate-50 uppercase font-bold tracking-wider">
                     <tr>
                         <th className="px-6 py-4">Nome do Perfil</th>
-                        <th className="px-6 py-4">Descrição</th>
+                        <th className="px-6 py-4 text-center">Usuários</th>
                         <th className="px-6 py-4">Permissões</th>
                         <th className="px-6 py-4 text-center">Ações</th>
                     </tr>
@@ -36,15 +36,23 @@ export function RoleList({ roles, onEdit, onDelete }: RoleListProps) {
                     {roles.map((role) => (
                         <tr key={role.id} className="bg-white hover:bg-slate-50/80 transition-colors">
                             <td className="px-6 py-4 whitespace-nowrap">
-                                <span className="font-semibold text-slate-800">{role.name}</span>
+                                <div className="flex flex-col">
+                                    <span className="font-bold text-slate-800 text-base">{role.name}</span>
+                                    <span className="text-xs text-slate-500 font-medium">{role.description || 'Sem descrição'}</span>
+                                </div>
                             </td>
-                            <td className="px-6 py-4">
-                                <span className="text-slate-600 truncate block max-w-xs">{role.description || '-'}</span>
-                            </td>
-                            <td className="px-6 py-4">
-                                <Badge variant="secondary" className="bg-sidebar/10 text-sidebar font-bold border-none">
-                                    {role.permissions?.length || 0} permissões ativas
+                            <td className="px-6 py-4 text-center">
+                                <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-100 font-bold px-3">
+                                    {role.userCount || 0} vinculados
                                 </Badge>
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                                    <span className="text-indigo-600 font-bold text-sm">
+                                        {role.permissions?.length || 0} permissões ativas
+                                    </span>
+                                </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center justify-center gap-2">

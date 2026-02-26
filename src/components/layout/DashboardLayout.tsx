@@ -52,8 +52,8 @@ const menuGroups = [
         roleBased: true, // Marker to indicate careful permission checks
         items: [
             { icon: Building2, label: "Empresa", href: "/dashboard/company", permission: 'manage_settings' },
-            { icon: ShieldAlert, label: "Perfis de Acesso", href: "/dashboard/roles", permission: 'manage_roles' },
             { icon: Users, label: "Acessos (Usuários)", href: "/dashboard/users", permission: 'manage_users' },
+            { icon: ShieldAlert, label: "Perfis de Acesso", href: "/dashboard/roles", permission: 'manage_roles' },
             { icon: LucideHistory, label: "Auditoria", href: "/dashboard/audit", permission: 'view_audit' },
         ]
     }

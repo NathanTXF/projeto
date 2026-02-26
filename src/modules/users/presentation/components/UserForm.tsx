@@ -10,17 +10,9 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-    FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { User, UserSchema } from "../../domain/entities";
 import {
     Loader2,
@@ -35,7 +27,7 @@ import {
     Eye,
     EyeOff,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const userFormSchema = UserSchema.extend({
     senha: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").optional().or(z.literal("")),
@@ -52,16 +44,6 @@ interface UserFormProps {
 
 export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
     const [showPassword, setShowPassword] = useState(false);
-    const [roles, setRoles] = useState<{ id: string, name: string }[]>([]);
-
-    useEffect(() => {
-        fetch('/api/roles')
-            .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data)) setRoles(data);
-            })
-            .catch(console.error);
-    }, []);
 
     const form = useForm<UserFormValues>({
         resolver: zodResolver(userFormSchema),
@@ -73,7 +55,7 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
             nome: "",
             usuario: "",
             senha: "",
-            nivelAcesso: 2,
+            roleId: null,
             fotoUrl: "",
             horarioInicio: "08:00",
             horarioFim: "18:00",
@@ -82,7 +64,7 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 {/* ── Seção: Identificação ── */}
                 <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
@@ -141,85 +123,18 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                             )}
                         />
 
-                        <FormField
-                            control={form.control}
-                            name="roleId"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <div className="flex justify-between items-center mb-1">
-                                        <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                            Perfil de Acesso (RBAC)
-                                        </FormLabel>
-                                        <a
-                                            href="/dashboard/roles"
-                                            target="_blank"
-                                            className="text-[10px] text-indigo-600 hover:underline font-bold bg-indigo-50 px-2 py-0.5 rounded"
-                                        >
-                                            + Gerenciar Perfis
-                                        </a>
-                                    </div>
-                                    <Select
-                                        onValueChange={(val) => field.onChange(val === "none" ? null : val)}
-                                        value={field.value || "none"}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
-                                                <SelectValue placeholder="Selecione o perfil" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="none">Sem Perfil (Usa Nível Legado)</SelectItem>
-                                            {roles.length > 0 ? (
-                                                roles.map((role) => (
-                                                    <SelectItem key={role.id} value={role.id}>
-                                                        <span className="flex items-center gap-2 text-indigo-700 font-medium">
-                                                            <Shield className="h-3.5 w-3.5" />
-                                                            {role.name}
-                                                        </span>
-                                                    </SelectItem>
-                                                ))
-                                            ) : (
-                                                <div className="p-2 text-xs text-slate-400 text-center">
-                                                    Nenhum perfil cadastrado
-                                                </div>
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormDescription className="text-[10px] leading-relaxed">
-                                        Para escolher quais páginas o usuário acessa, crie um **Perfil** e o escolha aqui.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="nivelAcesso"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        Nível de Acesso (Legado)
-                                    </FormLabel>
-                                    <Select
-                                        onValueChange={(val) => field.onChange(parseInt(val))}
-                                        defaultValue={field.value.toString()}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
-                                                <SelectValue placeholder="Selecione o nível" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="1">Gestor (Acesso Total)</SelectItem>
-                                            <SelectItem value="2">Vendedor+</SelectItem>
-                                            <SelectItem value="3">Vendedor</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        {/* ── Nota Informativa: Gestão de Perfis ── */}
+                        <div className="p-4 rounded-xl bg-indigo-50/50 border border-indigo-100 flex gap-4 items-start">
+                            <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                                <Shield className="h-5 w-5 text-indigo-600" />
+                            </div>
+                            <div className="space-y-1">
+                                <h4 className="text-sm font-bold text-indigo-900">Configuração de Acessos</h4>
+                                <p className="text-[11px] text-indigo-700/80 leading-relaxed">
+                                    Este usuário será criado sem permissões. Atribua o perfil de acesso no módulo de <a href="/dashboard/roles" className="font-bold underline hover:text-indigo-900 transition-colors">Perfis de Acesso</a>.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -393,6 +308,6 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                     )}
                 </Button>
             </form>
-        </Form >
+        </Form>
     );
 }

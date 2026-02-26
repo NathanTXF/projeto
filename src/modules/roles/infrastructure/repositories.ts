@@ -18,6 +18,12 @@ export class PrismaRoleRepository {
             include: {
                 permissions: {
                     include: { permission: true }
+                },
+                users: {
+                    select: { id: true, nome: true, usuario: true }
+                },
+                _count: {
+                    select: { users: true }
                 }
             },
             orderBy: { name: 'asc' }
@@ -29,7 +35,9 @@ export class PrismaRoleRepository {
             description: r.description,
             createdAt: r.createdAt,
             updatedAt: r.updatedAt,
-            permissions: r.permissions.map(rp => rp.permission.name)
+            permissions: r.permissions.map(rp => rp.permission.name),
+            userCount: r._count.users,
+            users: r.users
         }));
     }
 
@@ -39,6 +47,9 @@ export class PrismaRoleRepository {
             include: {
                 permissions: {
                     include: { permission: true }
+                },
+                users: {
+                    select: { id: true, nome: true, usuario: true }
                 }
             }
         });
@@ -50,16 +61,20 @@ export class PrismaRoleRepository {
             description: role.description,
             createdAt: role.createdAt,
             updatedAt: role.updatedAt,
-            permissions: role.permissions.map(rp => rp.permission.name)
+            permissions: role.permissions.map(rp => rp.permission.name),
+            users: role.users
         };
     }
 
-    async create(data: { name: string; description?: string; permissions: string[] }): Promise<Role> {
+    async create(data: { name: string; description?: string; permissions: string[]; userIds?: string[] }): Promise<Role> {
         return prisma.$transaction(async (tx) => {
             const role = await tx.role.create({
                 data: {
                     name: data.name,
                     description: data.description,
+                    users: data.userIds ? {
+                        connect: data.userIds.map(id => ({ id }))
+                    } : undefined
                 }
             });
 
@@ -81,14 +96,17 @@ export class PrismaRoleRepository {
         });
     }
 
-    async update(id: string, data: { name?: string; description?: string; permissions?: string[] }): Promise<Role> {
+    async update(id: string, data: { name?: string; description?: string; permissions?: string[]; userIds?: string[] }): Promise<Role> {
         return prisma.$transaction(async (tx) => {
-            if (data.name || data.description !== undefined) {
+            if (data.name || data.description !== undefined || data.userIds) {
                 await tx.role.update({
                     where: { id },
                     data: {
                         name: data.name,
-                        description: data.description
+                        description: data.description,
+                        users: data.userIds ? {
+                            set: data.userIds.map(userId => ({ id: userId }))
+                        } : undefined
                     }
                 });
             }

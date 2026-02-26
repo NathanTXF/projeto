@@ -13,12 +13,12 @@ export class RoleUseCases {
         return await this.repository.findById(id);
     }
 
-    async create(data: { name: string; description?: string; permissions: string[] }): Promise<Role> {
+    async create(data: { name: string; description?: string; permissions: string[]; userIds?: string[] }): Promise<Role> {
         await this.repository.syncAllPermissions();
         return await this.repository.create(data);
     }
 
-    async update(id: string, data: { name?: string; description?: string; permissions?: string[] }): Promise<Role> {
+    async update(id: string, data: { name?: string; description?: string; permissions?: string[]; userIds?: string[] }): Promise<Role> {
         await this.repository.syncAllPermissions();
         return await this.repository.update(id, data);
     }
