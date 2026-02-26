@@ -32,7 +32,7 @@ const menuGroups = [
         label: "Home",
         items: [
             { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", permission: 'view_dashboard' },
-            { icon: TrendingUp, label: "Visão Geral (Gestor)", href: "/dashboard/overview", permission: 'view_dashboard' },
+            { icon: TrendingUp, label: "Visão Geral", href: "/dashboard/overview", permission: 'view_dashboard' },
             { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", permission: 'view_agenda' },
             { icon: FileText, label: "Relatórios", href: "/dashboard/reports", permission: 'view_audit' }
         ]
@@ -53,7 +53,7 @@ const menuGroups = [
         roleBased: true, // Marker to indicate careful permission checks
         items: [
             { icon: Building2, label: "Empresa", href: "/dashboard/company", permission: 'manage_settings' },
-            { icon: Users, label: "Acessos (Usuários)", href: "/dashboard/users", permission: 'manage_users' },
+            { icon: Users, label: "Usuários", href: "/dashboard/users", permission: 'manage_users' },
             { icon: ShieldAlert, label: "Perfis de Acesso", href: "/dashboard/roles", permission: 'manage_roles' },
             { icon: LucideHistory, label: "Auditoria", href: "/dashboard/audit", permission: 'view_audit' },
         ]
@@ -247,12 +247,31 @@ export function Shell({ children }: { children: React.ReactNode }) {
                             <Menu className="h-6 w-6" />
                         </Button>
                         <div className="hidden md:flex items-center font-semibold text-sm truncate gap-2">
-                            <Link href="/dashboard" className="text-slate-600 hover:text-primary transition-colors">Dashboard</Link>
+                            <Link href="/dashboard" className="text-slate-600 hover:text-primary transition-colors">Painel</Link>
                             {pathname !== '/dashboard' && (
                                 <>
                                     <span className="text-slate-400">/</span>
                                     <span className="text-slate-900 capitalize truncate">
-                                        {pathname.split('/').filter(Boolean).pop()?.replace('-', ' ')}
+                                        {(() => {
+                                            const segment = pathname.split('/').filter(Boolean).pop()?.toLowerCase();
+                                            const translations: Record<string, string> = {
+                                                'reports': 'Relatórios',
+                                                'audit': 'Auditoria',
+                                                'clients': 'Clientes',
+                                                'loans': 'Empréstimos',
+                                                'commissions': 'Comissões',
+                                                'financial': 'Financeiro',
+                                                'auxiliary': 'Cadastros Auxiliares',
+                                                'company': 'Empresa',
+                                                'users': 'Usuários',
+                                                'roles': 'Perfis de Acesso',
+                                                'agenda': 'Agenda',
+                                                'overview': 'Visão Geral',
+                                                'profile': 'Meu Perfil',
+                                                'goals': 'Gestão de Metas'
+                                            };
+                                            return translations[segment || ''] || segment?.replace(/-/g, ' ');
+                                        })()}
                                     </span>
                                 </>
                             )}
@@ -282,7 +301,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                                     {userName.split(' ')[0]}
                                 </span>
                                 <span className="text-[10px] font-semibold text-primary uppercase tracking-wider leading-none">
-                                    {userLevel === 1 ? 'Admin' : 'Usuário'}
+                                    {userLevel === 1 ? 'Gestor' : 'Consultor'}
                                 </span>
                             </div>
                         </button>

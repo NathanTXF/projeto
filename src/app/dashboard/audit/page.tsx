@@ -100,6 +100,31 @@ export default function AuditPage() {
         return 'bg-slate-50 text-slate-500 border-slate-100 font-medium';
     };
 
+    const translateModule = (modulo: string) => {
+        const translations: Record<string, string> = {
+            'CLIENTS': 'Clientes',
+            'LOANS': 'Empréstimos',
+            'AUTH': 'Autenticação',
+            'FINANCIAL': 'Financeiro',
+            'COMMISSIONS': 'Comissões',
+            'ROLES': 'Perfis',
+            'USERS': 'Usuários',
+            'AUXILIARY': 'Cadastros',
+            'AGENDA': 'Agenda'
+        };
+        return translations[modulo.toUpperCase()] || modulo;
+    };
+
+    const translateAction = (action: string) => {
+        const a = action.toUpperCase();
+        if (a.includes('CREATE')) return 'Criação';
+        if (a.includes('DELETE')) return 'Exclusão';
+        if (a.includes('UPDATE')) return 'Alteração';
+        if (a.includes('LOGIN_FAILED')) return 'Falha de Login';
+        if (a.includes('LOGIN_SUCCESS')) return 'Login Sucesso';
+        return action.replace(/_/g, ' ');
+    };
+
     const getModuleIcon = (modulo: string) => {
         switch (modulo.toUpperCase()) {
             case 'CLIENTS': return <Users className="h-3.5 w-3.5" />;
@@ -161,7 +186,7 @@ export default function AuditPage() {
                         </div>
                         <div>
                             <p className="text-[10px] font-bold text-primary-foreground/60 uppercase tracking-widest mb-1 leading-none">Módulo Ativo</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none truncate max-w-[100px]">{loading ? "..." : (stats?.mostActiveModule || '---')}</p>
+                            <p className="text-xl font-black text-primary-foreground leading-none truncate max-w-[100px]">{loading ? "..." : translateModule(stats?.mostActiveModule || '---')}</p>
                         </div>
                     </div>
                     <div className="hidden md:flex items-center gap-4 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
@@ -169,7 +194,7 @@ export default function AuditPage() {
                             <FileCode className="h-5 w-5 text-indigo-400" />
                         </div>
                         <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/60 uppercase tracking-widest mb-1 leading-none">Total Logs 24h</p>
+                            <p className="text-[10px] font-bold text-primary-foreground/60 uppercase tracking-widest mb-1 leading-none">Atividades (24h)</p>
                             <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : (stats?.totalActivities || 0)}</p>
                         </div>
                     </div>
@@ -297,12 +322,12 @@ export default function AuditPage() {
                                         <TableCell>
                                             <div className="flex items-center gap-2 px-2 py-1 bg-slate-100 rounded-lg w-fit border border-slate-200/50">
                                                 <span className="text-slate-500">{getModuleIcon(log.modulo)}</span>
-                                                <span className="text-[10px] font-black text-slate-600 uppercase tracking-tight">{log.modulo}</span>
+                                                <span className="text-[10px] font-black text-slate-600 uppercase tracking-tight">{translateModule(log.modulo)}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell>
                                             <Badge variant="outline" className={`${getActionBadgeColor(log.acao)} px-3 py-1 text-[10px] tracking-tight uppercase border-2`}>
-                                                {log.acao.replace(/_/g, ' ')}
+                                                {translateAction(log.acao)}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="font-mono text-[10px] text-slate-400 select-all group-hover:text-slate-600">

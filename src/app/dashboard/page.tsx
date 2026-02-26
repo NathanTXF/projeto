@@ -125,7 +125,7 @@ export default function DashboardPage() {
                     <div className="space-y-6">
                         <div className="flex items-center gap-3">
                             <Badge className="bg-primary/20 text-primary border-primary/30 font-black px-3 py-1 text-[10px] uppercase tracking-widest rounded-full">
-                                {authUser?.nivelAcesso === 1 ? "Painel do Gestor" : "Performance Hub"}
+                                {authUser?.nivelAcesso === 1 ? "Painel do Gestor" : "Portal de Resultados"}
                             </Badge>
                             {metrics?.rankingPosition && (
                                 <div className="flex items-center gap-1.5 text-amber-400 font-black text-xs">
