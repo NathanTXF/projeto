@@ -29,20 +29,24 @@ interface RoleFormProps {
 }
 
 export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
-    const [allUsers, setAllUsers] = useState<{ id: string, nome: string }[]>([]);
-    const [linkedUser, setLinkedUser] = useState<string | null>(null);
+    const [allUsers, setAllUsers] = useState<{ id: string, nome: string, roleId?: string | null }[]>([]);
+    const [linkedUser, setLinkedUser] = useState<{ id: string, nome: string } | null>(null);
 
     useEffect(() => {
         fetch('/api/users')
             .then(res => res.json())
             .then(data => {
-                if (Array.isArray(data)) setAllUsers(data);
+                if (Array.isArray(data)) {
+                    // Filter: Only users with no role OR users already in this role
+                    const filteredUsers = data.filter((u: any) => !u.roleId || (initialData?.id && u.roleId === initialData.id));
+                    setAllUsers(filteredUsers);
+                }
             })
             .catch(console.error);
 
         // Se estiver editando e houver usuários, podemos considerar o primeiro como o vínculo
         if (initialData?.users && initialData.users.length > 0) {
-            setLinkedUser(initialData.users[0].nome);
+            setLinkedUser({ id: initialData.users[0].id, nome: initialData.users[0].nome });
         }
     }, [initialData]);
 
@@ -104,7 +108,7 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
                                         if (user) {
                                             setValue('name', user.nome);
                                             setValue('userIds', [user.id]);
-                                            setLinkedUser(user.nome);
+                                            setLinkedUser({ id: user.id, nome: user.nome });
                                         }
                                     } else {
                                         setLinkedUser(null);
@@ -142,7 +146,7 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
                         <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                                <span className="text-sm font-bold text-emerald-900">Perfil Individual: {linkedUser}</span>
+                                <span className="text-sm font-bold text-emerald-900">Perfil Individual: {linkedUser.nome}</span>
                             </div>
                             <Button
                                 type="button"
@@ -183,36 +187,49 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
                         control={control}
                         render={({ field }) => (
                             <div className="space-y-3">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-3 bg-white rounded-xl border border-slate-100 shadow-inner">
-                                    {allUsers.length > 0 ? (
-                                        allUsers.map((user: { id: string, nome: string }) => {
-                                            const isSelected = field.value?.includes(user.id);
-                                            return (
-                                                <div
-                                                    key={user.id}
-                                                    onClick={() => {
-                                                        const current = field.value || [];
-                                                        const updated = isSelected
-                                                            ? current.filter(id => id !== user.id)
-                                                            : [...current, user.id];
-                                                        field.onChange(updated);
-                                                    }}
-                                                    className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all border ${isSelected ? 'bg-indigo-50/50 border-indigo-200 ring-1 ring-indigo-200' : 'bg-slate-50/30 border-slate-100 hover:bg-slate-50'}`}
-                                                >
-                                                    <div className={`h-4 w-4 rounded border flex items-center justify-center ${isSelected ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-slate-300'}`}>
-                                                        {isSelected && <ShieldCheck className="h-3 w-3" />}
+                                {linkedUser ? (
+                                    <div className="p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl flex items-center gap-3">
+                                        <div className="h-4 w-4 rounded border bg-indigo-600 border-indigo-600 flex items-center justify-center text-white">
+                                            <ShieldCheck className="h-3 w-3" />
+                                        </div>
+                                        <span className="text-sm font-bold text-indigo-900">
+                                            {linkedUser.nome} <span className="text-[10px] uppercase text-indigo-500 font-bold ml-1">(Perfil Individual Vinculado)</span>
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-3 bg-white rounded-xl border border-slate-100 shadow-inner">
+                                        {allUsers.length > 0 ? (
+                                            allUsers.map(user => {
+                                                const isSelected = field.value?.includes(user.id);
+                                                return (
+                                                    <div
+                                                        key={user.id}
+                                                        onClick={() => {
+                                                            const current = field.value || [];
+                                                            const updated = isSelected
+                                                                ? current.filter(id => id !== user.id)
+                                                                : [...current, user.id];
+                                                            field.onChange(updated);
+                                                        }}
+                                                        className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all border ${isSelected ? 'bg-indigo-50/50 border-indigo-200 ring-1 ring-indigo-200' : 'bg-slate-50/30 border-slate-100 hover:bg-slate-50'}`}
+                                                    >
+                                                        <div className={`h-4 w-4 rounded border flex items-center justify-center ${isSelected ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-slate-300'}`}>
+                                                            {isSelected && <ShieldCheck className="h-3 w-3" />}
+                                                        </div>
+                                                        <span className={`text-xs font-bold ${isSelected ? 'text-indigo-900' : 'text-slate-600'}`}>{user.nome}</span>
                                                     </div>
-                                                    <span className={`text-xs font-bold ${isSelected ? 'text-indigo-900' : 'text-slate-600'}`}>{user.nome}</span>
-                                                </div>
-                                            );
-                                        })
-                                    ) : (
-                                        <div className="col-span-2 py-4 text-center text-xs text-slate-400 italic">Carregando usuários ou nenhum encontrado...</div>
-                                    )}
-                                </div>
-                                <p className="text-[10px] text-slate-400 font-medium">
-                                    Selecione os usuários que deverão herdar as permissões deste perfil.
-                                </p>
+                                                );
+                                            })
+                                        ) : (
+                                            <div className="col-span-2 py-4 text-center text-xs text-slate-400 italic">Carregando usuários ou nenhum encontrado...</div>
+                                        )}
+                                    </div>
+                                )}
+                                {!linkedUser && (
+                                    <p className="text-[10px] text-slate-400 font-medium">
+                                        Selecione os usuários que deverão herdar as permissões deste perfil.
+                                    </p>
+                                )}
                             </div>
                         )}
                     />
