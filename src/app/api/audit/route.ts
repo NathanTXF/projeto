@@ -17,11 +17,12 @@ export async function GET(request: Request) {
 
         const { searchParams } = new URL(request.url);
         const usuarioId = searchParams.get('usuarioId') || undefined;
+        const usuarioNome = searchParams.get('usuarioNome') || undefined;
         const modulo = searchParams.get('modulo') || undefined;
         const startDateParam = searchParams.get('startDate');
         const endDateParam = searchParams.get('endDate');
 
-        const filters: any = { usuarioId, modulo };
+        const filters: any = { usuarioId, usuarioNome, modulo };
 
         if (startDateParam) filters.startDate = new Date(startDateParam);
         if (endDateParam) filters.endDate = new Date(endDateParam);

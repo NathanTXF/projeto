@@ -53,6 +53,7 @@ interface AuditLog {
 export default function AuditPage() {
     const [logs, setLogs] = useState<AuditLog[]>([]);
     const [stats, setStats] = useState<any>(null);
+    const [availableUsers, setAvailableUsers] = useState<{ id: string, nome: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [isMounted, setIsMounted] = useState(false);
     const [filters, setFilters] = useState({
@@ -65,7 +66,20 @@ export default function AuditPage() {
     useEffect(() => {
         setIsMounted(true);
         fetchData();
+        fetchUsers();
     }, []);
+
+    const fetchUsers = async () => {
+        try {
+            const res = await fetch('/api/users/list');
+            if (res.ok) {
+                const data = await res.json();
+                setAvailableUsers(data);
+            }
+        } catch (error) {
+            console.error("Erro ao buscar usuários:", error);
+        }
+    };
 
     const fetchData = async () => {
         setLoading(true);
@@ -190,7 +204,7 @@ export default function AuditPage() {
                                 <Filter className="w-3 h-3 text-indigo-500" />
                                 Filtrar Módulo
                             </label>
-                            <Select value={filters.modulo} onValueChange={(val) => setFilters(f => ({ ...f, modulo: val }))}>
+                            <Select value={filters.modulo || "all"} onValueChange={(val) => setFilters(f => ({ ...f, modulo: val }))}>
                                 <SelectTrigger className="rounded-xl bg-white h-11 font-bold border-slate-200 shadow-sm">
                                     <SelectValue />
                                 </SelectTrigger>
@@ -225,16 +239,21 @@ export default function AuditPage() {
                             </div>
                         </div>
                         <div className="md:col-span-3 space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-mono">Buscar por UUID</label>
-                            <div className="relative group">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 transition-colors group-focus-within:text-primary" />
-                                <Input
-                                    placeholder="ID do Usuário..."
-                                    className="pl-9 h-11 rounded-xl bg-white border-slate-200 font-medium"
-                                    value={filters.usuarioId}
-                                    onChange={(e) => setFilters(f => ({ ...f, usuarioId: e.target.value }))}
-                                />
-                            </div>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-mono">Buscar por Operador</label>
+                            <Select
+                                value={filters.usuarioId || "all"}
+                                onValueChange={(val) => setFilters(f => ({ ...f, usuarioId: val === "all" ? "" : val }))}
+                            >
+                                <SelectTrigger className="rounded-xl bg-white h-11 font-bold border-slate-200 shadow-sm">
+                                    <SelectValue placeholder="Selecionar Operador" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                    <SelectItem value="all">Todos os Operadores</SelectItem>
+                                    {availableUsers.map(u => (
+                                        <SelectItem key={u.id} value={u.id}>{u.nome}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="md:col-span-2">
                             <Button

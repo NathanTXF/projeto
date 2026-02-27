@@ -20,7 +20,7 @@ export async function PATCH(
 
         const { id } = await params;
         const user = await getAuthUser();
-        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.MANAGE_COMMISSIONS)) {
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.EDIT_COMMISSIONS)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
@@ -39,7 +39,6 @@ export async function PATCH(
 
         if (action === 'EDIT') {
             const { tipo, referencia, valorBase } = body;
-            // A autorização já foi feita acima (user.nivelAcesso === 1 || hasPermission(MANAGE_COMMISSIONS))
             const commission = await useCases.editApproved(id, { tipo, referencia, valorBase }, user.id);
             return NextResponse.json(commission);
         }

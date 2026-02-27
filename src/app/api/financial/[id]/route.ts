@@ -16,7 +16,7 @@ export async function PATCH(
         const { id } = await params;
         const user = await getAuthUser();
         // Apenas com permissão financeira pode realizar pagamento de comissão
-        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.MANAGE_FINANCIAL)) {
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.EDIT_FINANCIAL)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
@@ -62,7 +62,8 @@ export async function DELETE(
         const { id } = await params;
         const user = await getAuthUser();
 
-        if (!user || (!hasPermission(user.permissions || [], PERMISSIONS.MANAGE_FINANCIAL) && user.nivelAcesso !== 1)) {
+        // Apenas com permissão de editar/deletar financeiro ou admin
+        if (!user || (!hasPermission(user.permissions || [], PERMISSIONS.DELETE_FINANCIAL))) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 

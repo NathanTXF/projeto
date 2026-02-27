@@ -19,7 +19,7 @@ export async function GET(request: Request) {
         let vendedorId = searchParams.get('vendedorId') || undefined;
 
         // Regra Senior: Vendedores só veem o próprio financeiro
-        if (!hasPermission(user.permissions || [], PERMISSIONS.MANAGE_FINANCIAL)) {
+        if (!hasPermission(user.permissions || [], PERMISSIONS.EDIT_FINANCIAL)) {
             vendedorId = user.id;
         }
 

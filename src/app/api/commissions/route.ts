@@ -19,7 +19,7 @@ export async function GET(request: Request) {
         let vendedorId = searchParams.get('vendedorId') || undefined;
 
         // Regra Senior: Se não for gestor, só pode ver as próprias comissões
-        if (!hasPermission(user.permissions || [], PERMISSIONS.MANAGE_COMMISSIONS)) {
+        if (!hasPermission(user.permissions || [], PERMISSIONS.EDIT_COMMISSIONS)) {
             vendedorId = user.id;
         }
 
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const user = await getAuthUser();
-        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.MANAGE_COMMISSIONS)) {
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.CREATE_COMMISSIONS)) {
             return NextResponse.json({ error: 'Apenas administradores podem gerar comissões manualmente' }, { status: 403 });
         }
 

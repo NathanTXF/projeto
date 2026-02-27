@@ -32,29 +32,29 @@ const menuGroups = [
         label: "Home",
         items: [
             { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", permission: 'view_dashboard' },
-            { icon: TrendingUp, label: "Visão Geral", href: "/dashboard/overview", permission: 'view_dashboard' },
+            { icon: TrendingUp, label: "Visão Geral", href: "/dashboard/overview", permission: 'view_overview' },
             { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", permission: 'view_agenda' },
-            { icon: FileText, label: "Relatórios", href: "/dashboard/reports", permission: 'view_audit' }
+            { icon: FileText, label: "Relatórios", href: "/dashboard/reports", permission: 'view_reports' }
         ]
     },
     {
         label: "Gestão Corporativa",
         items: [
-            { icon: Database, label: "Cadastros Auxiliares", href: "/dashboard/auxiliary", permission: 'manage_auxiliary' },
+            { icon: Database, label: "Cadastros Auxiliares", href: "/dashboard/auxiliary", permission: 'view_auxiliary' },
             { icon: Users, label: "Clientes", href: "/dashboard/clients", permission: 'view_clients' },
             { icon: HandCoins, label: "Empréstimos", href: "/dashboard/loans", permission: 'view_loans' },
             { icon: FileText, label: "Comissões", href: "/dashboard/commissions", permission: 'view_commissions' },
             { icon: FileText, label: "Financeiro", href: "/dashboard/financial", permission: 'view_financial' },
-            { icon: Target, label: "Gestão de Metas", href: "/dashboard/admin/goals", permission: 'manage_settings' },
+            { icon: Target, label: "Gestão de Metas", href: "/dashboard/admin/goals", permission: 'view_goals' },
         ]
     },
     {
         label: "Administração",
         roleBased: true, // Marker to indicate careful permission checks
         items: [
-            { icon: Building2, label: "Empresa", href: "/dashboard/company", permission: 'manage_settings' },
-            { icon: Users, label: "Usuários", href: "/dashboard/users", permission: 'manage_users' },
-            { icon: ShieldAlert, label: "Perfis de Acesso", href: "/dashboard/roles", permission: 'manage_roles' },
+            { icon: Building2, label: "Empresa", href: "/dashboard/company", permission: 'view_company' },
+            { icon: Users, label: "Usuários", href: "/dashboard/users", permission: 'view_users' },
+            { icon: ShieldAlert, label: "Perfis de Acesso", href: "/dashboard/roles", permission: 'view_roles' },
             { icon: LucideHistory, label: "Auditoria", href: "/dashboard/audit", permission: 'view_audit' },
         ]
     }

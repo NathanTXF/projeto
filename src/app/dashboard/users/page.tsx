@@ -239,6 +239,7 @@ export default function UsersPage() {
                             initialData={selectedUser}
                             onSubmit={handleCreateOrUpdate}
                             isLoading={isSubmitting}
+                            isAdmin={currentUserLevel === 1}
                         />
                     </div>
                 </DialogContent>

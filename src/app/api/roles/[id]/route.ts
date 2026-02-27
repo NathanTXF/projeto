@@ -14,7 +14,7 @@ export async function GET(
 ) {
     try {
         const currentUser = await getAuthUser();
-        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_ROLES)) {
+        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.VIEW_ROLES)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
@@ -37,7 +37,7 @@ export async function PUT(
 ) {
     try {
         const currentUser = await getAuthUser();
-        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_ROLES)) {
+        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.EDIT_ROLES)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
@@ -62,13 +62,13 @@ export async function DELETE(
 ) {
     try {
         const currentUser = await getAuthUser();
-        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_ROLES)) {
+        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.DELETE_ROLES)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
         const { id } = await params;
 
-        // Evitar deletar perfil do próprio usuário (idealmente validar contra o banco se há usuários vinculados)
+        // Evitar deletar perfil do próprio usuário
         if (currentUser.role === id) {
             return NextResponse.json({ error: 'Você não pode excluir seu próprio perfil ativo.' }, { status: 400 });
         }

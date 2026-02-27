@@ -1,10 +1,33 @@
 export const PERMISSIONS = {
-    // Dashboard (Visão Geral)
+    // Dashboard
     VIEW_DASHBOARD: 'view_dashboard',
+    CREATE_DASHBOARD: 'create_dashboard',
+    EDIT_DASHBOARD: 'edit_dashboard',
+    DELETE_DASHBOARD: 'delete_dashboard',
 
-    // Usuários & Perfis
-    MANAGE_USERS: 'manage_users',
-    MANAGE_ROLES: 'manage_roles',
+    // Visão Geral
+    VIEW_OVERVIEW: 'view_overview',
+    CREATE_OVERVIEW: 'create_overview',
+    EDIT_OVERVIEW: 'edit_overview',
+    DELETE_OVERVIEW: 'delete_overview',
+
+    // Agenda
+    VIEW_AGENDA: 'view_agenda',
+    CREATE_AGENDA: 'create_agenda',
+    EDIT_AGENDA: 'edit_agenda',
+    DELETE_AGENDA: 'delete_agenda',
+
+    // Relatórios
+    VIEW_REPORTS: 'view_reports',
+    CREATE_REPORTS: 'create_reports',
+    EDIT_REPORTS: 'edit_reports',
+    DELETE_REPORTS: 'delete_reports',
+
+    // Cadastros Auxiliares
+    VIEW_AUXILIARY: 'view_auxiliary',
+    CREATE_AUXILIARY: 'create_auxiliary',
+    EDIT_AUXILIARY: 'edit_auxiliary',
+    DELETE_AUXILIARY: 'delete_auxiliary',
 
     // Clientes
     VIEW_CLIENTS: 'view_clients',
@@ -16,63 +39,84 @@ export const PERMISSIONS = {
     VIEW_LOANS: 'view_loans',
     CREATE_LOANS: 'create_loans',
     EDIT_LOANS: 'edit_loans',
+    DELETE_LOANS: 'delete_loans',
 
     // Comissões
     VIEW_COMMISSIONS: 'view_commissions',
-    MANAGE_COMMISSIONS: 'manage_commissions', // Aprovar/Editar valor
+    CREATE_COMMISSIONS: 'create_commissions',
+    EDIT_COMMISSIONS: 'edit_commissions',
+    DELETE_COMMISSIONS: 'delete_commissions',
 
     // Financeiro
     VIEW_FINANCIAL: 'view_financial',
-    MANAGE_FINANCIAL: 'manage_financial', // Registrar pagamentos
+    CREATE_FINANCIAL: 'create_financial',
+    EDIT_FINANCIAL: 'edit_financial',
+    DELETE_FINANCIAL: 'delete_financial',
 
-    // Agenda
-    VIEW_AGENDA: 'view_agenda',
-    MANAGE_AGENDA: 'manage_agenda',
+    // Gestão de Metas
+    VIEW_GOALS: 'view_goals',
+    CREATE_GOALS: 'create_goals',
+    EDIT_GOALS: 'edit_goals',
+    DELETE_GOALS: 'delete_goals',
+
+    // Empresa
+    VIEW_COMPANY: 'view_company',
+    CREATE_COMPANY: 'create_company',
+    EDIT_COMPANY: 'edit_company',
+    DELETE_COMPANY: 'delete_company',
+
+    // Usuários
+    VIEW_USERS: 'view_users',
+    CREATE_USERS: 'create_users',
+    EDIT_USERS: 'edit_users',
+    DELETE_USERS: 'delete_users',
+
+    // Perfis de Acesso
+    VIEW_ROLES: 'view_roles',
+    CREATE_ROLES: 'create_roles',
+    EDIT_ROLES: 'edit_roles',
+    DELETE_ROLES: 'delete_roles',
 
     // Auditoria
     VIEW_AUDIT: 'view_audit',
-
-    // Cadastros Auxiliares (Bancos, Tabelas, Órgãos)
-    MANAGE_AUXILIARY: 'manage_auxiliary',
-
-    // Configurações Globais
-    MANAGE_SETTINGS: 'manage_settings',
+    CREATE_AUDIT: 'create_audit',
+    EDIT_AUDIT: 'edit_audit',
+    DELETE_AUDIT: 'delete_audit',
 } as const;
 
 export type PermissionKey = keyof typeof PERMISSIONS;
 export type PermissionValue = typeof PERMISSIONS[PermissionKey];
 
 /**
+ * Helper to generate all granular permissions for a module
+ */
+function createModulePermissions(moduleKey: string, moduleLabel: string) {
+    return [
+        { id: `view_${moduleKey.toLowerCase()}`, name: `view_${moduleKey.toLowerCase()}` as PermissionValue, module: moduleKey, description: `Visualizar ${moduleLabel}` },
+        { id: `create_${moduleKey.toLowerCase()}`, name: `create_${moduleKey.toLowerCase()}` as PermissionValue, module: moduleKey, description: `Salvar/Criar ${moduleLabel}` },
+        { id: `edit_${moduleKey.toLowerCase()}`, name: `edit_${moduleKey.toLowerCase()}` as PermissionValue, module: moduleKey, description: `Editar ${moduleLabel}` },
+        { id: `delete_${moduleKey.toLowerCase()}`, name: `delete_${moduleKey.toLowerCase()}` as PermissionValue, module: moduleKey, description: `Excluir ${moduleLabel}` },
+    ];
+}
+
+/**
  * Array com todas as permissões para facilitar seeds e listagens na UI.
  */
 export const ALL_PERMISSIONS: { id: string; name: PermissionValue; module: string; description: string }[] = [
-    { id: '1', name: PERMISSIONS.VIEW_DASHBOARD, module: 'DASHBOARD', description: 'Visão geral de métricas do sistema' },
-
-    { id: '2', name: PERMISSIONS.MANAGE_USERS, module: 'USERS', description: 'Criar, editar e excluir usuários' },
-    { id: '3', name: PERMISSIONS.MANAGE_ROLES, module: 'ROLES', description: 'Gerenciar perfis de acesso e permissões' },
-
-    { id: '4', name: PERMISSIONS.VIEW_CLIENTS, module: 'CLIENTS', description: 'Visualizar listagem de clientes' },
-    { id: '5', name: PERMISSIONS.CREATE_CLIENTS, module: 'CLIENTS', description: 'Cadastrar novos clientes' },
-    { id: '6', name: PERMISSIONS.EDIT_CLIENTS, module: 'CLIENTS', description: 'Editar dados de clientes existentes' },
-    { id: '7', name: PERMISSIONS.DELETE_CLIENTS, module: 'CLIENTS', description: 'Excluir clientes do sistema' },
-
-    { id: '8', name: PERMISSIONS.VIEW_LOANS, module: 'LOANS', description: 'Visualizar lista de empréstimos' },
-    { id: '9', name: PERMISSIONS.CREATE_LOANS, module: 'LOANS', description: 'Registrar novos empréstimos' },
-    { id: '10', name: PERMISSIONS.EDIT_LOANS, module: 'LOANS', description: 'Editar ou cancelar empréstimos' },
-
-    { id: '11', name: PERMISSIONS.VIEW_COMMISSIONS, module: 'COMMISSIONS', description: 'Visualizar cálculo de comissões' },
-    { id: '12', name: PERMISSIONS.MANAGE_COMMISSIONS, module: 'COMMISSIONS', description: 'Aprovar e modificar comissões' },
-
-    { id: '13', name: PERMISSIONS.VIEW_FINANCIAL, module: 'FINANCIAL', description: 'Visualizar painel financeiro' },
-    { id: '14', name: PERMISSIONS.MANAGE_FINANCIAL, module: 'FINANCIAL', description: 'Efetuar pagamentos a vendedores' },
-
-    { id: '15', name: PERMISSIONS.VIEW_AGENDA, module: 'AGENDA', description: 'Visualizar calendário e compromissos' },
-    { id: '16', name: PERMISSIONS.MANAGE_AGENDA, module: 'AGENDA', description: 'Criar e editar compromissos' },
-
-    { id: '17', name: PERMISSIONS.VIEW_AUDIT, module: 'AUDIT', description: 'Visualizar logs do sistema (rastreabilidade)' },
-
-    { id: '18', name: PERMISSIONS.MANAGE_AUXILIARY, module: 'AUXILIARY', description: 'Gerenciar bancos, convênios, tabelas' },
-    { id: '19', name: PERMISSIONS.MANAGE_SETTINGS, module: 'SETTINGS', description: 'Acesso às configurações globais' },
+    ...createModulePermissions('DASHBOARD', 'Dashboard'),
+    ...createModulePermissions('OVERVIEW', 'Visão Geral'),
+    ...createModulePermissions('AGENDA', 'Agenda'),
+    ...createModulePermissions('REPORTS', 'Relatórios'),
+    ...createModulePermissions('AUXILIARY', 'Cadastros Auxiliares'),
+    ...createModulePermissions('CLIENTS', 'Clientes'),
+    ...createModulePermissions('LOANS', 'Empréstimos'),
+    ...createModulePermissions('COMMISSIONS', 'Comissões'),
+    ...createModulePermissions('FINANCIAL', 'Financeiro'),
+    ...createModulePermissions('GOALS', 'Gestão de Metas'),
+    ...createModulePermissions('COMPANY', 'Empresa'),
+    ...createModulePermissions('USERS', 'Usuários'),
+    ...createModulePermissions('ROLES', 'Perfis de Acesso'),
+    ...createModulePermissions('AUDIT', 'Auditoria'),
 ];
 
 /**

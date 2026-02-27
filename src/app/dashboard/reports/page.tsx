@@ -282,7 +282,7 @@ export default function ReportsPage() {
                                     <Filter className="w-3 h-3" />
                                     Selecionar Relatório
                                 </Label>
-                                <Select value={reportType} onValueChange={setReportType}>
+                                <Select value={reportType || "SALES"} onValueChange={setReportType}>
                                     <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 shadow-sm font-bold text-slate-700">
                                         <SelectValue />
                                     </SelectTrigger>
@@ -327,7 +327,7 @@ export default function ReportsPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filtro por Vendedor</Label>
-                                    <Select value={selectedSeller} onValueChange={setSelectedSeller}>
+                                    <Select value={selectedSeller || "all"} onValueChange={setSelectedSeller}>
                                         <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 shadow-sm font-bold text-slate-700">
                                             <SelectValue />
                                         </SelectTrigger>
@@ -368,7 +368,7 @@ export default function ReportsPage() {
                             <AnalyticalTable
                                 title={activeReport?.label || "Relatório"}
                                 columns={getColumns()}
-                                data={data.items}
+                                data={data?.items || []}
                             />
                         </div>
                     </div>

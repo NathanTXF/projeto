@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 export class PrismaAuditRepository implements AuditRepository {
     async findAll(filters?: {
         usuarioId?: string;
+        usuarioNome?: string;
         modulo?: string;
         startDate?: Date;
         endDate?: Date;
@@ -12,6 +13,15 @@ export class PrismaAuditRepository implements AuditRepository {
 
         if (filters?.usuarioId) {
             where.usuarioId = filters.usuarioId;
+        }
+
+        if (filters?.usuarioNome) {
+            where.usuario = {
+                nome: {
+                    contains: filters.usuarioNome,
+                    mode: 'insensitive'
+                }
+            };
         }
 
         if (filters?.modulo) {

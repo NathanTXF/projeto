@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { PrismaLoanRepository } from '@/modules/loans/infrastructure/repositories';
 import { LoanUseCases } from '@/modules/loans/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
 import { PrismaCommissionRepository } from '@/modules/commissions/infrastructure/repositories';
 import { CommissionUseCases } from '@/modules/commissions/application/useCases';
@@ -22,6 +23,11 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const user = await getAuthUser();
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.VIEW_LOANS)) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
+        }
+
         const { id } = await params;
         const loan = await useCases.getById(id);
         if (!loan) {
@@ -40,7 +46,9 @@ export async function PATCH(
     try {
         const { id } = await params;
         const user = await getAuthUser();
-        if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.EDIT_LOANS)) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
+        }
 
         const body = await request.json();
         if (body.dataInicio) body.dataInicio = new Date(body.dataInicio);
@@ -65,7 +73,9 @@ export async function DELETE(
     try {
         const { id } = await params;
         const user = await getAuthUser();
-        if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.DELETE_LOANS)) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
+        }
 
         await useCases.remove(id, user.id);
         return new NextResponse(null, { status: 204 });

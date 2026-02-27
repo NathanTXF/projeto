@@ -24,19 +24,21 @@ export async function middleware(request: NextRequest) {
         const permissions = (payload.permissions as string[]) || [];
         const nivelAcesso = payload.nivelAcesso as number;
 
-        // Mapa de rotas do Dashboard para permissões obrigatórias
+        // Mapa de rotas do Dashboard para permissões obrigatórias (Visualização)
         const routePermissions: Record<string, string> = {
-            '/dashboard/users': 'manage_users',
-            '/dashboard/roles': 'manage_roles',
+            '/dashboard/users': 'view_users',
+            '/dashboard/roles': 'view_roles',
             '/dashboard/audit': 'view_audit',
-            '/dashboard/reports': 'view_audit',
-            '/dashboard/company': 'manage_settings',
+            '/dashboard/reports': 'view_reports',
+            '/dashboard/company': 'view_company',
             '/dashboard/financial': 'view_financial',
             '/dashboard/commissions': 'view_commissions',
-            '/dashboard/auxiliary': 'manage_auxiliary',
+            '/dashboard/auxiliary': 'view_auxiliary',
             '/dashboard/clients': 'view_clients',
             '/dashboard/loans': 'view_loans',
             '/dashboard/agenda': 'view_agenda',
+            '/dashboard/overview': 'view_overview',
+            '/dashboard/admin/goals': 'view_goals',
         };
 
         // Verifica se a rota requisitada requer alguma permissão específica

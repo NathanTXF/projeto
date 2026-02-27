@@ -13,7 +13,7 @@ const useCases = new UserUseCases(repository);
 export async function GET() {
     try {
         const currentUser = await getAuthUser();
-        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_USERS)) {
+        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.VIEW_USERS)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
@@ -27,11 +27,17 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const currentUser = await getAuthUser();
-        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_USERS)) {
+        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.CREATE_USERS)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
         const data = await request.json();
+
+        // REGRA DE SEGURANÇA: Apenas admin pode alterar/criar senhas
+        if (data.senha && currentUser.nivelAcesso !== 1) {
+            return NextResponse.json({ error: 'Apenas administradores podem gerenciar senhas.' }, { status: 403 });
+        }
+
         const validatedData = UserSchema.parse(data);
 
         const user = await useCases.createUser(validatedData as any);

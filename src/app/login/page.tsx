@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Lock, User, ArrowRight, ShieldCheck, Building2 } from "lucide-react";
+import { Lock, User, ArrowRight, ShieldCheck } from "lucide-react";
 
 export default function LoginPage() {
     const [usuario, setUsuario] = useState("");
@@ -68,8 +68,6 @@ export default function LoginPage() {
 
                 {/* Content */}
                 <div className="relative z-10 animate-in fade-in slide-in-from-left-8 duration-700">
-                    {/* Logo removed from here as per request */}
-
                     <div className="max-w-md space-y-6">
                         <h1 className="text-5xl font-black text-white leading-tight tracking-tight">
                             Gestão inteligente para <span className="text-[#8CC63F]">resultados superiores.</span>
@@ -79,7 +77,6 @@ export default function LoginPage() {
                         </p>
                     </div>
                 </div>
-
             </div>
 
             {/* Right Side: Login Form */}
@@ -111,10 +108,7 @@ export default function LoginPage() {
                             </div>
 
                             <div className="space-y-2.5">
-                                <div className="flex items-center justify-between">
-                                    <Label htmlFor="senha" className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Senha</Label>
-                                    <button type="button" className="text-[10px] font-bold text-slate-400 hover:text-[#8CC63F] transition-colors uppercase tracking-wider">Esqueceu a senha?</button>
-                                </div>
+                                <Label htmlFor="senha" className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Senha</Label>
                                 <div className="relative group">
                                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8CC63F] transition-colors">
                                         <Lock className="h-5 w-5" />

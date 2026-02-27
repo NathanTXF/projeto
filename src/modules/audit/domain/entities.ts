@@ -15,6 +15,7 @@ export type Audit = z.infer<typeof AuditSchema>;
 export interface AuditRepository {
     findAll(filters?: {
         usuarioId?: string;
+        usuarioNome?: string;
         modulo?: string;
         startDate?: Date;
         endDate?: Date;

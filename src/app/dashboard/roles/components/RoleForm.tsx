@@ -68,17 +68,20 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
     }, []);
 
     const MODULE_TRANSLATIONS: Record<string, string> = {
-        DASHBOARD: "DASHBOARD",
-        USERS: "USUÁRIOS",
-        ROLES: "PERFIS DE ACESSO",
-        CLIENTS: "CLIENTES",
-        LOANS: "VENDAS",
-        COMMISSIONS: "COMISSÕES",
-        FINANCIAL: "FINANCEIRO",
-        AGENDA: "AGENDA",
-        AUDIT: "AUDITORIA",
-        AUXILIARY: "CADASTROS AUXILIARES",
-        SETTINGS: "CONFIGURAÇÕES",
+        DASHBOARD: "Dashboard",
+        OVERVIEW: "Visão Geral",
+        AGENDA: "Agenda",
+        REPORTS: "Relatórios",
+        AUXILIARY: "Cadastros Auxiliares",
+        CLIENTS: "Clientes",
+        LOANS: "Empréstimos",
+        COMMISSIONS: "Comissões",
+        FINANCIAL: "Financeiro",
+        GOALS: "Gestão de Metas",
+        COMPANY: "Empresa",
+        USERS: "Usuários",
+        ROLES: "Perfis de Acesso",
+        AUDIT: "Auditoria",
     };
 
     return (
@@ -263,13 +266,15 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
                                                     {isAllSelected ? 'Limpar Tudo' : 'Selecionar Tudo'}
                                                 </Button>
                                             </div>
-                                            <div className="grid grid-cols-1 gap-3">
+                                            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                                                 {modulePermissions.map((perm) => {
                                                     const isChecked = field.value.includes(perm.name);
+                                                    const permLabel = perm.description.split(' ')[0]; // Pegasus: Visualizar, Salvar, Editar, Excluir
+
                                                     return (
                                                         <div
                                                             key={perm.id}
-                                                            className={`flex items-start gap-3 p-2 rounded-lg transition-colors cursor-pointer hover:bg-slate-50 ${isChecked ? 'bg-indigo-50/30' : ''}`}
+                                                            className={`flex items-center gap-3 p-2 rounded-lg transition-colors cursor-pointer hover:bg-slate-50 ${isChecked ? 'bg-indigo-50/30' : ''}`}
                                                             onClick={() => {
                                                                 const updated = isChecked
                                                                     ? field.value.filter((p) => p !== perm.name)
@@ -277,14 +282,13 @@ export function RoleForm({ initialData, onSubmit, isLoading }: RoleFormProps) {
                                                                 field.onChange(updated);
                                                             }}
                                                         >
-                                                            <div className={`mt-1 h-4 w-4 rounded border flex items-center justify-center transition-all ${isChecked ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-300'}`}>
+                                                            <div className={`h-4 w-4 rounded border flex items-center justify-center transition-all ${isChecked ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-300'}`}>
                                                                 {isChecked && <ShieldCheck className="h-3 w-3 text-white" />}
                                                             </div>
                                                             <div className="flex flex-col">
-                                                                <span className={`text-sm font-bold ${isChecked ? 'text-indigo-900' : 'text-slate-700'}`}>
-                                                                    {perm.description || perm.name}
+                                                                <span className={`text-[11px] font-bold ${isChecked ? 'text-indigo-900' : 'text-slate-700'} uppercase tracking-tighter`}>
+                                                                    {permLabel}
                                                                 </span>
-                                                                <span className="text-[10px] text-slate-400 font-mono">{perm.name}</span>
                                                             </div>
                                                         </div>
                                                     );

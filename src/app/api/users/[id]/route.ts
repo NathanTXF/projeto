@@ -15,12 +15,17 @@ export async function PUT(
 ) {
     try {
         const currentUser = await getAuthUser();
-        if (!currentUser || (!hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_USERS) && currentUser.id !== (await params).id)) {
+        if (!currentUser || (!hasPermission(currentUser.permissions || [], PERMISSIONS.EDIT_USERS) && currentUser.id !== (await params).id)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
         const { id } = await params;
         const data = await request.json();
+
+        // REGRA DE SEGURANÇA: Apenas admin pode alterar/criar senhas
+        if (data.senha && currentUser.nivelAcesso !== 1) {
+            return NextResponse.json({ error: 'Apenas administradores podem gerenciar senhas.' }, { status: 403 });
+        }
 
         // Para atualização, não exigimos senha
         const validatedData = UserSchema.partial().parse(data);
@@ -39,7 +44,7 @@ export async function DELETE(
 ) {
     try {
         const currentUser = await getAuthUser();
-        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_USERS)) {
+        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.DELETE_USERS)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 

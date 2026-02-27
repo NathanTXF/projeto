@@ -92,6 +92,7 @@ export class PrismaUserRepository implements UserRepository {
                 financials: true,
                 customers: true,
                 goals: true,
+                audits: true,
             }
         });
 
@@ -104,9 +105,10 @@ export class PrismaUserRepository implements UserRepository {
             (userWithRelations.commissions && userWithRelations.commissions.length > 0) ||
             (userWithRelations.financials && userWithRelations.financials.length > 0) ||
             (userWithRelations.customers && userWithRelations.customers.length > 0) ||
-            (userWithRelations.goals && userWithRelations.goals.length > 0)
+            (userWithRelations.goals && userWithRelations.goals.length > 0) ||
+            (userWithRelations.audits && userWithRelations.audits.length > 0)
         ) {
-            throw new Error('Este usuário não pode ser excluído pois possui histórico de vendas, clientes ou metas no sistema. No entanto, você pode desativar o acesso mudando o status para "Inativo".');
+            throw new Error('Este usuário não pode ser excluído pois possui histórico de vendas, clientes, auditoria ou metas no sistema. No entanto, você pode desativar o acesso mudando o status para "Inativo".');
         }
 
         await prisma.user.delete({

@@ -6,7 +6,7 @@ import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 export async function GET(request: Request) {
     try {
         const user = await getAuthUser();
-        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.MANAGE_SETTINGS)) {
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.VIEW_GOALS)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
@@ -74,7 +74,8 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const user = await getAuthUser();
-        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.MANAGE_SETTINGS)) {
+        // Use EDIT_GOALS (or CREATE_GOALS) for saving
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.CREATE_GOALS)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
@@ -184,4 +185,3 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
-

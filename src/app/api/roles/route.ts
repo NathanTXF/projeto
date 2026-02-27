@@ -11,7 +11,7 @@ const useCases = new RoleUseCases(repository);
 export async function GET() {
     try {
         const currentUser = await getAuthUser();
-        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_ROLES)) {
+        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.VIEW_ROLES)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
@@ -25,7 +25,7 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const currentUser = await getAuthUser();
-        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.MANAGE_ROLES)) {
+        if (!currentUser || !hasPermission(currentUser.permissions || [], PERMISSIONS.CREATE_ROLES)) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 

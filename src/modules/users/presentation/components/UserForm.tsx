@@ -56,26 +56,35 @@ interface UserFormProps {
     initialData?: User | null;
     onSubmit: (data: UserFormValues) => Promise<void>;
     isLoading?: boolean;
+    isAdmin?: boolean;
 }
 
-export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
+export function UserForm({ initialData, onSubmit, isLoading, isAdmin = false }: UserFormProps) {
     const [showPassword, setShowPassword] = useState(false);
 
     const form = useForm<UserFormValues>({
         resolver: zodResolver(userFormSchema),
         defaultValues: initialData ? {
-            ...initialData,
+            id: initialData.id || "",
+            nome: initialData.nome || "",
+            usuario: initialData.usuario || "",
             senha: "",
             fotoUrl: initialData.fotoUrl || "",
             ativo: initialData.ativo ?? true,
             diasAcesso: initialData.diasAcesso || "1,2,3,4,5",
             horarioInicioFds: initialData.horarioInicioFds || "",
             horarioFimFds: initialData.horarioFimFds || "",
+            contato: initialData.contato || "",
+            endereco: initialData.endereco || "",
+            horarioInicio: initialData.horarioInicio || "08:00",
+            horarioFim: initialData.horarioFim || "18:00",
+            roleId: initialData.roleId || "",
+            nivelAcesso: initialData.nivelAcesso || null,
         } : {
             nome: "",
             usuario: "",
             senha: "",
-            roleId: null,
+            roleId: "",
             fotoUrl: "",
             horarioInicio: "08:00",
             horarioFim: "18:00",
@@ -83,6 +92,8 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
             horarioFimFds: "",
             ativo: true,
             diasAcesso: "1,2,3,4,5",
+            contato: "",
+            endereco: "",
         },
     });
 
@@ -163,49 +174,51 @@ export function UserForm({ initialData, onSubmit, isLoading }: UserFormProps) {
                 </div>
 
                 {/* ── Seção: Segurança ── */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-50">
-                            <KeyRound className="h-4 w-4 text-violet-600" />
+                {isAdmin && (
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-50">
+                                <KeyRound className="h-4 w-4 text-violet-600" />
+                            </div>
+                            <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                                Segurança
+                            </h3>
                         </div>
-                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
-                            Segurança
-                        </h3>
-                    </div>
 
-                    <FormField
-                        control={form.control}
-                        name="senha"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                    {initialData ? "Nova Senha (deixe em branco para manter)" : "Senha"}
-                                </FormLabel>
-                                <FormControl>
-                                    <div className="relative">
-                                        <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                        <Input
-                                            placeholder="••••••"
-                                            type={showPassword ? "text" : "password"}
-                                            className="pl-10 pr-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
-                                            {...field}
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-slate-400 hover:text-slate-600"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                        >
-                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                        </Button>
-                                    </div>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
+                        <FormField
+                            control={form.control}
+                            name="senha"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        {initialData ? "Nova Senha (deixe em branco para manter)" : "Senha"}
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                            <Input
+                                                placeholder="••••••"
+                                                type={showPassword ? "text" : "password"}
+                                                className="pl-10 pr-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                {...field}
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-slate-400 hover:text-slate-600"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                            </Button>
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                )}
 
                 {/* ── Seção: Contato & Expediente ── */}
                 <div className="space-y-4">

@@ -23,7 +23,7 @@ interface AnalyticalTableProps {
     title: string;
 }
 
-export function AnalyticalTable({ columns, data, title }: AnalyticalTableProps) {
+export function AnalyticalTable({ columns, data = [], title }: AnalyticalTableProps) {
     const handlePrint = () => {
         window.print();
     };

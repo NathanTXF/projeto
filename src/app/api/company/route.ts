@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/core/auth/getUser';
 import { prisma } from '@/lib/prisma';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
 export async function GET() {
     try {
         const user = await getAuthUser();
-        if (!user) {
-            return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.VIEW_COMPANY)) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
         let company = await prisma.company.findFirst({ where: { id: 1 } });
@@ -33,7 +34,7 @@ export async function GET() {
 export async function PUT(request: Request) {
     try {
         const user = await getAuthUser();
-        if (!user || user.nivelAcesso !== 1) {
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.EDIT_COMPANY)) {
             return NextResponse.json({ error: 'Acesso negado. Apenas administradores podem editar a empresa.' }, { status: 403 });
         }
 
