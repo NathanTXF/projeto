@@ -63,7 +63,7 @@ export function UserForm({ initialData, onSubmit, isLoading, isAdmin = false }: 
     const [showPassword, setShowPassword] = useState(false);
 
     const form = useForm<UserFormValues>({
-        resolver: zodResolver(userFormSchema),
+        resolver: zodResolver(userFormSchema as any),
         defaultValues: initialData ? {
             id: initialData.id || "",
             nome: initialData.nome || "",

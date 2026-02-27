@@ -22,7 +22,14 @@ export async function POST(request: Request) {
             );
         }
 
-        const user = result.user;
+        const user = result.user as NonNullable<typeof result.user> & {
+            role?: { name: string, permissions: { permission: { name: string } }[] }
+        };
+
+        if (!user) {
+            return NextResponse.json({ message: 'Erro interno' }, { status: 500 });
+        }
+
 
         // Extract permissions if the user has a linked role
         let permissions: string[] = user.role?.permissions?.map((rp: any) => rp.permission.name) || [];
