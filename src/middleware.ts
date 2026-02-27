@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
-
-const JWT_SECRET = new TextEncoder().encode(
-    process.env.JWT_SECRET || 'secret-previna-se-em-producao'
-);
+import { JWT_SECRET } from '@/core/auth/jwt';
 
 export async function middleware(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
@@ -44,7 +41,8 @@ export async function middleware(request: NextRequest) {
         // Verifica se a rota requisitada requer alguma permissão específica
         for (const [route, requiredPermission] of Object.entries(routePermissions)) {
             if (pathname.startsWith(route)) {
-                // Backward compatibility: Se não tem permissions array mas é nivelAcesso 1, deixa passar
+                // M-2 TODO: Remover este bypass quando todos os admins tiverem um Role atribuído no banco.
+                // Mantido apenas para retrocompatibilidade com usuários legado criados antes do RBAC.
                 const isLegacyAdmin = permissions.length === 0 && nivelAcesso === 1;
 
                 if (!permissions.includes(requiredPermission) && !isLegacyAdmin) {

@@ -2,6 +2,28 @@ import { UserRepository, User } from '../domain/entities';
 import bcrypt from 'bcrypt';
 import { logAudit } from '../../../core/audit/logger';
 
+/** Campos opcionais que devem ser convertidos de string vazia para null antes de gravar no banco. */
+const NULLABLE_STRING_FIELDS = [
+    'fotoUrl', 'roleId', 'horarioInicio', 'horarioFim', 'horarioInicioFds', 'horarioFimFds',
+] as const;
+
+type SafeUser = Omit<User, 'senha'>;
+
+/** Remove a senha do objeto antes de retornar ao cliente. */
+function sanitizeUser(user: User & Record<string, unknown>): SafeUser {
+    const { senha: _omitted, ...safe } = user;
+    return safe as SafeUser;
+}
+
+/** Converte strings vazias para null em campos que o Prisma espera como nullable. */
+function sanitizeNullableFields(data: Partial<User>): Partial<User> {
+    const result = { ...data } as Record<string, unknown>;
+    for (const field of NULLABLE_STRING_FIELDS) {
+        if (result[field] === '') result[field] = null;
+    }
+    return result as Partial<User>;
+}
+
 export class UserUseCases {
     constructor(private repository: UserRepository) { }
 
@@ -15,20 +37,18 @@ export class UserUseCases {
         }
 
         const now = new Date();
-
         const currentDay = now.getDay(); // 0: Dom, 1: Seg, ..., 6: Sab
         const isWeekend = currentDay === 0 || currentDay === 6;
 
         // Verificar dias de acesso
         if (user.diasAcesso) {
             const allowedDays = user.diasAcesso.split(',').map(Number);
-
             if (!allowedDays.includes(currentDay)) {
                 return { error: 'Seu acesso não é permitido hoje.' };
             }
         }
 
-        // Determinar horários a usar (Especial Fim de Semana ou Padrão)
+        // Determinar horários (Especial Fim de Semana ou Padrão)
         let startTimeStr = user.horarioInicio;
         let endTimeStr = user.horarioFim;
 
@@ -39,30 +59,28 @@ export class UserUseCases {
 
         if (startTimeStr && endTimeStr) {
             const currentTime = now.getHours() * 100 + now.getMinutes();
-
             const [startH, startM] = startTimeStr.split(':').map(Number);
             const [endH, endM] = endTimeStr.split(':').map(Number);
-
             const startTime = startH * 100 + startM;
             const endTime = endH * 100 + endM;
 
             if (currentTime < startTime || currentTime > endTime) {
-                await logAudit({
-                    usuarioId: user.id!,
-                    modulo: 'AUTH',
-                    acao: 'LOGIN_REJECTED_OUT_OF_HOURS',
-                    ip
-                });
+                await logAudit({ usuarioId: user.id!, modulo: 'AUTH', acao: 'LOGIN_REJECTED_OUT_OF_HOURS', ip });
                 return { error: `Acesso negado fora do horário permitido (${startTimeStr} - ${endTimeStr})` };
             }
         }
 
-        // Verificar se está bloqueado (mais de 3 tentativas)
+        // Verificar bloqueio de conta
         if (user.failedAttempts && user.failedAttempts >= 3) {
-            if (user.lockUntil && new Date() < new Date(user.lockUntil)) {
-                return { error: 'Conta bloqueada temporariamente. Procure o administrador.' };
-            }
-            if (!user.lockUntil) {
+            if (user.lockUntil) {
+                const lockExpired = new Date() >= new Date(user.lockUntil);
+                if (!lockExpired) {
+                    return { error: 'Conta bloqueada temporariamente. Procure o administrador.' };
+                }
+                // Lock expirado: zerar contadores e continuar
+                await this.repository.update(user.id!, { failedAttempts: 0, lockUntil: null });
+            } else {
+                // Bloqueio permanente: exige intervenção manual
                 return { error: 'Conta bloqueada. Procure o administrador para desbloquear.' };
             }
         }
@@ -73,94 +91,73 @@ export class UserUseCases {
             const attempts = (user.failedAttempts || 0) + 1;
             const updateData: Partial<User> = { failedAttempts: attempts };
 
+            if (attempts >= 3) {
+                updateData.lockUntil = new Date(Date.now() + 30 * 60 * 1000);
+            }
+
             await this.repository.update(user.id!, updateData);
+            await logAudit({ usuarioId: user.id!, modulo: 'AUTH', acao: 'LOGIN_FAILED', ip });
 
-            await logAudit({
-                usuarioId: user.id!,
-                modulo: 'AUTH',
-                acao: 'LOGIN_FAILED',
-                ip
-            });
-
+            if (attempts >= 3) {
+                return { error: 'Conta bloqueada por 30 minutos após 3 tentativas incorretas. Procure o administrador.' };
+            }
             return { error: `Senha incorreta. Tentativa ${attempts} de 3.` };
         }
 
         // Sucesso: resetar tentativas e lock
-        await this.repository.update(user.id!, {
-            failedAttempts: 0,
-            lockUntil: null
-        });
+        await this.repository.update(user.id!, { failedAttempts: 0, lockUntil: null });
+        await logAudit({ usuarioId: user.id!, modulo: 'AUTH', acao: 'LOGIN_SUCCESS', ip });
 
-        await logAudit({
-            usuarioId: user.id!,
-            modulo: 'AUTH',
-            acao: 'LOGIN_SUCCESS',
-            ip
-        });
-
-        const { senha: _, ...userWithoutPassword } = user as any;
-        return { user: userWithoutPassword };
+        return { user: sanitizeUser(user as User & Record<string, unknown>) };
     }
 
-    async listAll() {
+    async listAll(): Promise<SafeUser[]> {
         const users = await this.repository.findAll();
-        // Remove senha antes de retornar
-        return users.map(({ senha, ...userWithoutPassword }: any) => userWithoutPassword);
+        return users.map(u => sanitizeUser(u as User & Record<string, unknown>));
     }
 
-    async getProfile(id: string) {
+    async getProfile(id: string): Promise<SafeUser | null> {
         const user = await this.repository.findById(id);
         if (!user) return null;
-
-        // Remove senha antes de retornar
-        const { senha, ...userWithoutPassword } = user as any;
-        return userWithoutPassword;
+        return sanitizeUser(user as User & Record<string, unknown>);
     }
 
-    async updateProfile(id: string, data: Partial<User>) {
-        const updateData: any = { ...data };
+    async updateProfile(id: string, data: Partial<User>): Promise<User> {
+        const updateData: Partial<User> = sanitizeNullableFields(data);
 
-        // Se estiver alterando a senha, precisa cifrar
-        if (data.senha && data.senha !== "") {
-            updateData.senha = await bcrypt.hash(data.senha, 10);
+        if (data.senha && data.senha !== '') {
+            updateData.senha = await bcrypt.hash(data.senha, 12);
         } else {
             delete updateData.senha;
         }
 
-        // Sanitiza strings vazias para null para evitar erros no Prisma (UUID, URL, etc)
-        if (updateData.fotoUrl === "") updateData.fotoUrl = null;
-        if (updateData.roleId === "") updateData.roleId = null;
-        if (updateData.horarioInicio === "") updateData.horarioInicio = null;
-        if (updateData.horarioFim === "") updateData.horarioFim = null;
-        if (updateData.horarioInicioFds === "") updateData.horarioInicioFds = null;
-        if (updateData.horarioFimFds === "") updateData.horarioFimFds = null;
-
-        return await this.repository.update(id, updateData);
+        return this.repository.update(id, updateData);
     }
 
-    async createUser(data: User) {
-        const sanitizedData: any = { ...data };
+    async createUser(data: User): Promise<SafeUser & { _senhaGerada?: string }> {
+        const { randomBytes } = await import('crypto');
+        const hasOwnPassword = Boolean(data.senha?.trim());
+        const generatedPassword = hasOwnPassword ? data.senha! : randomBytes(6).toString('hex');
+        const hashedPassword = await bcrypt.hash(generatedPassword, 12);
 
-        // Garante uma senha padrão se não informada
-        const passwordToHash = data.senha && data.senha !== "" ? data.senha : "123456";
-        const hashedPassword = await bcrypt.hash(passwordToHash, 10);
+        const sanitizedData: Partial<User> = sanitizeNullableFields(data);
 
-        // Sanitiza strings vazias para null
-        if (sanitizedData.fotoUrl === "") sanitizedData.fotoUrl = null;
-        if (sanitizedData.roleId === "") sanitizedData.roleId = null;
-        if (sanitizedData.horarioInicio === "") sanitizedData.horarioInicio = null;
-        if (sanitizedData.horarioFim === "") sanitizedData.horarioFim = null;
-        if (sanitizedData.horarioInicioFds === "") sanitizedData.horarioInicioFds = null;
-        if (sanitizedData.horarioFimFds === "") sanitizedData.horarioFimFds = null;
-
-        return await this.repository.create({
+        const createdUser = await this.repository.create({
             ...sanitizedData,
             senha: hashedPassword,
-            nivelAcesso: sanitizedData.nivelAcesso || 2 // Default to Vendedor if not set
-        });
+            nivelAcesso: sanitizedData.nivelAcesso ?? 2,
+        } as User);
+
+        const safeUser = sanitizeUser(createdUser as User & Record<string, unknown>);
+        return {
+            ...safeUser,
+            _senhaGerada: hasOwnPassword ? undefined : generatedPassword,
+        };
     }
 
-    async removeUser(id: string) {
-        return await this.repository.delete(id);
+    async removeUser(id: string): Promise<void> {
+        return this.repository.delete(id);
     }
 }
+
+

@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
 import { PrismaUserRepository } from '@/modules/users/infrastructure/repositories';
 import { UserUseCases } from '@/modules/users/application/useCases';
+import { signToken, JWT_SECRET } from '@/core/auth/jwt';
 import { SignJWT } from 'jose';
 import { PERMISSIONS } from '@/lib/permissions';
-
-const JWT_SECRET = new TextEncoder().encode(
-    process.env.JWT_SECRET || 'secret-previna-se-em-producao'
-);
 
 export async function POST(request: Request) {
     try {
@@ -75,7 +72,7 @@ export async function POST(request: Request) {
         response.cookies.set('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: 'strict',
             maxAge: 60 * 60 * 8,
             path: '/',
         });

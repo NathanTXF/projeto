@@ -70,9 +70,18 @@ export default function UsersPage() {
             });
 
             if (response.ok) {
-                toast.success(selectedUser ? "Usuário atualizado!" : "Usuário criado!");
+                const data = await response.json();
                 setIsDialogOpen(false);
                 fetchUsers();
+                if (!selectedUser && data._senhaGerada) {
+                    // Senha gerada automaticamente — exibe ao admin
+                    toast.success(`✅ Usuário criado! Senha gerada: ${data._senhaGerada}`, {
+                        duration: 15000,
+                        description: 'Anote esta senha e compartilhe com o usuário. Ela não será exibida novamente.',
+                    });
+                } else {
+                    toast.success(selectedUser ? "Usuário atualizado!" : "Usuário criado!");
+                }
             } else {
                 const errorData = await response.json();
                 toast.error("Erro: " + errorData.error);

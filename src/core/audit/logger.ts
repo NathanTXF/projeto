@@ -1,12 +1,14 @@
 import { prisma } from '../../lib/prisma';
 
-export async function logAudit(params: {
+interface AuditParams {
     usuarioId: string;
     modulo: string;
     acao: string;
     entidadeId?: string;
     ip?: string;
-}) {
+}
+
+export async function logAudit(params: AuditParams) {
     try {
         await prisma.audit.create({
             data: {
@@ -18,6 +20,10 @@ export async function logAudit(params: {
             },
         });
     } catch (error) {
-        console.error('Falha ao gravar log de auditoria:', error);
+        // L-1: Falha de auditoria nunca bloqueia o fluxo principal, mas é registrada com contexto
+        console.error(
+            `[AUDIT_FAIL] Não foi possível registrar: ${params.modulo}/${params.acao} para usuário ${params.usuarioId}`,
+            error
+        );
     }
 }

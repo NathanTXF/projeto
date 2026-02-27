@@ -1,8 +1,13 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-const JWT_SECRET = new TextEncoder().encode(
-    process.env.JWT_SECRET || 'secret-previna-se-em-producao'
-);
+// Falha em tempo de execução se o segredo não estiver configurado — previne fallback inseguro.
+const rawSecret = process.env.JWT_SECRET;
+if (!rawSecret) {
+    throw new Error('[SECURITY] JWT_SECRET não está definido nas variáveis de ambiente. Configure-o antes de iniciar o servidor.');
+}
+
+/** Segredo compartilhado — importe DAQUI nos outros módulos, nunca redefina. */
+export const JWT_SECRET = new TextEncoder().encode(rawSecret);
 
 export interface AuthUser {
     id: string;
@@ -16,6 +21,7 @@ export interface AuthUser {
 export const signToken = async (user: AuthUser): Promise<string> => {
     return new SignJWT({ ...user })
         .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
         .setExpirationTime('8h')
         .sign(JWT_SECRET);
 };
@@ -24,8 +30,7 @@ export const verifyToken = async (token: string): Promise<AuthUser | null> => {
     try {
         const { payload } = await jwtVerify(token, JWT_SECRET);
         return payload as unknown as AuthUser;
-    } catch (error: any) {
-        console.error('JWT Verification Error:', error.message);
+    } catch {
         return null;
     }
 };

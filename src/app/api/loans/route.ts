@@ -27,8 +27,8 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const user = await getAuthUser();
-        if (!user) {
-            return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        if (!user || !hasPermission(user.permissions || [], PERMISSIONS.CREATE_LOANS)) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
         }
 
         const body = await request.json();
