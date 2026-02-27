@@ -40,8 +40,8 @@ import {
     CheckCircle,
     PlusCircle,
     PieChart,
-    Target,
 } from "lucide-react";
+import { Target as LucideTarget } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -57,7 +57,7 @@ const REPORT_TYPES = [
     { id: 'TABLES', label: 'Produção por Tabela', icon: TableProperties, color: 'slate', description: 'Desempenho por coeficiente de tabela.' },
     { id: 'LOAN_TYPES', label: 'Produção por Produto', icon: Layers, color: 'rose', description: 'Vendas por tipo de operação (Refin, Novo, etc).' },
     { id: 'OPERATORS', label: 'Produção por Operador', icon: UserCircle, color: 'teal', description: 'Ranking de vendas por usuário do sistema.' },
-    { id: 'GOALS_GENERAL', label: 'Relatório Geral de Metas', icon: Target, color: 'sky', description: 'Visão mensal consolidada de metas vs. contratos realizados.' },
+    { id: 'GOALS_GENERAL', label: 'Relatório Geral de Metas', icon: LucideTarget, color: 'sky', description: 'Visão mensal consolidada de metas vs. contratos realizados.' },
     { id: 'GOALS_INDIVIDUAL', label: 'Relatório Individual de Metas', icon: Users, color: 'orange', description: 'Desempenho mensal detalhado de metas por vendedor.' },
 ];
 
