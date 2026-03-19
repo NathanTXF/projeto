@@ -7,14 +7,16 @@ export async function GET() {
             where: { id: 1 },
             select: {
                 nome: true,
-                logoUrl: true
+                logoUrl: true,
+                reportLogoUrl: true
             }
         });
 
         if (!company) {
             return NextResponse.json({
                 nome: "Dinheiro Fácil",
-                logoUrl: null
+                logoUrl: null,
+                reportLogoUrl: null
             });
         }
 
@@ -23,7 +25,8 @@ export async function GET() {
         console.error("Public Branding API Error:", error);
         return NextResponse.json({
             nome: "Dinheiro Fácil",
-            logoUrl: null
+            logoUrl: null,
+            reportLogoUrl: null
         });
     }
 }

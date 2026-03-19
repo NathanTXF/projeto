@@ -30,16 +30,27 @@ export function ReportHeader({ reportTitle, period }: ReportHeaderProps) {
 
     return (
         <div className="w-full border-b border-slate-300 pb-4 mb-4">
-            <div className="flex justify-between items-end mb-4">
-                {/* Company Info */}
-                <div>
-                    <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">
-                        {company?.nome || "Empresa de Crédito"}
-                    </h1>
-                    <div className="text-[9px] text-slate-500 font-bold flex gap-4 uppercase tracking-wider">
-                        <span>CNPJ: <span className="text-slate-700">{company?.cnpj}</span></span>
-                        <span className="flex items-center gap-1"><Phone className="w-2.5 h-2.5" /> <span className="text-slate-700">{company?.contato}</span></span>
-                        <span className="flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> <span className="text-slate-700 truncate max-w-[200px]">{company?.endereco}</span></span>
+            <div className="flex justify-between items-start mb-4">
+                {/* Logo and Company Info */}
+                <div className="flex gap-4">
+                    {(company?.reportLogoUrl || company?.logoUrl) && (
+                        <div className="h-16 w-16 flex items-center justify-center bg-white rounded-lg border border-slate-100 shadow-sm overflow-hidden shrink-0">
+                            <img 
+                                src={company.reportLogoUrl || company.logoUrl || ''} 
+                                alt="Logo" 
+                                className="max-h-full max-w-full object-contain"
+                            />
+                        </div>
+                    )}
+                    <div>
+                        <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">
+                            {company?.nome || "Empresa de Crédito"}
+                        </h1>
+                        <div className="text-[9px] text-slate-500 font-bold flex gap-4 uppercase tracking-wider">
+                            <span>CNPJ: <span className="text-slate-700">{company?.cnpj}</span></span>
+                            <span className="flex items-center gap-1"><Phone className="w-2.5 h-2.5" /> <span className="text-slate-700">{company?.contato}</span></span>
+                            <span className="flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> <span className="text-slate-700 truncate max-w-[200px]">{company?.endereco}</span></span>
+                        </div>
                     </div>
                 </div>
 

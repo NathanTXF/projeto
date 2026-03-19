@@ -53,10 +53,12 @@ export async function exportToPdf<T>(title: string, filename: string, columns: E
         if (response.ok) {
             const company = await response.json();
 
-            if (company.logoUrl) {
+            const logoToUse = company.reportLogoUrl || company.logoUrl;
+
+            if (logoToUse) {
                 try {
                     // Adicionando a logomarca no canto superior esquerdo
-                    doc.addImage(company.logoUrl, 14, 10, 25, 25, undefined, 'FAST');
+                    doc.addImage(logoToUse, 14, 10, 25, 25, undefined, 'FAST');
 
                     doc.setFontSize(12);
                     doc.setFont(undefined, 'bold');

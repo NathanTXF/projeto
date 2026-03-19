@@ -12,9 +12,10 @@ export default function LoginPage() {
     const [usuario, setUsuario] = useState("");
     const [senha, setSenha] = useState("");
     const [loading, setLoading] = useState(false);
-    const [branding, setBranding] = useState<{ nome: string, logoUrl: string | null }>({
+    const [branding, setBranding] = useState<{ nome: string, logoUrl: string | null, reportLogoUrl: string | null }>({
         nome: "Dinheiro Fácil",
-        logoUrl: null
+        logoUrl: null,
+        reportLogoUrl: null
     });
     const router = useRouter();
 
@@ -84,7 +85,13 @@ export default function LoginPage() {
                 <div className="w-full max-w-md space-y-10 animate-in fade-in zoom-in-95 duration-700">
                     {/* Compact Header for Mobile/Title */}
                     <div className="flex justify-center mb-8">
-                        <img src="/logo_v2.png" alt="Dinheiro Fácil" className="h-16 w-auto object-contain" />
+                        {(branding.reportLogoUrl || branding.logoUrl) ? (
+                            <img src={branding.reportLogoUrl || branding.logoUrl || ''} alt={branding.nome} className="h-16 w-auto object-contain" />
+                        ) : (
+                            <div className="h-16 w-16 bg-primary rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg">
+                                {branding.nome.charAt(0)}
+                            </div>
+                        )}
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-6">

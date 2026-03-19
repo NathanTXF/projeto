@@ -7,6 +7,7 @@ export const CompanySchema = z.object({
     contato: z.string().min(1, "Contato é obrigatório"),
     endereco: z.string().min(1, "Endereço é obrigatório"),
     logoUrl: z.string().optional().nullable(),
+    reportLogoUrl: z.string().optional().nullable(),
 });
 
 export type Company = z.infer<typeof CompanySchema>;

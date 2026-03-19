@@ -48,7 +48,8 @@ export async function PUT(request: Request) {
                 contato: data.contato,
                 endereco: data.endereco,
                 cidade: data.cidade,
-                logoUrl: data.logoUrl
+                logoUrl: data.logoUrl,
+                reportLogoUrl: data.reportLogoUrl
             },
             create: {
                 id: 1,
@@ -57,7 +58,8 @@ export async function PUT(request: Request) {
                 contato: data.contato,
                 endereco: data.endereco,
                 cidade: data.cidade,
-                logoUrl: data.logoUrl
+                logoUrl: data.logoUrl,
+                reportLogoUrl: data.reportLogoUrl
             }
         });
 

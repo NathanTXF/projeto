@@ -15,6 +15,7 @@ export default function CompanyPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const reportFileInputRef = useRef<HTMLInputElement>(null);
 
     const [form, setForm] = useState({
         nome: "",
@@ -23,6 +24,7 @@ export default function CompanyPage() {
         endereco: "",
         cidade: "",
         logoUrl: "",
+        reportLogoUrl: "",
     });
 
     useEffect(() => {
@@ -51,6 +53,7 @@ export default function CompanyPage() {
                     endereco: data.endereco || "",
                     cidade: data.cidade || "",
                     logoUrl: data.logoUrl || "",
+                    reportLogoUrl: data.reportLogoUrl || "",
                 });
             }
         } catch (error) {
@@ -100,6 +103,23 @@ export default function CompanyPage() {
         reader.readAsDataURL(file);
     };
 
+    const handleReportLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+            toast.error("A imagem deve ter no máximo 2MB.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result as string;
+            setForm(prev => ({ ...prev, reportLogoUrl: base64String }));
+        };
+        reader.readAsDataURL(file);
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full min-h-[500px]">
@@ -132,32 +152,66 @@ export default function CompanyPage() {
                 </CardHeader>
                 <CardContent className="p-8 space-y-8">
 
-                    {/* Linha 1: LOGO */}
-                    <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center pb-8 border-b border-slate-100">
-                        <Avatar className="h-32 w-32 border-4 border-slate-50 shadow-md">
-                            <AvatarImage src={form.logoUrl} alt="Logo Empresa" className="object-contain bg-white" />
-                            <AvatarFallback className="bg-slate-100 text-slate-400 font-bold text-2xl">
-                                {form.nome ? form.nome.substring(0, 2).toUpperCase() : "LOGO"}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="space-y-3">
-                            <h3 className="font-bold text-slate-700">Logomarca (Sidebar & Relatórios)</h3>
-                            <p className="text-sm text-slate-500 max-w-sm">Faça o upload da logomarca oficial da sua empresa. Recomendamos o formato PNG transparente, tamanho máx. 2MB.</p>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                ref={fileInputRef}
-                                onChange={handleLogoUpload}
-                            />
-                            <Button
-                                variant="outline"
-                                onClick={() => fileInputRef.current?.click()}
-                                className="gap-2 font-bold"
-                            >
-                                <Upload className="h-4 w-4" />
-                                Escolher Imagem
-                            </Button>
+                    {/* LOGOS SECTION */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-8 border-b border-slate-100">
+                        {/* LOGO 1: SISTEMA */}
+                        <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+                            <Avatar className="h-24 w-24 border-4 border-slate-50 shadow-md">
+                                <AvatarImage src={form.logoUrl} alt="Logo Sistema" className="object-contain bg-white" />
+                                <AvatarFallback className="bg-slate-100 text-slate-400 font-bold text-xl">
+                                    SYS
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="space-y-2">
+                                <h3 className="font-bold text-slate-700 text-sm">Logomarca da Sidebar</h3>
+                                <p className="text-[11px] text-slate-500 leading-relaxed">Exclusiva para o menu lateral (sidebar).</p>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    ref={fileInputRef}
+                                    onChange={handleLogoUpload}
+                                />
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="gap-2 font-bold h-9"
+                                >
+                                    <Upload className="h-3.5 w-3.5" />
+                                    Alterar Logo
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* LOGO 2: RELATÓRIOS */}
+                        <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+                            <Avatar className="h-24 w-24 border-4 border-slate-50 shadow-md">
+                                <AvatarImage src={form.reportLogoUrl} alt="Logo Relatórios" className="object-contain bg-white" />
+                                <AvatarFallback className="bg-slate-100 text-slate-400 font-bold text-xl">
+                                    PDF
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="space-y-2">
+                                <h3 className="font-bold text-slate-700 text-sm">Logomarca (Login & Relatórios)</h3>
+                                <p className="text-[11px] text-slate-500 leading-relaxed">Usada na tela de login e no cabeçalho das exportações PDF.</p>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    ref={reportFileInputRef}
+                                    onChange={handleReportLogoUpload}
+                                />
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => reportFileInputRef.current?.click()}
+                                    className="gap-2 font-bold h-9"
+                                >
+                                    <Upload className="h-3.5 w-3.5" />
+                                    Alterar Logo
+                                </Button>
+                            </div>
                         </div>
                     </div>
 
