@@ -21,6 +21,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
+import { KpiCard } from "@/components/layout/KpiCard";
 
 export default function AgendaPage() {
     const [month, setMonth] = useState<Date>(new Date());
@@ -147,10 +148,14 @@ export default function AgendaPage() {
         return apt.status === filterStatus;
     });
 
+    const totalHoje = appointments.length;
+    const concluidosHoje = appointments.filter(a => a.status === 'CONCLUIDO').length;
+    const pendentesHoje = totalHoje - concluidosHoje;
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-8 shadow-[0_24px_60px_rgba(5,50,94,0.28)] border border-white/10">
                 <div className="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
                     <CalendarIcon className="h-64 w-64 text-white" />
                 </div>
@@ -177,6 +182,12 @@ export default function AgendaPage() {
                         Novo Compromisso
                     </Button>
                 </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <KpiCard title="Hoje" value={totalHoje} icon={CalendarIcon} tone="primary" subtitle="Compromissos do dia" />
+                <KpiCard title="Pendentes" value={pendentesHoje} icon={Clock} tone="amber" subtitle="Aguardando" />
+                <KpiCard title="Concluídos" value={concluidosHoje} icon={CheckCircle2} tone="emerald" subtitle="Finalizados" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

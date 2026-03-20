@@ -20,6 +20,7 @@ import {
     ArrowUpRight,
     ArrowDownRight
 } from "lucide-react";
+import { KpiCard } from "@/components/layout/KpiCard";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/Badge";
 import { generateYearRange, getCurrentYear } from "@/lib/date-utils";
@@ -58,6 +59,7 @@ interface CardStat {
     bg: string;
     growth?: string;
     description?: string;
+    tone?: "primary" | "emerald" | "amber" | "neutral";
 }
 
 interface DashboardStats {
@@ -177,7 +179,8 @@ export default function OverviewPage() {
             color: "text-primary",
             bg: "bg-primary/10",
             growth: stats?.totalClientsGrowth,
-            description: "Base total de cadastros"
+            description: "Base total de cadastros",
+            tone: "primary"
         },
         {
             icon: TrendingUp,
@@ -186,7 +189,8 @@ export default function OverviewPage() {
             color: "text-primary",
             bg: "bg-primary/10",
             growth: stats?.commissionsGrowth,
-            description: "Receitado no período"
+            description: "Receitado no período",
+            tone: "emerald"
         },
         {
             icon: Target,
@@ -194,7 +198,8 @@ export default function OverviewPage() {
             value: formatCurrency(stats?.ticketMedio ?? 0),
             color: "text-primary",
             bg: "bg-primary/10",
-            description: "Valor médio por contrato"
+            description: "Valor médio por contrato",
+            tone: "neutral"
         },
         {
             icon: BarChart3,
@@ -202,15 +207,16 @@ export default function OverviewPage() {
             value: formatCurrency(stats?.forecastVolume ?? 0),
             color: "text-amber-500",
             bg: "bg-amber-500/10",
-            description: "Estimativa de fechamento"
+            description: "Estimativa de fechamento",
+            tone: "amber"
         },
     ];
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-12">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-[#00355E] p-6 md:p-10 shadow-2xl border border-white/10">
-                <div className="absolute top-0 right-0 -mt-20 -mr-20 h-80 w-80 rounded-full bg-white/5 blur-3xl" />
+            <div className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-6 md:p-10 shadow-[0_30px_80px_rgba(5,50,94,0.35)] border border-white/10">
+                <div className="absolute top-0 right-0 -mt-20 -mr-20 h-80 w-80 rounded-full bg-primary/15 blur-[90px]" />
                 <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex items-center gap-6">
                         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md shadow-inner border border-white/20">
@@ -272,33 +278,14 @@ export default function OverviewPage() {
             {/* ── Metric Cards ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {dashboardCards.map((stat) => (
-                    <Card key={stat.label} className="border-none shadow-xl hover:shadow-2xl transition-all duration-300 group overflow-hidden bg-card rounded-2xl md:rounded-3xl p-5 md:p-6">
-                        <div className="flex items-start justify-between mb-4">
-                            <div className={`h-12 w-12 flex items-center justify-center rounded-2xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform shadow-inner`}>
-                                <stat.icon className="h-6 w-6" />
-                            </div>
-                            {stat.growth && (
-                                <div className={cn(
-                                    "flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-black",
-                                    Number(stat.growth) >= 0 ? "text-emerald-600 bg-emerald-500/10" : "text-rose-600 bg-rose-500/10"
-                                )}>
-                                    {Number(stat.growth) >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                                    {Math.abs(Number(stat.growth))}%
-                                </div>
-                            )}
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">
-                                {stat.label}
-                            </p>
-                            <h3 className="text-2xl font-black text-foreground tracking-tight">
-                                {loading ? "..." : stat.value}
-                            </h3>
-                            <p className="text-[11px] text-muted-foreground/60 font-medium">
-                                {stat.description}
-                            </p>
-                        </div>
-                    </Card>
+                    <KpiCard
+                        key={stat.label}
+                        title={stat.label}
+                        value={loading ? "..." : stat.value}
+                        icon={stat.icon}
+                        tone={stat.tone}
+                        subtitle={stat.growth ? `${Number(stat.growth) >= 0 ? "+" : "-"}${Math.abs(Number(stat.growth))}% vs. período` : stat.description}
+                    />
                 ))}
             </div>
 

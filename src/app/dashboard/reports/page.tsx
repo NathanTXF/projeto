@@ -44,6 +44,7 @@ import {
 import { Target as LucideTarget } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { KpiCard } from "@/components/layout/KpiCard";
 
 const REPORT_TYPES = [
     { id: 'SALES', label: 'Vendas Analítico', icon: TrendingUp, color: 'indigo', description: 'Listagem detalhada de todos os contratos e status.' },
@@ -212,11 +213,17 @@ export default function ReportsPage() {
 
     const currentPeriod = `${formatSafeDate(startDate)} até ${formatSafeDate(endDate)}`;
     const activeReport = REPORT_TYPES.find(r => r.id === reportType);
+    const summary = data?.summary || {};
+    const totalItems = summary.totalItems ?? 0;
+    const totalValue = summary.totalValue ?? 0;
+    const totalLiquido = summary.totalLiquido ?? 0;
+    const efficiency = reportType === 'PERFORMANCE' ? summary.avgPerformance ?? 0 : 100;
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-6 md:p-8 shadow-sm print:hidden">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-6 md:p-8 shadow-[0_24px_60px_rgba(5,50,94,0.28)] border border-white/10 print:hidden">
+                <div className="absolute top-0 right-0 -mt-16 -mr-16 h-64 w-64 rounded-full bg-primary/15 blur-[90px]" />
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4 text-center sm:text-left justify-center sm:justify-start">
                         <div className="hidden sm:flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
@@ -234,41 +241,11 @@ export default function ReportsPage() {
                 </div>
 
                 {/* Mini stats strip */}
-                <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-4 gap-6">
-                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <FileText className="h-6 w-6 text-primary-foreground/60" />
-                        <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Registros</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : (data?.summary?.totalItems || 0)}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <DollarSign className="h-6 w-6 text-emerald-400" />
-                        <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Total Bruto</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">
-                                {loading ? "..." : (data?.summary?.totalValue || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="hidden sm:flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <CheckCircle className="h-6 w-6 text-primary" />
-                        <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Total Líquido</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">
-                                {loading ? "..." : (data?.summary?.totalLiquido || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="hidden sm:flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <TrendingUp className="h-6 w-6 text-amber-400" />
-                        <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Eficiência</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">
-                                {loading ? "..." : reportType === 'PERFORMANCE' ? `${(data?.summary?.avgPerformance || 0).toFixed(1)}%` : '100%'}
-                            </p>
-                        </div>
-                    </div>
+                <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <KpiCard title="Registros" value={loading ? "..." : totalItems} icon={FileText} tone="primary" subtitle="Itens retornados" />
+                    <KpiCard title="Total Bruto" value={loading ? "..." : totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })} icon={DollarSign} tone="emerald" subtitle="Valor acumulado" />
+                    <KpiCard title="Total Líquido" value={loading ? "..." : totalLiquido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })} icon={CheckCircle} tone="neutral" subtitle="Após descontos" />
+                    <KpiCard title="Eficiência" value={loading ? "..." : `${efficiency.toFixed(1)}%`} icon={TrendingUp} tone="amber" subtitle={reportType === 'PERFORMANCE' ? 'Performance média' : 'Processamento ok'} />
                 </div>
             </div>
 

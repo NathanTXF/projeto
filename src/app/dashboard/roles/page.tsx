@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { KpiCard } from "@/components/layout/KpiCard";
 import {
     Dialog,
     DialogContent,
@@ -122,19 +123,22 @@ export default function RolesPage() {
     const filteredRoles = roles.filter(role =>
         role.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    const totalRoles = roles.length;
+    const visibleRoles = filteredRoles.length;
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-6 md:p-8 shadow-[0_24px_60px_rgba(5,50,94,0.28)] border border-white/10">
+                <div className="absolute top-0 right-0 -mt-16 -mr-16 h-64 w-64 rounded-full bg-primary/15 blur-[90px]" />
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 text-center sm:text-left justify-center sm:justify-start">
                         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
                             <ShieldAlert className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Perfis e Permissões</h1>
-                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Controle de acesso granular (RBAC) do sistema.</p>
+                            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Perfis e Permissões</h1>
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-xs md:text-sm">Controle de acesso granular (RBAC) do sistema.</p>
                         </div>
                     </div>
                     <Button
@@ -150,14 +154,10 @@ export default function RolesPage() {
                     </Button>
                 </div>
                 {/* Mini stats */}
-                <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <ShieldAlert className="h-6 w-6 text-primary-foreground/60" />
-                        <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Total de Perfis</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : roles.length}</p>
-                        </div>
-                    </div>
+                <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <KpiCard title="Perfis" value={loading ? "..." : totalRoles} icon={ShieldAlert} tone="primary" subtitle="Cadastrados" />
+                    <KpiCard title="Visíveis" value={loading ? "..." : visibleRoles} icon={Search} tone="neutral" subtitle="Resultado do filtro" />
+                    <KpiCard title="Governança" value="100%" icon={ShieldPlus} tone="emerald" subtitle="RBAC ativo" />
                 </div>
             </div>
 

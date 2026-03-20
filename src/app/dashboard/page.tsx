@@ -27,20 +27,18 @@ import {
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { KpiCard } from "@/components/layout/KpiCard";
 import { Badge } from "@/components/ui/Badge";
-import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 import {
     ResponsiveContainer,
     AreaChart,
     Area,
+    CartesianGrid,
     XAxis,
     YAxis,
-    CartesianGrid,
     Tooltip
 } from "recharts";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
 
 export default function DashboardPage() {
     const [data, setData] = useState<any>(null);
@@ -117,9 +115,9 @@ export default function DashboardPage() {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
 
             {/* ── Strategic Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-[#00355E] p-8 md:p-12 shadow-2xl border border-white/5">
-                <div className="absolute top-0 right-0 -mt-20 -mr-20 h-96 w-96 rounded-full bg-primary/20 blur-[100px]" />
-                <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-sidebar/10 blur-[80px]" />
+            <div className="relative overflow-hidden rounded-3xl md:rounded-[2.5rem] bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-8 md:p-12 border border-white/10 shadow-[0_30px_80px_rgba(5,50,94,0.35)]">
+                <div className="absolute top-0 right-0 -mt-20 -mr-20 h-80 w-80 rounded-full bg-primary/15 blur-[90px]" />
+                <div className="absolute bottom-0 left-0 -mb-24 -ml-24 h-72 w-72 rounded-full bg-white/5 blur-[90px]" />
 
                 <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
                     <div className="space-y-6">
@@ -190,8 +188,8 @@ export default function DashboardPage() {
                         <Button
                             variant="ghost"
                             className={cn(
-                                "w-full h-auto p-6 rounded-[2rem] flex flex-col items-center gap-3 transition-all hover:scale-[1.02] border border-slate-100 bg-white shadow-sm hover:shadow-md",
-                                "hover:bg-white"
+                                "w-full h-auto p-6 rounded-2xl flex flex-col items-center gap-3 transition-all hover:-translate-y-0.5",
+                                "border border-border/70 bg-card shadow-sm hover:shadow-lg hover:bg-white"
                             )}
                         >
                             <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shadow-inner", action.bg, action.color)}>
@@ -273,23 +271,18 @@ export default function DashboardPage() {
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
-                        { label: "Digitação", count: pipeline?.digitacao || 0, icon: ClipboardCheck, color: "text-sidebar", bg: "bg-sidebar/10" },
-                        { label: "Em Análise", count: pipeline?.analise || 0, icon: Search, color: "text-amber-600", bg: "bg-amber-50" },
-                        { label: "Averbação", count: pipeline?.averbacao || 0, icon: Clock, color: "text-slate-600", bg: "bg-slate-100" },
-                        { label: "Contratos Pagos", count: pipeline?.pagos || 0, icon: CheckCircle2, color: "text-emerald-700", bg: "bg-emerald-50" }
+                        { label: "Digitação", count: pipeline?.digitacao || 0, icon: ClipboardCheck, tone: "neutral" as const },
+                        { label: "Em Análise", count: pipeline?.analise || 0, icon: Search, tone: "amber" as const },
+                        { label: "Averbação", count: pipeline?.averbacao || 0, icon: Clock, tone: "neutral" as const },
+                        { label: "Contratos Pagos", count: pipeline?.pagos || 0, icon: CheckCircle2, tone: "emerald" as const }
                     ].map((step) => (
-                        <Card key={step.label} className="border-none shadow-xl hover:shadow-2xl transition-all group rounded-3xl p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className={cn("h-10 w-10 flex items-center justify-center rounded-2xl", step.bg, step.color)}>
-                                    <step.icon className="h-5 w-5" />
-                                </div>
-                                <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-                            <div>
-                                <h3 className="text-3xl font-black text-foreground mb-1">{step.count}</h3>
-                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{step.label}</p>
-                            </div>
-                        </Card>
+                        <KpiCard
+                            key={step.label}
+                            title={step.label}
+                            value={step.count}
+                            icon={step.icon}
+                            tone={step.tone}
+                        />
                     ))}
                 </div>
             </div>
@@ -336,28 +329,20 @@ export default function DashboardPage() {
 
                     {/* Quick Stats Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <Card className="border-none shadow-xl rounded-3xl bg-primary/5 p-6 border-l-4 border-primary">
-                            <div className="flex items-center gap-4">
-                                <div className="h-12 w-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg">
-                                    <DollarSign className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Volume em Análise</p>
-                                    <h4 className="text-xl font-black text-foreground">{formatCurrency(pipeline?.volumePendente || 0)}</h4>
-                                </div>
-                            </div>
-                        </Card>
-                        <Card className="border-none shadow-xl rounded-3xl bg-primary/5 p-6 border-l-4 border-primary">
-                            <div className="flex items-center gap-4">
-                                <div className="h-12 w-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg">
-                                    <Users className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Hoje</p>
-                                    <h4 className="text-xl font-black text-foreground">{metrics?.customers.today} novos cadastros</h4>
-                                </div>
-                            </div>
-                        </Card>
+                        <KpiCard
+                            title="Volume em Análise"
+                            value={formatCurrency(pipeline?.volumePendente || 0)}
+                            icon={DollarSign}
+                            tone="primary"
+                            subtitle="Contratos aguardando liberação"
+                        />
+                        <KpiCard
+                            title="Novos Cadastros"
+                            value={`${metrics?.customers.today || 0}`}
+                            icon={Users}
+                            tone="neutral"
+                            subtitle="Entradas registradas hoje"
+                        />
                     </div>
                 </div>
 
