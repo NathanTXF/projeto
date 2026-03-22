@@ -11,6 +11,24 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  pgadmin:
+    image: dpage/pgadmin4:8
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@dinheirofacil.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_WTF_CSRF_ENABLED=False
+      - PGADMIN_CONFIG_PROXY_X_FOR_COUNT=1
+      - PGADMIN_CONFIG_PROXY_X_PROTO_COUNT=1
+      - PGADMIN_CONFIG_PROXY_X_HOST_COUNT=1
+      - PGADMIN_CONFIG_PROXY_X_PORT_COUNT=1
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      - db
+
   app:
     build:
       context: .
@@ -18,14 +36,26 @@ services:
       args:
         JWT_SECRET: "dev_jwt_secret_change_me"
     restart: always
-    ports:
-      - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://admin:admin@db:5432/dinheiro_facil?schema=public
       - NEXTAUTH_SECRET=fallback_secret_change_me_in_production
-      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_URL=https://localhost
     depends_on:
       - db
 
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "5443:5443"
+    depends_on:
+      - app
+      - pgadmin
+
 volumes:
   postgres_data:
+  pgadmin_data:
