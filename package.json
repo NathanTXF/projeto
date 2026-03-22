@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "work:start": "bash scripts/start-work.sh start",
+    "work:rebuild": "bash scripts/start-work.sh rebuild",
+    "work:stop": "bash scripts/start-work.sh stop",
+    "work:down": "bash scripts/start-work.sh down"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
