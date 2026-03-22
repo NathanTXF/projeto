@@ -2,6 +2,8 @@
 FROM node:20-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+ARG JWT_SECRET
+ENV JWT_SECRET=${JWT_SECRET}
 RUN corepack enable && apt-get update -y && apt-get install -y openssl
 
 # Dependencies
@@ -16,6 +18,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # Skip linting during build if needed
+ARG JWT_SECRET
+ENV JWT_SECRET=${JWT_SECRET}
 RUN npx prisma generate
 RUN npm run build
 

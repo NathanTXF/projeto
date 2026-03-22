@@ -1,7 +1,4 @@
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-// Importação correta pro TypeScript (as any) para evitar erro de modulo caso a tipagem não bata perfeitamente
-import autoTable from 'jspdf-autotable';
+"use client";
 
 export interface ExportColumn<T> {
     header: string;
@@ -43,6 +40,14 @@ export function exportToCsv<T>(filename: string, columns: ExportColumn<T>[], dat
 
 export async function exportToPdf<T>(title: string, filename: string, columns: ExportColumn<T>[], data: T[]) {
     if (!data || data.length === 0) return;
+    if (typeof window === "undefined") return; // Guard against server-side execution
+
+    // @ts-expect-error jspdf ESM build ships without type declarations
+    const jsPdfModule = await import('jspdf/dist/jspdf.es.min.js');
+    const autoTableModule = await import('jspdf-autotable');
+
+    const jsPDF = (jsPdfModule as any).jsPDF || (jsPdfModule as any).default;
+    const autoTable = (autoTableModule as any).default || autoTableModule;
 
     const doc = new jsPDF() as any;
     let startY = 22;
