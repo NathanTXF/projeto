@@ -23,7 +23,6 @@ import {
     TableRow
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/Badge";
-import { Input } from "@/components/ui/input";
 import {
     Select,
     SelectContent,
@@ -216,39 +215,31 @@ export default function AuditPage() {
 
             {/* Smart Filters Area */}
             <Card className="border border-border/70 shadow-sm overflow-hidden rounded-xl bg-card">
-                <CardHeader className="bg-muted/30 border-b border-border/70 p-4 md:p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-end">
-                        <div className="md:col-span-12 grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
-                            <div className="md:col-span-6 space-y-2">
-                                <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Competência Rápida</label>
-                                <MonthYearNavigator
-                                    selectedMonth={selectedMonth}
-                                    selectedYear={selectedYear}
-                                    yearOptions={yearOptions}
-                                    onMonthChange={onMonthChange}
-                                    onYearChange={onYearChange}
-                                    period={{
-                                        value: `${selectedMonth.padStart(2, "0")}/${selectedYear}`,
-                                        onValueChange: onPeriodChange,
-                                        options: periodOptions,
-                                        triggerClassName: "h-11 font-semibold ui-focus-ring w-[260px]",
-                                        contentClassName: "rounded-lg",
-                                    }}
-                                    monthTriggerClassName="h-11 font-semibold ui-focus-ring"
-                                    monthContentClassName="rounded-lg"
-                                    yearNavigatorClassName="gap-2"
-                                    yearSelectTriggerClassName="h-11 font-semibold ui-focus-ring"
-                                    yearSelectContentClassName="rounded-lg"
-                                />
-                            </div>
+                <CardHeader className="bg-muted/30 border-b border-border/70 p-4 md:p-5">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-end">
+                        <div className="md:col-span-3 space-y-2">
+                            <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Período</label>
+                            <Select
+                                value={`${selectedMonth.padStart(2, "0")}/${selectedYear}`}
+                                onValueChange={onPeriodChange}
+                            >
+                                <SelectTrigger className="h-10 ui-focus-ring">
+                                    <SelectValue placeholder="Todos os períodos" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-lg">
+                                    {periodOptions.map((option) => (
+                                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="md:col-span-3 space-y-2">
-                            <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                            <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-2">
                                 <Filter className="w-3 h-3 text-primary" />
                                 Filtrar Módulo
                             </label>
                             <Select value={filters.modulo || "all"} onValueChange={(val) => setFilters(f => ({ ...f, modulo: val }))}>
-                                <SelectTrigger className="h-11 font-semibold ui-focus-ring">
+                                <SelectTrigger className="h-10 ui-focus-ring">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-lg">
@@ -261,33 +252,13 @@ export default function AuditPage() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="md:col-span-4 grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Início</label>
-                                <Input
-                                    type="date"
-                                    className="h-11 font-semibold ui-focus-ring"
-                                    value={filters.startDate}
-                                    onChange={(e) => setFilters(f => ({ ...f, startDate: e.target.value }))}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Fim</label>
-                                <Input
-                                    type="date"
-                                    className="h-11 font-semibold ui-focus-ring"
-                                    value={filters.endDate}
-                                    onChange={(e) => setFilters(f => ({ ...f, endDate: e.target.value }))}
-                                />
-                            </div>
-                        </div>
                         <div className="md:col-span-3 space-y-2">
-                            <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest font-mono">Buscar por Operador</label>
+                            <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Buscar por Operador</label>
                             <Select
                                 value={filters.usuarioId || "all"}
                                 onValueChange={(val) => setFilters(f => ({ ...f, usuarioId: val === "all" ? "" : val }))}
                             >
-                                <SelectTrigger className="h-11 font-semibold ui-focus-ring">
+                                <SelectTrigger className="h-10 ui-focus-ring">
                                     <SelectValue placeholder="Selecionar Operador" />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-lg">
@@ -298,13 +269,34 @@ export default function AuditPage() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="md:col-span-2">
+                        <div className="md:col-span-3">
                             <Button
                                 onClick={fetchData}
-                                className="ui-lift ui-focus-ring ui-press w-full rounded-lg bg-foreground hover:bg-foreground/90 text-background font-medium uppercase text-xs tracking-widest h-11 shadow-sm"
+                                className="ui-lift ui-focus-ring ui-press w-full rounded-lg bg-foreground hover:bg-foreground/90 text-background font-medium uppercase text-xs tracking-widest h-10 shadow-sm"
                             >
                                 Filtrar logs
                             </Button>
+                        </div>
+                        <div className="md:col-span-12 space-y-2">
+                            <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Navegação Rápida</label>
+                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                                <MonthYearNavigator
+                                    selectedMonth={selectedMonth}
+                                    selectedYear={selectedYear}
+                                    yearOptions={yearOptions}
+                                    onMonthChange={onMonthChange}
+                                    onYearChange={onYearChange}
+                                    className="w-full"
+                                    monthTriggerClassName="h-10 w-full sm:w-[170px] ui-focus-ring"
+                                    monthContentClassName="rounded-lg"
+                                    yearNavigatorClassName="w-full sm:w-auto gap-2"
+                                    yearSelectTriggerClassName="h-10 w-[112px] ui-focus-ring"
+                                    yearSelectContentClassName="rounded-lg"
+                                />
+                                <div className="h-10 px-3 bg-muted/40 border border-border/70 rounded-lg flex items-center text-sm text-muted-foreground font-medium">
+                                    {logs.length} registros filtrados
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </CardHeader>
