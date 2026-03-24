@@ -68,11 +68,9 @@ export default function AuditPage() {
     const {
         selectedMonth,
         selectedYear,
-        periodOptions,
         yearOptions,
         onMonthChange,
         onYearChange,
-        onPeriodChange,
     } = useDateRangeCompetencia({
         startDate: filters.startDate,
         onRangeChange: (range) => {
@@ -217,22 +215,6 @@ export default function AuditPage() {
             <Card className="border border-border/70 shadow-sm overflow-hidden rounded-xl bg-card">
                 <CardHeader className="bg-muted/30 border-b border-border/70 p-4 md:p-5">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-end">
-                        <div className="md:col-span-3 space-y-2">
-                            <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Período</label>
-                            <Select
-                                value={`${selectedMonth.padStart(2, "0")}/${selectedYear}`}
-                                onValueChange={onPeriodChange}
-                            >
-                                <SelectTrigger className="h-10 ui-focus-ring">
-                                    <SelectValue placeholder="Todos os períodos" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-lg">
-                                    {periodOptions.map((option) => (
-                                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
                         <div className="md:col-span-3 space-y-2">
                             <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-2">
                                 <Filter className="w-3 h-3 text-primary" />
