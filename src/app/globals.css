@@ -341,6 +341,31 @@
   }
 }
 
+/* Global Scrollbar Styles */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 10%, transparent) transparent;
+}
+
+/* Webkit browser adjustment for better control */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, currentColor 20%, transparent);
+}
+
 /* Sidebar Specific Scrollbar */
 .stylized-scrollbar::-webkit-scrollbar {
   width: 5px;
