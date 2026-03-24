@@ -273,26 +273,26 @@ export default function FinancialPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-xl bg-[#00355E] p-8 shadow-sm">
-                <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+            <div className="relative overflow-hidden rounded-xl bg-[#00355E] p-4 sm:p-6 md:p-8 shadow-sm">
+                <div className="relative flex flex-col gap-4 sm:gap-6 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
+                        <div className="hidden sm:flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 shadow-inner shrink-0">
                             <DollarSign className="h-8 w-8 text-primary-foreground" />
                         </div>
-                        <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Financeiro</h1>
-                            <p className="mt-1 text-primary-foreground/80 font-medium text-sm">Controle de liquidação de comissões e fluxo de caixa.</p>
+                        <div className="min-w-0">
+                            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Financeiro</h1>
+                            <p className="mt-1 text-primary-foreground/80 font-medium text-xs sm:text-sm">Controle de liquidação de comissões e fluxo de caixa.</p>
                             <TemporalContextChip
                                 key={selectedPeriodLabel}
                                 label="Competência ativa"
                                 value={selectedPeriodLabel}
                                 icon={CalendarIcon}
                                 tone="competencia"
-                                className="mt-2"
+                                className="mt-2 w-full sm:w-fit"
                             />
                         </div>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                         <ExportButton
                             onExportCsv={() => exportToCsv("financeiro", exportColumns, filteredTransactions)}
                             onExportPdf={() => exportToPdf("Relatório Financeiro", "financeiro", exportColumns, filteredTransactions)}
@@ -300,7 +300,7 @@ export default function FinancialPage() {
                         <Button
                             variant="outline"
                             onClick={() => setPeriod("all")}
-                            className="gap-2 rounded-lg bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground transition-all font-semibold px-6 py-3 h-auto"
+                            className="gap-2 rounded-lg bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground transition-all font-semibold px-4 sm:px-6 py-3 h-auto w-full sm:w-auto"
                         >
                             <Filter className="h-5 w-5" />
                             Limpar Período
@@ -357,15 +357,16 @@ export default function FinancialPage() {
 
             <Card className="border border-slate-100 shadow-sm overflow-hidden rounded-xl bg-white">
                 <CardHeader className="bg-white border-b border-slate-100 pb-5">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
                         <div>
-                            <CardTitle className="text-xl font-semibold text-slate-800">Pagamentos de Comissão</CardTitle>
+                            <CardTitle className="text-lg sm:text-xl font-semibold text-slate-800 leading-tight">Pagamentos de Comissão</CardTitle>
                             <CardDescription className="text-slate-500 font-medium mt-1">Lista de comissões aprovadas aguardando pagamento.</CardDescription>
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                    <Table>
+                    <div className="w-full overflow-x-auto">
+                    <Table className="min-w-[760px]">
                         <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-semibold">
                             <TableRow className="hover:bg-transparent border-slate-100">
                                 <TableHead className="font-semibold text-sidebar-foreground h-12">Vendedor</TableHead>
@@ -395,14 +396,14 @@ export default function FinancialPage() {
                                 filteredTransactions.map((t) => (
                                     <TableRow key={t.id} className="hover:bg-slate-50/50 transition-colors border-slate-100">
                                         <TableCell className="font-medium text-slate-700">
-                                            <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-3 min-w-0">
                                                 <Avatar className="h-9 w-9 border-2 border-white shadow-sm">
                                                     <AvatarImage src={t.vendedorFoto || undefined} alt={t.vendedorNome} />
                                                     <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                                                         {t.vendedorNome?.charAt(0).toUpperCase()}
                                                     </AvatarFallback>
                                                 </Avatar>
-                                                <span className="font-semibold text-slate-800">{t.vendedorNome}</span>
+                                                <span className="font-semibold text-slate-800 truncate">{t.vendedorNome}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell>
@@ -479,6 +480,7 @@ export default function FinancialPage() {
                             )}
                         </TableBody>
                     </Table>
+                    </div>
                 </CardContent>
             </Card>
 

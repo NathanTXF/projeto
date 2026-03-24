@@ -25,18 +25,18 @@ interface KpiCardProps {
 export const KpiCard = ({ title, value, icon: Icon, tone = "neutral", subtitle, href }: KpiCardProps) => {
   const toneClass = toneStyles[tone]
   const content = (
-    <div className="h-full rounded-2xl border border-border/60 bg-card shadow-sm hover:shadow-lg transition-shadow p-5 flex flex-col gap-3">
+    <div className="h-full min-w-0 rounded-2xl border border-border/60 bg-card shadow-sm hover:shadow-lg transition-shadow p-4 sm:p-5 flex flex-col gap-2.5 sm:gap-3">
       <div className="flex items-center justify-between">
-        <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center", toneClass.icon)}>
-          <Icon className="h-5 w-5" />
+        <div className={cn("h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shrink-0", toneClass.icon)}>
+          <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
-        <span className={cn("text-[10px] font-medium uppercase tracking-[0.2em] px-2 py-1 rounded-full", toneClass.pill)}>
+        <span className={cn("max-w-[70%] truncate text-[9px] sm:text-[10px] font-medium uppercase tracking-[0.18em] px-2 py-1 rounded-full", toneClass.pill)}>
           {title}
         </span>
       </div>
-      <div>
-        <p className={cn("text-2xl font-semibold leading-tight", toneClass.value)}>{value}</p>
-        {subtitle && <p className="mt-1 text-[11px] text-muted-foreground font-medium leading-relaxed">{subtitle}</p>}
+      <div className="min-w-0">
+        <p className={cn("text-xl sm:text-2xl font-semibold leading-tight break-words", toneClass.value)}>{value}</p>
+        {subtitle && <p className="mt-1 text-[10px] sm:text-[11px] text-muted-foreground font-medium leading-relaxed">{subtitle}</p>}
       </div>
     </div>
   )

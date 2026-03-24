@@ -9,7 +9,9 @@ import {
     RefreshCcw,
     Users,
     LayoutGrid,
-    TrendingUp
+    TrendingUp,
+    Printer,
+    Download
 } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -168,6 +170,162 @@ export default function AuditPage() {
         }
     };
 
+    const escapeHtml = (value: string) => value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+    const handleExportPrint = () => {
+        if (logs.length === 0) {
+            toast.error("Não há logs filtrados para exportar.");
+            return;
+        }
+
+        const selectedUser = availableUsers.find((u) => u.id === filters.usuarioId);
+        const moduleLabel = filters.modulo === "all" ? "Todos os Módulos" : translateModule(filters.modulo);
+        const userLabel = filters.usuarioId ? (selectedUser?.nome || "Operador selecionado") : "Todos os Operadores";
+        const periodLabel = `${new Date(filters.startDate).toLocaleDateString("pt-BR")} até ${new Date(filters.endDate).toLocaleDateString("pt-BR")}`;
+        const generatedAt = new Date().toLocaleString("pt-BR");
+
+        const rows = logs
+            .map((log) => {
+                const timestamp = new Intl.DateTimeFormat("pt-BR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit"
+                }).format(new Date(log.timestamp));
+
+                return `
+                    <tr>
+                        <td>${escapeHtml(timestamp)}</td>
+                        <td>${escapeHtml(log.usuario?.nome || "Sistema")}</td>
+                        <td>${escapeHtml(translateModule(log.modulo))}</td>
+                        <td>${escapeHtml(translateAction(log.acao))}</td>
+                        <td>${escapeHtml(log.entidadeId || "N/A")}</td>
+                        <td>${escapeHtml(log.ip || "Local")}</td>
+                    </tr>
+                `;
+            })
+            .join("");
+
+        const printWindow = window.open("", "_blank", "noopener,noreferrer,width=1200,height=900");
+        if (!printWindow) {
+            toast.error("Não foi possível abrir a visualização de impressão.");
+            return;
+        }
+
+        printWindow.document.write(`
+            <!doctype html>
+            <html lang="pt-BR">
+                <head>
+                    <meta charset="utf-8" />
+                    <title>Exportação de Logs de Auditoria</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 24px; color: #0f172a; }
+                        h1 { margin: 0 0 6px; font-size: 24px; }
+                        .subtitle { margin: 0 0 16px; color: #334155; }
+                        .filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; margin-bottom: 16px; font-size: 13px; }
+                        .filters strong { color: #0f172a; }
+                        table { border-collapse: collapse; width: 100%; font-size: 12px; }
+                        th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; vertical-align: top; }
+                        th { background: #e2e8f0; font-weight: 700; }
+                        .summary { margin: 12px 0 16px; font-size: 13px; color: #334155; }
+                        @media print {
+                            body { margin: 12mm; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>Relatório de Auditoria</h1>
+                    <p class="subtitle">Tabela exportada com filtros aplicados.</p>
+
+                    <div class="filters">
+                        <div><strong>Módulo:</strong> ${escapeHtml(moduleLabel)}</div>
+                        <div><strong>Operador:</strong> ${escapeHtml(userLabel)}</div>
+                        <div><strong>Período:</strong> ${escapeHtml(periodLabel)}</div>
+                        <div><strong>Gerado em:</strong> ${escapeHtml(generatedAt)}</div>
+                    </div>
+
+                    <div class="summary"><strong>Registros exportados:</strong> ${logs.length}</div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Operador</th>
+                                <th>Módulo</th>
+                                <th>Ação Executada</th>
+                                <th>Referência</th>
+                                <th>Endereço IP</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+
+                    <script>
+                        window.onload = () => {
+                            window.print();
+                        };
+                    </script>
+                </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+    };
+
+    const toCsvField = (value: string) => `"${value.replace(/\"/g, '""')}"`;
+
+    const handleExportCsv = () => {
+        if (logs.length === 0) {
+            toast.error("Não há logs filtrados para exportar.");
+            return;
+        }
+
+        const headers = ["Timestamp", "Operador", "Módulo", "Ação Executada", "Referência", "Endereço IP"];
+
+        const rows = logs.map((log) => {
+            const timestamp = new Intl.DateTimeFormat("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            }).format(new Date(log.timestamp));
+
+            return [
+                timestamp,
+                log.usuario?.nome || "Sistema",
+                translateModule(log.modulo),
+                translateAction(log.acao),
+                log.entidadeId || "N/A",
+                log.ip || "Local"
+            ].map((field) => toCsvField(String(field))).join(",");
+        });
+
+        const selectedModule = filters.modulo === "all" ? "todos" : filters.modulo.toLowerCase();
+        const fileName = `audit-logs-${selectedModule}-${filters.startDate}-${filters.endDate}.csv`;
+        const csvContent = [headers.map(toCsvField).join(","), ...rows].join("\n");
+        const csvWithBom = `\uFEFF${csvContent}`;
+        const blob = new Blob([csvWithBom], { type: "text/csv;charset=utf-8;" });
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="space-y-7 animate-in fade-in duration-500 pb-12">
             {/* ── Senior Management Header ── */}
@@ -251,13 +409,23 @@ export default function AuditPage() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="md:col-span-3">
-                            <Button
-                                onClick={fetchData}
-                                className="ui-lift ui-focus-ring ui-press w-full rounded-lg bg-foreground hover:bg-foreground/90 text-background font-medium uppercase text-xs tracking-widest h-10 shadow-sm"
-                            >
-                                Filtrar logs
-                            </Button>
+                        <div className="md:col-span-6">
+                            <div className="flex flex-col sm:flex-row gap-2">
+                                <Button
+                                    onClick={handleExportCsv}
+                                    className="ui-lift ui-focus-ring ui-press w-full rounded-lg bg-foreground hover:bg-foreground/90 text-background font-medium uppercase text-xs tracking-widest h-10 shadow-sm"
+                                >
+                                    <Download className="h-4 w-4 mr-2" />
+                                    Exportar CSV
+                                </Button>
+                                <Button
+                                    onClick={handleExportPrint}
+                                    className="ui-lift ui-focus-ring ui-press w-full rounded-lg bg-foreground hover:bg-foreground/90 text-background font-medium uppercase text-xs tracking-widest h-10 shadow-sm"
+                                >
+                                    <Printer className="h-4 w-4 mr-2" />
+                                    Exportar impressão
+                                </Button>
+                            </div>
                         </div>
                         <div className="md:col-span-12 space-y-2">
                             <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Navegação Rápida</label>

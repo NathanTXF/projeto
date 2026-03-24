@@ -213,20 +213,21 @@ export default function OverviewPage() {
     return (
         <div className="space-y-7 animate-in fade-in duration-700 pb-12">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-xl md:rounded-2xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-6 md:p-10 shadow-[0_22px_60px_rgba(5,50,94,0.28)] border border-white/10">
+            <div className="relative overflow-hidden rounded-xl md:rounded-2xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-4 sm:p-6 md:p-10 shadow-[0_22px_60px_rgba(5,50,94,0.28)] border border-white/10">
                 <div className="absolute top-0 right-0 -mt-20 -mr-20 h-80 w-80 rounded-full bg-primary/15 blur-[90px]" />
                 <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="flex items-center gap-6">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md shadow-inner border border-white/20">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 min-w-0">
+                        <div className="hidden sm:flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md shadow-inner border border-white/20 shrink-0">
                             <LayoutDashboard className="h-8 w-8 text-white" />
                         </div>
-                        <div>
-                            <h1 className="text-3xl font-semibold tracking-tighter text-white mb-1">Painel Estratégico</h1>
-                            <div className="flex flex-wrap items-center gap-2 text-white/70 font-medium">
+                        <div className="min-w-0 w-full">
+                            <h1 className="text-xl max-[360px]:text-lg sm:text-3xl font-semibold tracking-tighter text-white mb-1 leading-tight">Painel Estratégico</h1>
+                            <div className="flex flex-wrap items-center gap-2 max-[360px]:gap-1.5 text-white/70 font-medium text-xs sm:text-sm">
                                 <CalendarIcon className="h-4 w-4" />
-                                <span>Performance de</span>
+                                <span className="max-[360px]:hidden">Performance de</span>
+                                <span className="hidden max-[360px]:inline">Período</span>
                                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                                    <SelectTrigger className="field-hero w-[130px] h-7 text-xs px-2">
+                                    <SelectTrigger className="field-hero w-[108px] max-[360px]:w-[94px] sm:w-[130px] h-7 text-xs px-2">
                                         <SelectValue placeholder="Mês" />
                                     </SelectTrigger>
                                     <SelectContent className="rounded-lg border-active">
@@ -237,7 +238,7 @@ export default function OverviewPage() {
                                 </Select>
                                 <span>de</span>
                                 <Select value={selectedYear} onValueChange={setSelectedYear}>
-                                    <SelectTrigger className="field-hero w-[90px] h-7 text-xs px-2">
+                                    <SelectTrigger className="field-hero w-[78px] max-[360px]:w-[70px] sm:w-[90px] h-7 text-xs px-2">
                                         <SelectValue placeholder="Ano" />
                                     </SelectTrigger>
                                     <SelectContent className="rounded-lg border-active">
@@ -255,23 +256,23 @@ export default function OverviewPage() {
                                 value={activeCompetenciaLabel}
                                 icon={CalendarIcon}
                                 tone="competencia"
-                                className="mt-2"
+                                className="mt-2 w-full sm:w-fit"
                             />
                         </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="bg-white/8 backdrop-blur-md border border-white/15 rounded-xl p-3 px-6 min-w-[140px] shadow-md">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full lg:w-auto">
+                        <div className="bg-white/8 backdrop-blur-md border border-white/15 rounded-xl p-3 px-4 sm:px-6 min-w-0 shadow-md">
                             <p className="text-[9px] font-medium text-white/40 uppercase tracking-widest mb-1">Contratos Ativos</p>
                             <p className="text-2xl font-semibold text-white">{stats?.activeLoans ?? 0}</p>
                         </div>
-                        <div className="bg-white/8 backdrop-blur-md border border-white/15 rounded-xl p-3 px-6 min-w-[220px] shadow-md">
+                        <div className="bg-white/8 backdrop-blur-md border border-white/15 rounded-xl p-3 px-4 sm:px-6 min-w-0 shadow-md">
                             <div className="flex items-center justify-between mb-2">
                                 <p className="text-[9px] font-medium text-white/40 uppercase tracking-widest">Meta Global</p>
                                 <span className="text-[10px] font-medium text-amber-400">{Math.round(((stats?.totalSalesMonth || 0) / (stats?.metaVendasGlobal || 1)) * 100)}%</span>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <p className="text-xl font-semibold text-white">{stats?.totalSalesMonth ?? 0}<span className="text-xs text-white/30 ml-1 font-medium">/ {stats?.metaVendasGlobal ?? 0}</span></p>
-                                <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                            <div className="flex items-center gap-3 max-[360px]:flex-col max-[360px]:items-start">
+                                <p className="text-base sm:text-xl font-semibold text-white whitespace-nowrap">{stats?.totalSalesMonth ?? 0}<span className="text-[10px] sm:text-xs text-white/30 ml-1 font-medium">/ {stats?.metaVendasGlobal ?? 0}</span></p>
+                                <div className="flex-1 w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
                                     <div
                                         className="h-full bg-amber-400 transition-all duration-1000 shadow-[0_0_8px_rgba(251,191,36,0.5)]"
                                         style={{ width: `${Math.min(100, ((stats?.totalSalesMonth || 0) / (stats?.metaVendasGlobal || 1)) * 100)}%` }}
@@ -284,7 +285,7 @@ export default function OverviewPage() {
             </div>
 
             {/* ── Metric Cards ── */}
-            <div key={`${selectedMonth}-${selectedYear}`} className="period-transition-enter grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div key={`${selectedMonth}-${selectedYear}`} className="period-transition-enter grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {dashboardCards.map((stat) => (
                     <KpiCard
                         key={stat.label}
@@ -299,15 +300,15 @@ export default function OverviewPage() {
 
             {/* ── Performance por Consultor (Senior Update) ── */}
             {stats?.sellersProgress && (
-                <Card className="rounded-xl border border-border/70 shadow-md bg-card p-5 md:p-7 overflow-hidden relative">
+                <Card className="rounded-xl border border-border/70 shadow-md bg-card p-4 sm:p-5 md:p-7 overflow-hidden relative">
                     <CardHeader className="px-0 pt-0 pb-5 md:pb-6">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
                                 <div className="h-11 w-11 rounded-lg bg-primary/10 flex items-center justify-center">
                                     <Users className="h-5 w-5 text-primary" />
                                 </div>
-                                <div className="space-y-1">
-                                    <CardTitle className="text-[1.95rem] md:text-[2.15rem] font-semibold tracking-tighter">Performance por Consultor</CardTitle>
+                                <div className="space-y-1 min-w-0">
+                                    <CardTitle className="text-2xl sm:text-[1.95rem] md:text-[2.15rem] font-semibold tracking-tighter leading-tight">Performance por Consultor</CardTitle>
                                     <CardDescription className="text-muted-foreground font-medium text-sm md:text-[0.95rem]">Acompanhamento em tempo real do atingimento de metas individuais.</CardDescription>
                                 </div>
                             </div>
@@ -324,13 +325,13 @@ export default function OverviewPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                         {stats.sellersProgress.map((seller) => (
                             <div key={seller.id} className="group p-4 rounded-xl bg-background border border-border/70 shadow-sm hover:border-primary/20 hover:shadow-md transition-all duration-300">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-4">
+                                <div className="flex items-start sm:items-center justify-between mb-4 gap-3">
+                                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                                         <div className="h-12 w-12 rounded-lg bg-muted/40 border border-border/60 flex items-center justify-center font-semibold text-lg text-primary group-hover:bg-primary/10 transition-all duration-300">
                                             {seller.name.charAt(0)}
                                         </div>
-                                        <div>
-                                            <p className="font-semibold text-xl text-foreground tracking-tight leading-tight">{seller.name}</p>
+                                        <div className="min-w-0">
+                                            <p className="font-semibold text-lg sm:text-xl text-foreground tracking-tight leading-tight truncate">{seller.name}</p>
                                             <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.14em] mt-1">
                                                 {seller.sales} <span className="text-[10px] opacity-70">/ {seller.goal} contratos</span>
                                             </p>
@@ -375,9 +376,9 @@ export default function OverviewPage() {
                 {/* Performance por Banco (Senior) */}
                 <Card className="lg:col-span-2 rounded-xl border border-border/70 shadow-md bg-card p-5 md:p-6">
                     <CardHeader className="px-0 pt-0 pb-5 md:pb-6">
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                             <div>
-                                <CardTitle className="text-[1.8rem] font-semibold tracking-tight text-foreground">Performance por Banco</CardTitle>
+                                <CardTitle className="text-2xl sm:text-[1.8rem] font-semibold tracking-tight text-foreground leading-tight">Performance por Banco</CardTitle>
                                 <CardDescription>Ranking de volume de crédito bruto liquidado.</CardDescription>
                             </div>
                             <Badge variant="outline" className="rounded-md px-3 border-primary/20 text-primary font-medium text-[11px]">Mês Atual</Badge>
@@ -421,7 +422,7 @@ export default function OverviewPage() {
                 </Card>
 
                 {/* Perfil de Clientes (Sexo) - MVP Requirement */}
-                <Card className="rounded-xl border border-border/70 shadow-lg bg-card p-6 md:p-7 group">
+                <Card className="rounded-xl border border-border/70 shadow-lg bg-card p-4 sm:p-6 md:p-7 group">
                     <CardHeader className="px-0 pt-0 pb-4 text-center">
                         <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 mb-2">
                             <PieChartIcon className="h-6 w-6" />
@@ -471,8 +472,8 @@ export default function OverviewPage() {
                                 <div className="p-12 text-center text-muted-foreground">Carregando ranking...</div>
                             ) : topSellers.map((seller, index) => (
                                 <Link key={seller.id} href={`/dashboard/clients?vendedorId=${seller.id}`}>
-                                    <div className="px-4 py-3.5 flex items-center justify-between hover:bg-muted/30 transition-all group cursor-pointer">
-                                        <div className="flex items-center gap-4">
+                                    <div className="px-4 py-3.5 flex items-center justify-between gap-3 hover:bg-muted/30 transition-all group cursor-pointer">
+                                        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                                             <div className="relative">
                                                 <div className="h-11 w-11 rounded-full border border-border/60 shadow-sm overflow-hidden bg-primary/10">
                                                     {seller.fotoUrl ? (
@@ -496,8 +497,8 @@ export default function OverviewPage() {
                                                     </div>
                                                 )}
                                             </div>
-                                            <div>
-                                                <h4 className="font-medium text-foreground text-[15px] tracking-tight group-hover:text-primary transition-colors">{seller.nome}</h4>
+                                            <div className="min-w-0">
+                                                <h4 className="font-medium text-foreground text-[15px] tracking-tight group-hover:text-primary transition-colors truncate">{seller.nome}</h4>
                                                 <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-[0.12em]">{seller.vendas} contratos fechados</p>
                                             </div>
                                         </div>
@@ -555,7 +556,7 @@ export default function OverviewPage() {
                 </Card>
 
                 {/* Atalhos Rápidos Corporativos */}
-                <Card className="lg:col-span-3 rounded-xl border border-primary/20 shadow-lg bg-primary text-primary-foreground p-6 md:p-8 relative overflow-hidden group">
+                <Card className="lg:col-span-3 rounded-xl border border-primary/20 shadow-lg bg-primary text-primary-foreground p-4 sm:p-6 md:p-8 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:scale-110 transition-transform duration-1000 rotate-12">
                         <TrendingUp className="h-64 w-64" />
                     </div>
@@ -565,14 +566,14 @@ export default function OverviewPage() {
                             <p className="text-primary-foreground/75 font-medium text-base md:text-lg">
                                 &quot;O sucesso é a soma de pequenos esforços repetidos dia após dia.&quot; - Transforme dados em decisões agora.
                             </p>
-                            <div className="flex gap-4 justify-center md:justify-start">
+                            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start">
                                 <Link href="/dashboard/admin/goals">
-                                    <Button className="bg-white text-primary hover:bg-white/90 font-semibold rounded-xl px-8 h-12 shadow-lg">Configurar Metas</Button>
+                                    <Button className="bg-white text-primary hover:bg-white/90 font-semibold rounded-xl px-6 sm:px-8 h-11 sm:h-12 shadow-lg w-full sm:w-auto">Configurar Metas</Button>
                                 </Link>
                                 <Badge className="bg-white/10 text-white border-white/20 px-4 py-2 text-sm justify-center rounded-lg">Alpha 1.2</Badge>
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
+                        <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full md:w-auto">
                             {[
                                 { icon: HandCoins, label: "Financeiro", href: "/dashboard/financial" },
                                 { icon: Users, label: "Clientes", href: "/dashboard/clients" },
@@ -580,9 +581,9 @@ export default function OverviewPage() {
                                 { icon: CalendarIcon, label: "Agenda", href: "/dashboard/agenda" }
                             ].map((action) => (
                                 <Link key={action.label} href={action.href}>
-                                    <div className="bg-[#00355E] hover:bg-[#00355E]/90 backdrop-blur-xl p-8 rounded-xl flex flex-col items-center gap-4 transition-all cursor-pointer active:scale-95 border border-white/10 shadow-lg min-w-[140px]">
-                                        <div className="bg-white/10 p-4 rounded-xl">
-                                            <action.icon className="h-8 w-8 text-white" />
+                                    <div className="bg-[#00355E] hover:bg-[#00355E]/90 backdrop-blur-xl p-4 sm:p-8 rounded-xl flex flex-col items-center gap-3 sm:gap-4 transition-all cursor-pointer active:scale-95 border border-white/10 shadow-lg min-w-0">
+                                        <div className="bg-white/10 p-3 sm:p-4 rounded-xl">
+                                            <action.icon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                                         </div>
                                         <span className="text-xs font-medium tracking-widest uppercase">{action.label}</span>
                                     </div>

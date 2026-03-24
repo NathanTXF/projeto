@@ -281,7 +281,7 @@ export default function ReportsPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-6 md:p-8 shadow-[0_24px_60px_rgba(5,50,94,0.28)] border border-white/10 print:hidden">
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-4 sm:p-6 md:p-8 shadow-[0_24px_60px_rgba(5,50,94,0.28)] border border-white/10 print:hidden">
                 <div className="absolute top-0 right-0 -mt-16 -mr-16 h-64 w-64 rounded-full bg-primary/15 blur-[90px]" />
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4 text-center sm:text-left justify-center sm:justify-start">
@@ -289,7 +289,7 @@ export default function ReportsPage() {
                             <PieChart className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">
+                            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">
                                 Inteligência & Relatórios
                             </h1>
                             <p className="mt-1 text-primary-foreground/80 font-medium text-xs md:text-sm">
@@ -301,14 +301,14 @@ export default function ReportsPage() {
                                 value={selectedCompetenciaLabel}
                                 icon={Calendar}
                                 tone="competencia"
-                                className="mt-2"
+                                className="mt-2 w-full sm:w-fit"
                             />
                         </div>
                     </div>
                 </div>
 
                 {/* Mini stats strip */}
-                <div key={selectedCompetenciaLabel} className="period-transition-enter relative mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div key={selectedCompetenciaLabel} className="period-transition-enter relative mt-6 sm:mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                     <KpiCard title="Registros" value={loading ? "..." : totalItems} icon={FileText} tone="primary" subtitle="Itens retornados" />
                     <KpiCard title="Total Bruto" value={loading ? "..." : totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })} icon={DollarSign} tone="emerald" subtitle="Valor acumulado" />
                     <KpiCard title="Total Líquido" value={loading ? "..." : totalLiquido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })} icon={CheckCircle} tone="neutral" subtitle="Após descontos" />
@@ -318,9 +318,9 @@ export default function ReportsPage() {
 
             {/* Filters Section */}
             <Card className="border-none shadow-xl shadow-slate-200/50 print:hidden overflow-hidden bg-white rounded-xl">
-                <CardContent className="p-5 md:p-6">
+                <CardContent className="p-4 sm:p-5 md:p-6">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-                        <div className="lg:col-span-4 rounded-xl border border-slate-100 bg-slate-50 p-5 space-y-4 h-fit">
+                        <div className="lg:col-span-4 rounded-xl border border-slate-100 bg-slate-50 p-4 sm:p-5 space-y-4 h-fit">
                             <div className="space-y-2">
                                 <Label className="text-[10px] font-medium text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                     <Filter className="w-3 h-3" />
@@ -349,7 +349,7 @@ export default function ReportsPage() {
                             </div>
                         </div>
 
-                        <div className="lg:col-span-8 rounded-xl border border-slate-100 bg-white p-5 md:p-6 h-fit">
+                        <div className="lg:col-span-8 rounded-xl border border-slate-100 bg-white p-4 sm:p-5 md:p-6 h-fit">
                             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Mês</Label>
@@ -393,7 +393,7 @@ export default function ReportsPage() {
                                 </div>
                                 <div className="space-y-2 lg:col-span-1 md:col-span-3">
                                     <Label className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Período Selecionado</Label>
-                                    <div className="h-10 px-3 bg-slate-50 rounded-md border border-slate-100 flex items-center text-xs font-semibold text-slate-500">
+                                    <div className="h-10 px-3 bg-slate-50 rounded-md border border-slate-100 flex items-center text-xs font-semibold text-slate-500 truncate">
                                         {formatSafeDate(startDate)} - {formatSafeDate(endDate)}
                                     </div>
                                 </div>
@@ -417,7 +417,7 @@ export default function ReportsPage() {
             {/* Print Section / Results */}
             {data ? (
                 <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">
-                    <div className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm print:p-0 print:border-none print:shadow-none min-h-[500px]">
+                    <div className="p-4 sm:p-6 md:p-8 bg-white border border-slate-100 rounded-2xl shadow-sm print:p-0 print:border-none print:shadow-none min-h-[500px]">
                         <ReportHeader
                             reportTitle={activeReport?.label || "Relatório"}
                             period={currentPeriod}
