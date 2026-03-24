@@ -4,12 +4,16 @@ import { jwtVerify } from 'jose';
 import { JWT_SECRET } from '@/core/auth/jwt';
 import { getErrorMessage } from '@/lib/error-utils';
 
+const PUBLIC_MEDIA_PREFIXES = ['/uploads', '/avatars', '/documents'];
+
 export async function middleware(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
     const { pathname } = request.nextUrl;
 
+    const isPublicMedia = PUBLIC_MEDIA_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+
     // Rotas públicas
-    if (pathname.startsWith('/login') || pathname.startsWith('/api/auth')) {
+    if (pathname.startsWith('/login') || pathname.startsWith('/api/auth') || isPublicMedia) {
         return NextResponse.next();
     }
 
@@ -80,5 +84,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+    matcher: ['/((?!_next/static|_next/image|favicon.ico|uploads|avatars|documents).*)'],
 };
