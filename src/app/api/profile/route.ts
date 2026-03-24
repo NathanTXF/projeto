@@ -3,6 +3,7 @@ import { PrismaUserRepository } from '@/modules/users/infrastructure/repositorie
 import { UserUseCases } from '@/modules/users/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 import { logAudit } from '@/core/audit/logger';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaUserRepository();
 const useCases = new UserUseCases(repository);
@@ -18,8 +19,8 @@ export async function GET() {
 
         // Retorna o perfil atualizado, incluindo as permissões obtidas pelo JWT (Middleware-safe)
         return NextResponse.json({ ...profile, permissions: authUser.permissions || [], roleName: authUser.role });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -46,9 +47,10 @@ export async function PATCH(request: Request) {
             entidadeId: authUser.id
         });
 
-        const { senha: _, ...userWithoutPassword } = updatedUser as any;
+        const userWithoutPassword = { ...updatedUser } as typeof updatedUser & { senha?: string };
+        delete userWithoutPassword.senha;
         return NextResponse.json(userWithoutPassword);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

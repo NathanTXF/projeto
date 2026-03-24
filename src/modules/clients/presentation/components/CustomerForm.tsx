@@ -106,8 +106,9 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                 router.push("/dashboard/clients");
                 router.refresh();
             }
-        } catch (error: any) {
-            toast.error(error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha inesperada";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -122,7 +123,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                             <UserCircle className="h-4 w-4 text-primary" />
                         </div>
-                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                        <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide">
                             Dados Pessoais
                         </h3>
                     </div>
@@ -133,7 +134,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             name="nome"
                             render={({ field }) => (
                                 <FormItem className="md:col-span-3">
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Nome Completo
                                     </FormLabel>
                                     <FormControl>
@@ -141,7 +142,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 placeholder="Ex: João da Silva"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10 rounded-lg border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                                 {...field}
                                             />
                                         </div>
@@ -156,7 +157,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             name="cpfCnpj"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         CPF / CNPJ
                                     </FormLabel>
                                     <FormControl>
@@ -164,7 +165,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 placeholder="000.000.000-00"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
+                                                className="pl-10 h-10 rounded-lg border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
                                                 {...field}
                                             />
                                         </div>
@@ -179,7 +180,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             name="matricula"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Matrícula
                                     </FormLabel>
                                     <FormControl>
@@ -187,7 +188,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 placeholder="123456"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
+                                                className="pl-10 h-10 rounded-lg border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
                                                 {...field}
                                             />
                                         </div>
@@ -202,7 +203,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             name="dataNascimento"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Data de Nascimento
                                     </FormLabel>
                                     <FormControl>
@@ -210,7 +211,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 type="date"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10 rounded-lg border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                                 {...field}
                                                 value={
                                                     field.value instanceof Date
@@ -237,12 +238,12 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             name="sexo"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Sexo
                                     </FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
-                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-primary focus:bg-white transition-colors">
+                                            <SelectTrigger className="h-10">
                                                 <SelectValue placeholder="Selecione" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -274,7 +275,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50">
                             <Phone className="h-4 w-4 text-emerald-600" />
                         </div>
-                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                        <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide">
                             Contato
                         </h3>
                     </div>
@@ -285,7 +286,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         E-mail
                                     </FormLabel>
                                     <FormControl>
@@ -294,7 +295,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <Input
                                                 placeholder="joao@exemplo.com"
                                                 type="email"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10"
                                                 {...field}
                                             />
                                         </div>
@@ -309,7 +310,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             name="celular"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Celular
                                     </FormLabel>
                                     <FormControl>
@@ -317,7 +318,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 placeholder="(00) 00000-0000"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10"
                                                 {...field}
                                             />
                                         </div>
@@ -335,7 +336,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50">
                             <MapPin className="h-4 w-4 text-amber-600" />
                         </div>
-                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                        <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide">
                             Endereço
                         </h3>
                     </div>
@@ -345,7 +346,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                         name="endereco"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                     Endereço Completo
                                 </FormLabel>
                                 <FormControl>
@@ -353,7 +354,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                         <Input
                                             placeholder="Rua Exemplo, 123"
-                                            className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
+                                            className="pl-10 h-10"
                                             {...field}
                                         />
                                     </div>
@@ -369,13 +370,13 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             name="cidade"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Cidade
                                     </FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="São Paulo"
-                                            className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
+                                            className="h-10"
                                             {...field}
                                         />
                                     </FormControl>
@@ -388,13 +389,13 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             name="bairro"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Bairro
                                     </FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="Centro"
-                                            className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
+                                            className="h-10"
                                             {...field}
                                         />
                                     </FormControl>
@@ -407,14 +408,14 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             name="estado"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         UF
                                     </FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="SP"
                                             maxLength={2}
-                                            className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors uppercase"
+                                            className="h-10 uppercase"
                                             {...field}
                                         />
                                     </FormControl>
@@ -432,7 +433,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-50">
                                 <KeyRound className="h-4 w-4 text-violet-600" />
                             </div>
-                            <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                            <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide">
                                 Informações Adicionais
                             </h3>
                         </div>
@@ -442,7 +443,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             name="senha"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Senha do Cliente
                                     </FormLabel>
                                     <FormControl>
@@ -450,7 +451,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 placeholder="Armazene a senha do cliente"
-                                                className="pl-10 pr-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
+                                                className="pl-10 pr-10 h-10"
                                                 type={showPassword ? "text" : "password"}
                                                 {...field}
                                             />
@@ -482,7 +483,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                             name="observacao"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Observações
                                     </FormLabel>
                                     <FormControl>
@@ -490,7 +491,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                                             <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                                             <Textarea
                                                 placeholder="Informações adicionais sobre o cliente..."
-                                                className="pl-10 min-h-[80px] resize-none rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
+                                                className="pl-10 min-h-[80px] resize-none"
                                                 {...field}
                                             />
                                         </div>
@@ -506,7 +507,7 @@ export function CustomerForm({ initialData, onSuccess }: CustomerFormProps) {
                 <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full h-11 rounded-xl bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground font-semibold shadow-lg shadow-sidebar/20 transition-all duration-200 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] gap-2"
+                    className="w-full h-11 rounded-lg bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground font-semibold shadow-lg shadow-sidebar/20 transition-all duration-200 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] gap-2"
                 >
                     {isSubmitting ? (
                         <>

@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { ShieldAlert, Search, Loader2, ShieldPlus } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/Badge";
 import { toast } from "sonner";
 import { KpiCard } from "@/components/layout/KpiCard";
+import { ManagementPageHeader } from "@/components/layout/ManagementPageHeader";
 import {
     Dialog,
     DialogContent,
@@ -18,6 +19,8 @@ import { RoleForm } from "@/app/dashboard/roles/components/RoleForm";
 import { Role } from "@/modules/roles/domain/entities";
 import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
 import { SystemIntegrityAlert } from "@/components/shared/SystemIntegrityAlert";
+
+type RoleUpsertPayload = Record<string, unknown>;
 
 export default function RolesPage() {
     const [roles, setRoles] = useState<Role[]>([]);
@@ -48,14 +51,15 @@ export default function RolesPage() {
             } else {
                 toast.error("Erro ao carregar perfis: " + data.error);
             }
-        } catch (error: any) {
-            toast.error("Erro na requisição: " + error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha inesperada";
+            toast.error("Erro na requisição: " + message);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleCreateOrUpdate = async (values: any) => {
+    const handleCreateOrUpdate = async (values: RoleUpsertPayload) => {
         try {
             setIsSubmitting(true);
             const url = selectedRole ? `/api/roles/${selectedRole.id}` : '/api/roles';
@@ -75,8 +79,9 @@ export default function RolesPage() {
                 const errorData = await response.json();
                 toast.error("Erro: " + errorData.error);
             }
-        } catch (error: any) {
-            toast.error("Erro na requisição: " + error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha inesperada";
+            toast.error("Erro na requisição: " + message);
         } finally {
             setIsSubmitting(false);
         }
@@ -103,7 +108,7 @@ export default function RolesPage() {
                 try {
                     const errorData = await response.json();
                     if (errorData.error) errorMessage = errorData.error;
-                } catch (e) { }
+                } catch { }
 
                 if (response.status === 400) {
                     setIntegrityErrorMessage(errorMessage);
@@ -113,8 +118,9 @@ export default function RolesPage() {
                     toast.error(errorMessage);
                 }
             }
-        } catch (error: any) {
-            toast.error("Erro ao excluir: " + error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha inesperada";
+            toast.error("Erro ao excluir: " + message);
         } finally {
             setIsDeleting(false);
         }
@@ -127,58 +133,50 @@ export default function RolesPage() {
     const visibleRoles = filteredRoles.length;
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-6 md:p-8 shadow-[0_24px_60px_rgba(5,50,94,0.28)] border border-white/10">
-                <div className="absolute top-0 right-0 -mt-16 -mr-16 h-64 w-64 rounded-full bg-primary/15 blur-[90px]" />
-                <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-4 text-center sm:text-left justify-center sm:justify-start">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
-                            <ShieldAlert className="h-8 w-8 text-primary-foreground" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Perfis e Permissões</h1>
-                            <p className="mt-1 text-primary-foreground/80 font-medium text-xs md:text-sm">Controle de acesso granular (RBAC) do sistema.</p>
-                        </div>
+        <div className="space-y-7 animate-in fade-in duration-500 pb-12">
+            <ManagementPageHeader
+                icon={ShieldAlert}
+                title="Perfis e Permissões"
+                description="Controle de acesso granular (RBAC) do sistema."
+                action={{
+                    label: "Novo Perfil",
+                    icon: ShieldPlus,
+                    onClick: () => {
+                        setSelectedRole(null);
+                        setIsDialogOpen(true);
+                    },
+                    variant: "secondary",
+                }}
+                stats={(
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <KpiCard title="Perfis" value={loading ? "..." : totalRoles} icon={ShieldAlert} tone="primary" subtitle="Cadastrados" />
+                        <KpiCard title="Visíveis" value={loading ? "..." : visibleRoles} icon={Search} tone="neutral" subtitle="Resultado do filtro" />
+                        <KpiCard title="Governança" value="100%" icon={ShieldPlus} tone="emerald" subtitle="RBAC ativo" />
                     </div>
-                    <Button
-                        onClick={() => {
-                            setSelectedRole(null);
-                            setIsDialogOpen(true);
-                        }}
-                        variant="secondary"
-                        className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all active:scale-95"
-                    >
-                        <ShieldPlus className="h-5 w-5" />
-                        Novo Perfil
-                    </Button>
-                </div>
-                {/* Mini stats */}
-                <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <KpiCard title="Perfis" value={loading ? "..." : totalRoles} icon={ShieldAlert} tone="primary" subtitle="Cadastrados" />
-                    <KpiCard title="Visíveis" value={loading ? "..." : visibleRoles} icon={Search} tone="neutral" subtitle="Resultado do filtro" />
-                    <KpiCard title="Governança" value="100%" icon={ShieldPlus} tone="emerald" subtitle="RBAC ativo" />
-                </div>
-            </div>
+                )}
+            />
 
-            <Card className="border border-slate-100 shadow-sm rounded-2xl bg-white overflow-hidden">
-                <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+            <Card className="border border-border/70 shadow-sm rounded-xl bg-card overflow-hidden">
+                <CardHeader className="bg-muted/30 border-b border-border/70 pb-4">
                     <div className="flex justify-between items-center gap-4">
                         <div className="relative flex-1 max-w-sm">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder="Buscar perfil..."
-                                className="pl-10 rounded-xl bg-white"
+                                className="pl-10 h-10 ui-focus-ring"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
+                        <Badge className="h-10 px-3 rounded-md bg-muted text-muted-foreground border border-border/70 text-[11px] font-medium whitespace-nowrap">
+                            {visibleRoles} de {totalRoles}
+                        </Badge>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
                     {loading ? (
-                        <div className="h-64 flex flex-col items-center justify-center gap-3 text-slate-400">
-                            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+                        <div className="h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
                             <span>Carregando perfis...</span>
                         </div>
                     ) : (
@@ -195,15 +193,15 @@ export default function RolesPage() {
             </Card>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-[95vw] sm:max-w-2xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-slate-50">
+                <DialogContent className="max-w-[95vw] sm:max-w-2xl p-0 overflow-hidden border-none shadow-2xl rounded-xl bg-card">
                     {/* Solid Sidebar Header */}
                     <div className="relative bg-sidebar px-6 py-5">
                         <div className="relative flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 shadow-inner">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 shadow-inner">
                                 <ShieldAlert className="h-5 w-5 text-white" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-sidebar-foreground leading-none">
+                                <DialogTitle className="text-lg font-semibold text-sidebar-foreground leading-none">
                                     {selectedRole ? "Editar Perfil" : "Novo Perfil"}
                                 </DialogTitle>
                                 <DialogDescription className="text-sidebar-foreground/80 text-sm mt-1">

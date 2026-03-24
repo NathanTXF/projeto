@@ -23,7 +23,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           fontSize: '14px',
           padding: '16px',
         },
-        className: 'shadow-xl rounded-xl border border-slate-100',
+        className: 'shadow-xl rounded-lg border border-slate-100',
       }}
       icons={{
         success: <CircleCheckIcon className="size-5 text-emerald-500" />,

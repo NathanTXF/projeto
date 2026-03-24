@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import {
     Lock,
     Clock,
@@ -40,6 +41,16 @@ interface UserProfile {
     roleName?: string; // New field from RBAC
 }
 
+interface ProfileUpdatePayload {
+    nome: string;
+    usuario: string;
+    contato?: string;
+    endereco?: string;
+    horarioInicio?: string;
+    horarioFim?: string;
+    senha?: string;
+}
+
 export default function ProfilePage() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
@@ -60,8 +71,9 @@ export default function ProfilePage() {
             const data = await response.json();
             if (data.error) throw new Error(data.error);
             setProfile(data);
-        } catch (error: any) {
-            toast.error("Erro ao carregar perfil: " + error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha inesperada";
+            toast.error("Erro ao carregar perfil: " + message);
         } finally {
             setLoading(false);
         }
@@ -73,7 +85,7 @@ export default function ProfilePage() {
 
         try {
             setSaving(true);
-            const updateData: any = {
+            const updateData: ProfileUpdatePayload = {
                 nome: profile.nome,
                 usuario: profile.usuario,
                 contato: profile.contato,
@@ -102,8 +114,9 @@ export default function ProfilePage() {
             setProfile(p => ({ ...p, ...data }));
             toast.success("Perfil atualizado com sucesso!");
             setNewPassword("");
-        } catch (error: any) {
-            toast.error("Erro ao atualizar perfil: " + error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha inesperada";
+            toast.error("Erro ao atualizar perfil: " + message);
         } finally {
             setSaving(false);
         }
@@ -158,8 +171,9 @@ export default function ProfilePage() {
             toast.success("Foto de perfil atualizada!");
             setIsPhotoDialogOpen(false);
             setSelectedFile(null);
-        } catch (error: any) {
-            toast.error("Erro ao atualizar foto: " + error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha inesperada";
+            toast.error("Erro ao atualizar foto: " + message);
         } finally {
             setUploading(false);
         }
@@ -170,9 +184,9 @@ export default function ProfilePage() {
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-6 md:p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-xl bg-[#00355E] p-6 md:p-8 shadow-sm">
                 <div className="relative flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 shadow-inner">
                         <UserCircle className="h-8 w-8 text-primary-foreground" />
                     </div>
                     <div>
@@ -183,12 +197,12 @@ export default function ProfilePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <Card className="md:col-span-1 border border-slate-100 shadow-sm overflow-hidden rounded-2xl bg-white">
+                <Card className="md:col-span-1 border border-slate-100 shadow-sm overflow-hidden rounded-xl bg-white">
                     <CardContent className="p-6 flex flex-col items-center text-center">
                         <div className="relative group">
                             <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-4 border-card shadow-sm overflow-hidden">
                                 {profile?.fotoUrl ? (
-                                    <img src={profile.fotoUrl} alt="Foto" className="w-full h-full object-cover" />
+                                    <Image src={profile.fotoUrl} alt="Foto" width={128} height={128} className="w-full h-full object-cover" />
                                 ) : (
                                     <UserCircle className="h-16 w-16 text-muted-foreground/30" />
                                 )}
@@ -203,17 +217,17 @@ export default function ProfilePage() {
                                 <Camera className="h-4 w-4" />
                             </button>
                         </div>
-                        <h2 className="mt-4 text-xl font-bold text-slate-800">{profile?.nome}</h2>
+                        <h2 className="mt-4 text-xl font-semibold text-slate-800">{profile?.nome}</h2>
                         <p className="text-sm text-slate-500 font-medium">@{profile?.usuario}</p>
 
                         <div className="mt-6 flex flex-wrap justify-center gap-2">
                             {profile?.roleName ? (
-                                <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold text-[10px] uppercase tracking-wider px-3">
+                                <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-medium text-[10px] uppercase tracking-wider px-3">
                                     <Shield className="h-3 w-3 mr-1" />
                                     {profile.roleName}
                                 </Badge>
                             ) : (
-                                <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold text-[10px] uppercase tracking-wider px-3">
+                                <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-medium text-[10px] uppercase tracking-wider px-3">
                                     {profile?.nivelAcesso === 1 ? 'ADMINISTRADOR' : profile?.nivelAcesso === 2 ? 'VENDEDOR+' : 'VENDEDOR (VISUALIZAÇÃO)'}
                                 </Badge>
                             )}
@@ -225,7 +239,7 @@ export default function ProfilePage() {
                                     <Clock className="h-4 w-4" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Expediente Atual</span>
+                                    <span className="text-[10px] text-muted-foreground uppercase font-medium tracking-tighter">Expediente Atual</span>
                                     <span className="text-foreground"><strong>{profile?.horarioInicio || '08:00'}</strong> às <strong>{profile?.horarioFim || '18:00'}</strong></span>
                                 </div>
                             </div>
@@ -235,7 +249,7 @@ export default function ProfilePage() {
                                     <Phone className="h-4 w-4" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Contato</span>
+                                    <span className="text-[10px] text-slate-400 uppercase font-medium tracking-tighter">Contato</span>
                                     <span className="text-slate-700">{profile?.contato || 'Não informado'}</span>
                                 </div>
                             </div>
@@ -245,7 +259,7 @@ export default function ProfilePage() {
                                     <MapPin className="h-4 w-4" />
                                 </div>
                                 <div className="flex flex-col flex-1 min-w-0">
-                                    <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Localização</span>
+                                    <span className="text-[10px] text-slate-400 uppercase font-medium tracking-tighter">Localização</span>
                                     <span className="text-slate-700 truncate">{profile?.endereco || 'Não informado'}</span>
                                 </div>
                             </div>
@@ -253,60 +267,60 @@ export default function ProfilePage() {
                     </CardContent>
                 </Card>
 
-                <Card className="md:col-span-2 border border-slate-100 shadow-sm rounded-2xl bg-white overflow-hidden">
+                <Card className="md:col-span-2 border border-slate-100 shadow-sm rounded-xl bg-white overflow-hidden">
                     <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
-                        <CardTitle className="text-lg font-bold">Informações da Conta</CardTitle>
+                        <CardTitle className="text-lg font-semibold">Informações da Conta</CardTitle>
                         <CardDescription>Mantenha seus dados sempre atualizados.</CardDescription>
                     </CardHeader>
                     <CardContent className="p-6">
                         <form onSubmit={handleSave} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="nome" className="text-xs font-bold text-slate-500 uppercase tracking-widest">Nome Completo</Label>
+                                    <Label htmlFor="nome" className="text-xs font-medium text-slate-500 uppercase tracking-widest">Nome Completo</Label>
                                     <Input
                                         id="nome"
                                         value={profile?.nome || ""}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, nome: e.target.value }) : null)}
-                                        className="rounded-xl border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
+                                        className="rounded-lg border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="usuario" className="text-xs font-bold text-slate-500 uppercase tracking-widest">Nome de Usuário</Label>
+                                    <Label htmlFor="usuario" className="text-xs font-medium text-slate-500 uppercase tracking-widest">Nome de Usuário</Label>
                                     <Input
                                         id="usuario"
                                         value={profile?.usuario || ""}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, usuario: e.target.value }) : null)}
-                                        className="rounded-xl border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
+                                        className="rounded-lg border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="contato" className="text-xs font-bold text-slate-500 uppercase tracking-widest">Contato / Telefone</Label>
+                                    <Label htmlFor="contato" className="text-xs font-medium text-slate-500 uppercase tracking-widest">Contato / Telefone</Label>
                                     <Input
                                         id="contato"
                                         placeholder="(00) 00000-0000"
                                         value={profile?.contato || ""}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, contato: e.target.value }) : null)}
-                                        className="rounded-xl border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
+                                        className="rounded-lg border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="endereco" className="text-xs font-bold text-slate-500 uppercase tracking-widest">Endereço</Label>
+                                    <Label htmlFor="endereco" className="text-xs font-medium text-slate-500 uppercase tracking-widest">Endereço</Label>
                                     <Input
                                         id="endereco"
                                         placeholder="Rua, Número, Bairro"
                                         value={profile?.endereco || ""}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, endereco: e.target.value }) : null)}
-                                        className="rounded-xl border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
+                                        className="rounded-lg border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="horarioInicio" className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                    <Label htmlFor="horarioInicio" className="text-xs font-medium text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
                                         <Clock className="h-3 w-3" /> Início do Expediente
                                     </Label>
                                     <Input
@@ -314,11 +328,11 @@ export default function ProfilePage() {
                                         type="time"
                                         value={profile?.horarioInicio || "08:00"}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, horarioInicio: e.target.value }) : null)}
-                                        className="rounded-xl border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
+                                        className="rounded-lg border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="horarioFim" className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                    <Label htmlFor="horarioFim" className="text-xs font-medium text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
                                         <Clock className="h-3 w-3" /> Fim do Expediente
                                     </Label>
                                     <Input
@@ -326,13 +340,13 @@ export default function ProfilePage() {
                                         type="time"
                                         value={profile?.horarioFim || "18:00"}
                                         onChange={(e) => setProfile(p => p ? ({ ...p, horarioFim: e.target.value }) : null)}
-                                        className="rounded-xl border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
+                                        className="rounded-lg border-slate-200 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 font-medium"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2 pt-6 border-t border-slate-100">
-                                <Label htmlFor="senha" className="text-xs font-bold text-slate-500 uppercase tracking-widest">Alterar Senha {profile?.nivelAcesso !== 1 && "(Apenas Administrador)"}</Label>
+                                <Label htmlFor="senha" className="text-xs font-medium text-slate-500 uppercase tracking-widest">Alterar Senha {profile?.nivelAcesso !== 1 && "(Apenas Administrador)"}</Label>
                                 <div className="relative">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                     <Input
@@ -342,7 +356,7 @@ export default function ProfilePage() {
                                         placeholder={profile?.nivelAcesso === 1 ? "Deixe em branco para manter a atual" : "Bloqueado pelo sistema"}
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
-                                        className="rounded-xl border-slate-200 pl-11 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 disabled:bg-slate-100 disabled:text-slate-400 disabled:opacity-50 font-medium"
+                                        className="rounded-lg border-slate-200 pl-11 focus:ring-sidebar/20 focus:border-sidebar bg-slate-50/50 h-12 disabled:bg-slate-100 disabled:text-slate-400 disabled:opacity-50 font-medium"
                                     />
                                 </div>
                                 {profile?.nivelAcesso === 1 && <p className="text-xs text-slate-400 font-medium mt-1">Mínimo de 6 caracteres.</p>}
@@ -352,7 +366,7 @@ export default function ProfilePage() {
                                 <Button
                                     type="submit"
                                     disabled={saving}
-                                    className="rounded-xl bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground font-bold shadow-sm px-8 py-6 gap-2 transition-all active:scale-95"
+                                    className="rounded-lg bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground font-semibold shadow-sm px-8 py-6 gap-2 transition-all active:scale-95"
                                 >
                                     {saving ? <RefreshCcw className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
                                     Salvar Alterações
@@ -365,14 +379,14 @@ export default function ProfilePage() {
 
             {/* Modal de Upload de Foto */}
             <Dialog open={isPhotoDialogOpen} onOpenChange={setIsPhotoDialogOpen}>
-                <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-xl">
                     <DialogHeader className="bg-primary p-6 text-primary-foreground">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
+                            <div className="h-10 w-10 rounded-lg bg-white/10 flex items-center justify-center">
                                 <Camera className="h-5 w-5" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold">Alterar Foto de Perfil</DialogTitle>
+                                <DialogTitle className="text-lg font-semibold">Alterar Foto de Perfil</DialogTitle>
                                 <DialogDescription className="text-primary-foreground/80 text-xs">
                                     Selecione uma imagem do seu computador.
                                 </DialogDescription>
@@ -382,7 +396,7 @@ export default function ProfilePage() {
 
                     <div className="p-6 space-y-6">
                         <div
-                            className="flex flex-col items-center gap-4 py-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 hover:bg-slate-50 hover:border-primary/50 transition-all cursor-pointer relative"
+                            className="flex flex-col items-center gap-4 py-8 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50 hover:bg-slate-50 hover:border-primary/50 transition-all cursor-pointer relative"
                             onClick={() => document.getElementById('photo-upload')?.click()}
                         >
                             <input
@@ -395,14 +409,14 @@ export default function ProfilePage() {
 
                             <div className="h-28 w-28 rounded-full bg-white border-4 border-white shadow-md flex items-center justify-center overflow-hidden">
                                 {tempPhotoUrl ? (
-                                    <img src={tempPhotoUrl} alt="Preview" className="h-full w-full object-cover" />
+                                    <Image src={tempPhotoUrl} alt="Preview" width={112} height={112} className="h-full w-full object-cover" />
                                 ) : (
                                     <UserCircle className="h-14 w-14 text-slate-200" />
                                 )}
                             </div>
 
                             <div className="text-center">
-                                <p className="text-sm font-bold text-slate-700">Clique para selecionar</p>
+                                <p className="text-sm font-medium text-slate-700">Clique para selecionar</p>
                                 <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest mt-1">PNG, JPG ou WEBP (Max. 2MB)</p>
                             </div>
                         </div>
@@ -412,14 +426,14 @@ export default function ProfilePage() {
                         <Button
                             variant="outline"
                             onClick={() => setIsPhotoDialogOpen(false)}
-                            className="rounded-xl font-bold px-6 border-slate-200"
+                            className="rounded-lg font-semibold px-6 border-slate-200"
                         >
                             Cancelar
                         </Button>
                         <Button
                             onClick={handleUpdatePhoto}
                             disabled={uploading || !selectedFile}
-                            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 shadow-sm flex items-center gap-2"
+                            className="rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 shadow-sm flex items-center gap-2"
                         >
                             {uploading ? <RefreshCcw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                             Confirmar Alteração

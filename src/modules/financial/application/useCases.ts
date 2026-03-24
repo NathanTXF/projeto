@@ -1,5 +1,7 @@
 import { FinancialTransaction, FinancialRepository, FinancialStatus } from '../domain/entities';
 import { logAudit } from '../../../core/audit/logger';
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export class FinancialUseCases {
     constructor(private repository: FinancialRepository) { }
@@ -87,13 +89,7 @@ export class FinancialUseCases {
             throw new Error('Registro financeiro não encontrado');
         }
 
-        // Import prisma here just for this specific cross-module transaction if needed, 
-        // or ensure it's handled via the repository. 
-        // Since we need to update Commission, it's safer to use prisma directly here or inject CommissionRepository.
-        // For simplicity in this architecture, we can import prisma.
-        const { prisma } = require('../../../lib/prisma');
-
-        await prisma.$transaction(async (tx: any) => {
+        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             // 1. Delete the financial record
             await tx.financial.delete({
                 where: { id }

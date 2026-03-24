@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -71,7 +71,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
             .catch(err => console.error("Erro ao carregar usuários:", err));
     }, []);
 
-    const visibilidade = form.watch("visibilidade");
+    const visibilidade = useWatch({ control: form.control, name: "visibilidade" });
 
     return (
         <Form {...form}>
@@ -82,7 +82,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50">
                             <Calendar className="h-4 w-4 text-indigo-600" />
                         </div>
-                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                        <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide">
                             Data & Horário
                         </h3>
                     </div>
@@ -93,7 +93,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                             name="data"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Data
                                     </FormLabel>
                                     <FormControl>
@@ -101,7 +101,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                                             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 type="date"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10 rounded-lg border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
                                                 {...field}
                                             />
                                         </div>
@@ -115,7 +115,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                             name="hora"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Hora
                                     </FormLabel>
                                     <FormControl>
@@ -123,7 +123,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                                             <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 type="time"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10 rounded-lg border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
                                                 {...field}
                                             />
                                         </div>
@@ -141,7 +141,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50">
                             <Save className="h-4 w-4 text-blue-600" />
                         </div>
-                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                        <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide">
                             Visibilidade
                         </h3>
                     </div>
@@ -152,7 +152,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                             name="visibilidade"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Tipo de Visibilidade
                                     </FormLabel>
                                     <Select
@@ -160,7 +160,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                                         defaultValue={field.value}
                                     >
                                         <FormControl>
-                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50">
+                                            <SelectTrigger className="h-10">
                                                 <SelectValue placeholder="Selecione a visibilidade" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -176,10 +176,10 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
 
                         {visibilidade === "GLOBAL" ? (
                             <FormItem>
-                                <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider opacity-50">
+                                <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider opacity-50">
                                     Destinatário
                                 </FormLabel>
-                                <Input disabled value="Todos do Sistema" className="h-10 rounded-xl border-slate-200 bg-slate-100/50 italic text-slate-400" />
+                                <Input disabled value="Todos do Sistema" className="h-10 italic text-muted-foreground" />
                                 <FormMessage />
                             </FormItem>
                         ) : (
@@ -188,7 +188,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                                 name="destinatarioId"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                             Encaminhar para (Opcional)
                                         </FormLabel>
                                         <Select
@@ -196,7 +196,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                                             defaultValue={field.value || "none"}
                                         >
                                             <FormControl>
-                                                <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50">
+                                                <SelectTrigger className="h-10">
                                                     <SelectValue placeholder="Selecione um usuário" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -221,7 +221,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50">
                             <Tag className="h-4 w-4 text-emerald-600" />
                         </div>
-                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                        <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide">
                             Detalhes
                         </h3>
                     </div>
@@ -231,7 +231,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                         name="tipo"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                     Tipo de Compromisso
                                 </FormLabel>
                                 <FormControl>
@@ -239,7 +239,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                                         <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                         <Input
                                             placeholder="Ex: Reunião, Cobrança, Visita..."
-                                            className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                            className="pl-10 h-10"
                                             {...field}
                                         />
                                     </div>
@@ -254,7 +254,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                         name="observacao"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                     Observação (Opcional)
                                 </FormLabel>
                                 <FormControl>
@@ -262,7 +262,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                                         <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                                         <Textarea
                                             placeholder="Detalhes adicionais do compromisso..."
-                                            className="pl-10 min-h-[80px] resize-none rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-colors"
+                                            className="pl-10 min-h-[80px] resize-none"
                                             {...field}
                                             value={field.value || ""}
                                         />
@@ -278,7 +278,7 @@ export function AppointmentForm({ initialDate, onSubmit, isLoading }: Appointmen
                 <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-11 rounded-xl bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground font-semibold shadow-lg shadow-sidebar/20 transition-all duration-200 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] gap-2"
+                    className="w-full h-11 rounded-lg bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground font-semibold shadow-lg shadow-sidebar/20 transition-all duration-200 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] gap-2"
                 >
                     {isLoading ? (
                         <><Loader2 className="h-4 w-4 animate-spin" />Agendando...</>

@@ -1,10 +1,14 @@
-import { Organ, Bank, LoanType, LoanGroup, LoanTable, AuxiliaryRepository } from '../domain/entities';
+import { AuxiliaryListOptions, AuxiliaryRepository } from '../domain/entities';
 
 export class AuxiliaryUseCases<T extends { id: number; nome: string }> {
     constructor(private repository: AuxiliaryRepository<T>) { }
 
     async listAll() {
         return await this.repository.findAll();
+    }
+
+    async listPaginated(options: AuxiliaryListOptions) {
+        return await this.repository.findPaginated(options);
     }
 
     async create(nome: string) {

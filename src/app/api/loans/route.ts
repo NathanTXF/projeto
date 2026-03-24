@@ -6,6 +6,7 @@ import { getAuthUser } from '@/core/auth/getUser';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { CommissionUseCases } from '@/modules/commissions/application/useCases';
 import { PrismaCommissionRepository } from '@/modules/commissions/infrastructure/repositories';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaLoanRepository();
 const useCases = new LoanUseCases(repository);
@@ -19,8 +20,8 @@ export async function GET() {
 
         const loans = await useCases.listAll();
         return NextResponse.json(loans);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -49,14 +50,15 @@ export async function POST(request: Request) {
         const commissionUseCases = new CommissionUseCases(commissionRepo);
 
         const validatedData = LoanSchema.parse(body);
-        const loan = await useCases.create(validatedData as any, user.id, commissionUseCases);
+        const loan = await useCases.create(validatedData, user.id, commissionUseCases);
 
         return NextResponse.json(loan, { status: 201 });
-    } catch (error: any) {
+    } catch (error) {
         console.error('[API_LOANS_POST_ERROR]:', error);
-        if (error.name === 'ZodError') {
-            return NextResponse.json({ error: error.errors }, { status: 400 });
+        if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+            const zodError = error as { errors?: unknown };
+            return NextResponse.json({ error: zodError.errors }, { status: 400 });
         }
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

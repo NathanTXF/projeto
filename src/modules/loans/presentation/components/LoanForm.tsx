@@ -31,22 +31,20 @@ import {
     Search,
     User,
     Calendar,
-    Building2,
-    Landmark,
     DollarSign,
     ClipboardList,
     Save,
     Lock,
-    Tag,
-    Layers,
-    Table2,
     Timer,
-    Activity,
 } from "lucide-react";
 
 interface LoanFormProps {
     initialData?: Loan & { cliente?: { nome: string, cpfCnpj: string } };
     onSuccess?: () => void;
+}
+
+interface LoanCommissionSummary {
+    status?: string;
 }
 
 export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
@@ -91,7 +89,9 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
             fetch(`/api/commissions?loanId=${initialData.id}`)
                 .then(res => res.json())
                 .then(commissions => {
-                    const hasProcessed = commissions.some((c: any) => c.status !== "Em aberto");
+                    const hasProcessed = (Array.isArray(commissions) ? commissions : []).some(
+                        (commission: LoanCommissionSummary) => commission.status !== "Em aberto"
+                    );
                     if (hasProcessed) {
                         setIsLocked(true);
                         toast.info("Edição bloqueada: Esta venda já possui comissões processadas.");
@@ -177,14 +177,14 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                 if (!initialData) {
                     form.setValue("vendedorId", p.id);
                 }
-            } catch (error) {
+            } catch {
                 toast.error("Erro ao carregar dados auxiliares");
             } finally {
                 setLoadingData(false);
             }
         };
         fetchData();
-    }, []);
+    }, [form, initialData]);
 
     const onSubmit = async (data: Loan) => {
         setSubmitting(true);
@@ -213,8 +213,9 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                 router.push("/dashboard/loans");
                 router.refresh();
             }
-        } catch (error: any) {
-            toast.error(error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha ao salvar venda";
+            toast.error(message);
         } finally {
             setSubmitting(false);
         }
@@ -237,7 +238,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                             <User className="h-4 w-4 text-primary" />
                         </div>
-                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                        <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide">
                             Cliente & Data
                         </h3>
                     </div>
@@ -248,7 +249,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             name="clienteId"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Cliente
                                     </FormLabel>
                                     <div className="relative">
@@ -256,7 +257,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 placeholder="Buscar por nome ou CPF..."
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10 rounded-lg border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                                 value={clientSearch}
                                                 onChange={(e) => {
                                                     setClientSearch(e.target.value);
@@ -267,7 +268,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                         </div>
 
                                         {showResults && (searchResults.length > 0 || isSearching) && (
-                                            <div className="absolute z-50 w-full mt-2 bg-white rounded-xl border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="absolute z-50 w-full mt-2 bg-white rounded-lg border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                                                 {isSearching ? (
                                                     <div className="p-4 text-center text-slate-400 flex items-center justify-center gap-2">
                                                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -286,7 +287,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                                                 }}
                                                             >
                                                                 <div className="flex flex-col">
-                                                                    <span className="font-bold text-slate-800 text-sm">{c.nome}</span>
+                                                                    <span className="font-medium text-slate-800 text-sm">{c.nome}</span>
                                                                     <span className="text-[10px] text-slate-500 font-mono tracking-tighter">{c.cpfCnpj}</span>
                                                                 </div>
                                                             </div>
@@ -306,7 +307,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             name="dataInicio"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Data da Venda
                                     </FormLabel>
                                     <FormControl>
@@ -314,7 +315,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                                             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
                                                 type="date"
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
+                                                className="pl-10 h-10 rounded-lg border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors"
                                                 {...field}
                                                 value={field.value instanceof Date
                                                     ? field.value.toISOString().split('T')[0]
@@ -336,7 +337,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50">
                             <ClipboardList className="h-4 w-4 text-emerald-600" />
                         </div>
-                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                        <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide">
                             Dados do Contrato
                         </h3>
                     </div>
@@ -347,12 +348,12 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             name="orgaoId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Órgão
                                     </FormLabel>
                                     <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value?.toString() || ""}>
                                         <FormControl>
-                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                            <SelectTrigger className="h-10">
                                                 <SelectValue placeholder="Selecione o órgão" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -372,12 +373,12 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             name="bancoId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Banco
                                     </FormLabel>
                                     <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value?.toString() || ""}>
                                         <FormControl>
-                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                            <SelectTrigger className="h-10">
                                                 <SelectValue placeholder="Selecione o banco" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -399,12 +400,12 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             name="tipoId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Tipo
                                     </FormLabel>
                                     <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value?.toString() || ""}>
                                         <FormControl>
-                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                            <SelectTrigger className="h-10">
                                                 <SelectValue placeholder="Selecione" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -424,12 +425,12 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             name="grupoId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Grupo
                                     </FormLabel>
                                     <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value?.toString() || ""}>
                                         <FormControl>
-                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                            <SelectTrigger className="h-10">
                                                 <SelectValue placeholder="Selecione" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -449,12 +450,12 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             name="tabelaId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Tabela
                                     </FormLabel>
                                     <Select onValueChange={(val) => field.onChange(Number(val))} value={field.value?.toString()}>
                                         <FormControl>
-                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                            <SelectTrigger className="h-10">
                                                 <SelectValue placeholder="Selecione" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -477,7 +478,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50">
                             <DollarSign className="h-4 w-4 text-amber-600" />
                         </div>
-                        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                        <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide">
                             Valores & Condições
                         </h3>
                     </div>
@@ -488,14 +489,14 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             name="valorBruto"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Valor Bruto
                                     </FormLabel>
                                     <FormControl>
                                         <div className="relative">
                                             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
+                                                className="pl-10 h-10 font-mono"
                                                 placeholder="R$ 0,00"
                                                 value={formatBRL(field.value || 0)}
                                                 onChange={e => handleCurrencyChange(e, field.onChange)}
@@ -511,14 +512,14 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             name="valorLiquido"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Valor Líquido
                                     </FormLabel>
                                     <FormControl>
                                         <div className="relative">
                                             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
+                                                className="pl-10 h-10 font-mono"
                                                 placeholder="R$ 0,00"
                                                 value={formatBRL(field.value || 0)}
                                                 onChange={e => handleCurrencyChange(e, field.onChange)}
@@ -534,14 +535,14 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             name="valorParcela"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Valor Parcela
                                     </FormLabel>
                                     <FormControl>
                                         <div className="relative">
                                             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
+                                                className="pl-10 h-10 font-mono"
                                                 placeholder="R$ 0,00"
                                                 value={formatBRL(field.value || 0)}
                                                 onChange={e => handleCurrencyChange(e, field.onChange)}
@@ -560,14 +561,14 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             name="prazo"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Prazo (Parcelas)
                                     </FormLabel>
                                     <FormControl>
                                         <div className="relative">
                                             <Timer className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
-                                                className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-colors font-mono"
+                                                className="pl-10 h-10 font-mono"
                                                 type="number"
                                                 {...field}
                                                 onChange={e => field.onChange(Number(e.target.value))}
@@ -583,12 +584,12 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                             name="vendedorId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <FormLabel className="text-xs font-medium text-slate-600 uppercase tracking-wider">
                                         Vendedor (Responsável)
                                     </FormLabel>
                                     <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
-                                            <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-slate-50/50 focus:ring-indigo-500 focus:bg-white transition-colors">
+                                            <SelectTrigger className="h-10">
                                                 <SelectValue placeholder="Selecione o vendedor" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -609,7 +610,7 @@ export function LoanForm({ initialData, onSuccess }: LoanFormProps) {
                 <Button
                     type="submit"
                     disabled={submitting || isLocked}
-                    className="w-full h-11 rounded-xl bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground font-semibold shadow-lg shadow-sidebar/20 transition-all duration-200 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] gap-2"
+                    className="w-full h-11 rounded-lg bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground font-semibold shadow-lg shadow-sidebar/20 transition-all duration-200 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] gap-2"
                 >
                     {submitting ? (
                         <><Loader2 className="h-4 w-4 animate-spin" />Salvando...</>

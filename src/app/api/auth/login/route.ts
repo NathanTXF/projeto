@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { PrismaUserRepository } from '@/modules/users/infrastructure/repositories';
 import { UserUseCases } from '@/modules/users/application/useCases';
-import { signToken, JWT_SECRET } from '@/core/auth/jwt';
+import { JWT_SECRET } from '@/core/auth/jwt';
 import { SignJWT } from 'jose';
 import { PERMISSIONS } from '@/lib/permissions';
+import { getErrorMessage } from '@/lib/error-utils';
 
 export async function POST(request: Request) {
     try {
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
 
 
         // Extract permissions if the user has a linked role
-        let permissions: string[] = user.role?.permissions?.map((rp: any) => rp.permission.name) || [];
+        let permissions: string[] = user.role?.permissions?.map((rp) => rp.permission.name) || [];
 
         // Fallback para usuários legado (sem Role vinculada no banco)
         if (permissions.length === 0) {
@@ -85,8 +86,8 @@ export async function POST(request: Request) {
         });
 
         return response;
-    } catch (error: any) {
-        console.error('Login error:', error.message);
+    } catch (error) {
+        console.error('Login error:', getErrorMessage(error));
         return NextResponse.json(
             { message: 'Erro interno ao realizar login' },
             { status: 500 }

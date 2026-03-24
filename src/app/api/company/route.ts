@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/core/auth/getUser';
 import { prisma } from '@/lib/prisma';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { getErrorMessage } from '@/lib/error-utils';
 
 export async function GET() {
     try {
@@ -25,9 +26,9 @@ export async function GET() {
         }
 
         return NextResponse.json(company);
-    } catch (error: any) {
+    } catch (error) {
         console.error("GET Company Error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -64,8 +65,8 @@ export async function PUT(request: Request) {
         });
 
         return NextResponse.json(updatedCompany);
-    } catch (error: any) {
+    } catch (error) {
         console.error("PUT Company Error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

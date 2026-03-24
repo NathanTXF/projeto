@@ -1,6 +1,7 @@
 import { UserRepository, User } from '../domain/entities';
 import bcrypt from 'bcrypt';
 import { logAudit } from '../../../core/audit/logger';
+import { getDayAccessWindow, isTimeRangeValid, parseAccessSchedule } from '../domain/accessSchedule';
 
 /** Campos opcionais que devem ser convertidos de string vazia para null antes de gravar no banco. */
 const NULLABLE_STRING_FIELDS = [
@@ -11,7 +12,8 @@ type SafeUser = Omit<User, 'senha'>;
 
 /** Remove a senha do objeto antes de retornar ao cliente. */
 function sanitizeUser(user: User & Record<string, unknown>): SafeUser {
-    const { senha: _omitted, ...safe } = user;
+    const safe = { ...user } as User & Record<string, unknown> & { senha?: string };
+    delete safe.senha;
     return safe as SafeUser;
 }
 
@@ -30,6 +32,7 @@ export class UserUseCases {
     async login(usuario: string, senha: string, ip?: string) {
         const user = await this.repository.findByUsername(usuario);
         if (!user) return { error: 'Usuário não encontrado' };
+        const isAdminUser = user.nivelAcesso === 1;
 
         // Verificar se a conta está ativa
         if (user.ativo === false) {
@@ -37,36 +40,32 @@ export class UserUseCases {
         }
 
         const now = new Date();
-        const currentDay = now.getDay(); // 0: Dom, 1: Seg, ..., 6: Sab
-        const isWeekend = currentDay === 0 || currentDay === 6;
+        if (!isAdminUser) {
+            const currentDay = now.getDay(); // 0: Dom, 1: Seg, ..., 6: Sab
+            const accessSchedule = parseAccessSchedule({
+                diasAcesso: user.diasAcesso,
+                horarioInicio: user.horarioInicio,
+                horarioFim: user.horarioFim,
+                horarioInicioFds: user.horarioInicioFds,
+                horarioFimFds: user.horarioFimFds,
+            });
+            const todayAccess = getDayAccessWindow(accessSchedule, currentDay);
 
-        // Verificar dias de acesso
-        if (user.diasAcesso) {
-            const allowedDays = user.diasAcesso.split(',').map(Number);
-            if (!allowedDays.includes(currentDay)) {
+            if (!todayAccess.enabled) {
                 return { error: 'Seu acesso não é permitido hoje.' };
             }
-        }
 
-        // Determinar horários (Especial Fim de Semana ou Padrão)
-        let startTimeStr = user.horarioInicio;
-        let endTimeStr = user.horarioFim;
+            if (isTimeRangeValid(todayAccess.start, todayAccess.end)) {
+                const currentTime = now.getHours() * 100 + now.getMinutes();
+                const [startH, startM] = todayAccess.start.split(':').map(Number);
+                const [endH, endM] = todayAccess.end.split(':').map(Number);
+                const startTime = startH * 100 + startM;
+                const endTime = endH * 100 + endM;
 
-        if (isWeekend && user.horarioInicioFds && user.horarioFimFds) {
-            startTimeStr = user.horarioInicioFds;
-            endTimeStr = user.horarioFimFds;
-        }
-
-        if (startTimeStr && endTimeStr) {
-            const currentTime = now.getHours() * 100 + now.getMinutes();
-            const [startH, startM] = startTimeStr.split(':').map(Number);
-            const [endH, endM] = endTimeStr.split(':').map(Number);
-            const startTime = startH * 100 + startM;
-            const endTime = endH * 100 + endM;
-
-            if (currentTime < startTime || currentTime > endTime) {
-                await logAudit({ usuarioId: user.id!, modulo: 'AUTH', acao: 'LOGIN_REJECTED_OUT_OF_HOURS', ip });
-                return { error: `Acesso negado fora do horário permitido (${startTimeStr} - ${endTimeStr})` };
+                if (currentTime < startTime || currentTime > endTime) {
+                    await logAudit({ usuarioId: user.id!, modulo: 'AUTH', acao: 'LOGIN_REJECTED_OUT_OF_HOURS', ip });
+                    return { error: `Acesso negado fora do horário permitido (${todayAccess.start} - ${todayAccess.end})` };
+                }
             }
         }
 

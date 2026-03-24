@@ -74,7 +74,7 @@ export interface ReportData {
         totalItems: number;
         totalValue?: number;
         totalLiquido?: number;
-        [key: string]: any;
+        [key: string]: unknown;
     };
-    items: any[];
+    items: unknown[];
 }

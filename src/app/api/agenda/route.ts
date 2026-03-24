@@ -4,6 +4,7 @@ import { AgendaUseCases } from '@/modules/agenda/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 import { AppointmentSchema } from '@/modules/agenda/domain/entities';
 import { logAudit } from '@/core/audit/logger';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaAppointmentRepository();
 const useCases = new AgendaUseCases(repository);
@@ -40,8 +41,8 @@ export async function GET(request: Request) {
         // Default: todos do usuário logado
         const appointments = await useCases.getUserAppointments(currentUser.id);
         return NextResponse.json(appointments);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
             visibilidade: data.visibilidade || 'PRIVADO'
         });
 
-        const appointment = await useCases.scheduleAppointment(validatedData as any);
+        const appointment = await useCases.scheduleAppointment(validatedData);
 
         await logAudit({
             usuarioId: currentUser.id,
@@ -69,7 +70,7 @@ export async function POST(request: Request) {
         });
 
         return NextResponse.json(appointment);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

@@ -4,6 +4,7 @@ import { CustomerUseCases } from '@/modules/clients/application/useCases';
 import { CustomerSchema } from '@/modules/clients/domain/entities';
 import { getAuthUser } from '@/core/auth/getUser';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaCustomerRepository();
 const useCases = new CustomerUseCases(repository);
@@ -17,8 +18,8 @@ export async function GET() {
 
         const customers = await useCases.listAll();
         return NextResponse.json(customers);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -37,13 +38,14 @@ export async function POST(request: Request) {
         }
 
         const validatedData = CustomerSchema.parse(body);
-        const customer = await useCases.create(validatedData as any, user.id);
+        const customer = await useCases.create(validatedData, user.id);
 
         return NextResponse.json(customer, { status: 201 });
-    } catch (error: any) {
-        if (error.name === 'ZodError') {
-            return NextResponse.json({ error: error.errors }, { status: 400 });
+    } catch (error) {
+        if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+            const zodError = error as { errors?: unknown };
+            return NextResponse.json({ error: zodError.errors }, { status: 400 });
         }
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

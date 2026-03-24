@@ -46,10 +46,24 @@ export async function exportToPdf<T>(title: string, filename: string, columns: E
     const jsPdfModule = await import('jspdf/dist/jspdf.es.min.js');
     const autoTableModule = await import('jspdf-autotable');
 
-    const jsPDF = (jsPdfModule as any).jsPDF || (jsPdfModule as any).default;
-    const autoTable = (autoTableModule as any).default || autoTableModule;
+    interface JsPdfDoc {
+        setFontSize(size: number): void;
+        setFont(fontName: string | undefined, fontStyle: string): void;
+        setTextColor(r: number, g?: number, b?: number): void;
+        text(text: string, x: number, y: number): void;
+        addImage?(imageData: string, x: number, y: number, width: number, height: number, alias?: string, compression?: string): void;
+        save(fileName: string): void;
+    }
 
-    const doc = new jsPDF() as any;
+    type JsPdfConstructor = new () => JsPdfDoc;
+    type AutoTableFn = (doc: JsPdfDoc, options: Record<string, unknown>) => void;
+
+    const jsPDF = ((jsPdfModule as { jsPDF?: JsPdfConstructor; default?: JsPdfConstructor }).jsPDF
+        || (jsPdfModule as { jsPDF?: JsPdfConstructor; default?: JsPdfConstructor }).default) as JsPdfConstructor;
+    const autoTable = ((autoTableModule as { default?: AutoTableFn }).default
+        || (autoTableModule as unknown as AutoTableFn)) as AutoTableFn;
+
+    const doc = new jsPDF();
     let startY = 22;
 
     try {
@@ -63,7 +77,9 @@ export async function exportToPdf<T>(title: string, filename: string, columns: E
             if (logoToUse) {
                 try {
                     // Adicionando a logomarca no canto superior esquerdo
-                    doc.addImage(logoToUse, 14, 10, 25, 25, undefined, 'FAST');
+                    if (doc.addImage) {
+                        doc.addImage(logoToUse, 14, 10, 25, 25, undefined, 'FAST');
+                    }
 
                     doc.setFontSize(12);
                     doc.setFont(undefined, 'bold');

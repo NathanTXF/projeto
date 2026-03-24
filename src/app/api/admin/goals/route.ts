@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/core/auth/getUser';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { getErrorMessage } from '@/lib/error-utils';
+
+interface GoalBatchItem {
+    userId: string;
+    valor: number | string;
+}
 
 export async function GET(request: Request) {
     try {
@@ -66,8 +72,8 @@ export async function GET(request: Request) {
             companyGoal: aggregatedGlobalGoal,
             userGoals: userGoalsList
         });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -101,7 +107,7 @@ export async function POST(request: Request) {
         if (type === 'batch' && Array.isArray(goals)) {
             // Processamento em lote
             await prisma.$transaction(
-                goals.map((g: any) => {
+                (goals as GoalBatchItem[]).map((g) => {
                     const val = Math.round(Number(g.valor || 0));
                     return prisma.goal.upsert({
                         where: {
@@ -126,7 +132,7 @@ export async function POST(request: Request) {
 
             // Atualizar fallbacks de usuários se for o mês atual
             if (isCurrentMonth) {
-                await Promise.all(goals.map((g: any) =>
+                await Promise.all((goals as GoalBatchItem[]).map((g) =>
                     prisma.user.update({
                         where: { id: g.userId },
                         data: { metaVendasMensal: Math.round(Number(g.valor || 0)) }
@@ -180,8 +186,8 @@ export async function POST(request: Request) {
         }
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
+    } catch (error) {
         console.error("Goals API Error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

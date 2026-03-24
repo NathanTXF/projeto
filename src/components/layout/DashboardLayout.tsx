@@ -2,20 +2,18 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
     Users,
     LayoutDashboard,
     HandCoins,
     FileText,
-    Settings,
     LogOut,
-    ChevronRight,
     History as LucideHistory,
     UserCircle,
     Database,
     Calendar,
-    ChevronDown,
     Menu,
     ShieldAlert,
     Building2,
@@ -98,14 +96,21 @@ export function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: { is
                         <>
                             {company?.logoUrl ? (
                                 <div className="w-full flex items-center justify-center h-full py-2 overflow-hidden">
-                                    <img src={company.logoUrl} alt="Logo da Empresa" className="max-h-full max-w-full object-contain drop-shadow-sm" style={{ transform: 'scale(0.85)' }} />
+                                    <Image
+                                        src={company.logoUrl}
+                                        alt="Logo da Empresa"
+                                        width={160}
+                                        height={48}
+                                        className="max-h-full max-w-full object-contain drop-shadow-sm"
+                                        style={{ transform: 'scale(0.85)' }}
+                                    />
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-3 overflow-hidden">
                                     <div className="h-9 w-9 rounded-lg bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground shadow-sm shrink-0">
                                         <Building2 className="h-5 w-5" />
                                     </div>
-                                    <h1 className="text-lg font-bold text-sidebar-foreground border-none outline-none truncate flex-1 tracking-tight">
+                                    <h1 className="text-lg font-semibold text-sidebar-foreground border-none outline-none truncate flex-1 tracking-tight">
                                         {company?.nome || "Dinheiro Fácil"}
                                     </h1>
                                 </div>
@@ -161,7 +166,7 @@ export function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: { is
                         return (
                             <div key={group.label} className={cn("flex flex-col", isCollapsed ? "gap-2 items-center" : "gap-1")}>
                                 {!isCollapsed && (
-                                    <div className="flex items-center justify-between w-full px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1">
+                                    <div className="flex items-center justify-between w-full px-2 py-1.5 text-[10px] font-medium uppercase tracking-widest text-white/50 mb-1">
                                         {group.label}
                                     </div>
                                 )}
@@ -216,6 +221,16 @@ export function Shell({ children }: { children: React.ReactNode }) {
     const [userName, setUserName] = useState<string>("Usuário");
     const [userLogin, setUserLogin] = useState<string>("Carregando...");
 
+    const handleLogout = async () => {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+        } catch {
+            // Mesmo com falha de rede, força o redirecionamento para login.
+        } finally {
+            window.location.href = '/login';
+        }
+    };
+
     useEffect(() => {
         fetch('/api/profile').then(res => res.json()).then(data => {
             if (data.nivelAcesso) setUserLevel(data.nivelAcesso);
@@ -246,7 +261,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                         <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} className="md:hidden -ml-2 text-slate-600 hover:bg-slate-100">
                             <Menu className="h-6 w-6" />
                         </Button>
-                        <div className="hidden md:flex items-center font-semibold text-sm truncate gap-2">
+                        <div className="hidden md:flex items-center font-medium text-sm truncate gap-2">
                             <Link href="/dashboard" className="text-slate-600 hover:text-primary transition-colors">Painel</Link>
                             {pathname !== '/dashboard' && (
                                 <>
@@ -293,14 +308,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
                                 isProfileOpen ? "bg-muted border-border" : "border-transparent"
                             )}
                         >
-                            <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-inner shrink-0 leading-none">
+                            <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-medium text-xs shadow-inner shrink-0 leading-none">
                                 {getInitials(userName)}
                             </div>
                             <div className="hidden sm:flex flex-col items-start gap-0.5 max-w-[120px]">
-                                <span className="text-sm font-bold text-slate-700 leading-none truncate w-full">
+                                <span className="text-sm font-medium text-slate-700 leading-none truncate w-full">
                                     {userName.split(' ')[0]}
                                 </span>
-                                <span className="text-[10px] font-semibold text-primary uppercase tracking-wider leading-none">
+                                <span className="text-[10px] font-medium text-primary uppercase tracking-wider leading-none">
                                     {userLevel === 1 ? 'Gestor' : 'Consultor'}
                                 </span>
                             </div>
@@ -310,10 +325,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
                         {isProfileOpen && (
                             <>
                                 <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)} />
-                                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 shadow-indigo-200/20">
+                                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 shadow-indigo-200/20">
                                     {/* Information Headers */}
                                     <div className="px-5 py-3 border-b border-slate-50 mb-1">
-                                        <p className="text-sm font-bold text-slate-800 truncate">{userName}</p>
+                                        <p className="text-sm font-medium text-slate-800 truncate">{userName}</p>
                                         <p className="text-xs font-medium text-slate-500 truncate flex items-center gap-1 mt-0.5">
                                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                                             {userLogin}
@@ -332,8 +347,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
                                     <div className="border-t border-slate-100/60 mt-1 pt-2 px-2">
                                         <button onClick={() => {
                                             setIsProfileOpen(false);
-                                            window.location.href = '/login';
-                                        }} className="w-full flex items-center px-3 py-2 text-sm font-bold text-red-600 rounded-lg hover:bg-red-50 hover:text-red-700 transition-colors cursor-pointer">
+                                            void handleLogout();
+                                        }} className="w-full flex items-center px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 hover:text-red-700 transition-colors cursor-pointer">
                                             <LogOut className="mr-3 h-4 w-4 text-red-500" />
                                             Sair da Conta
                                         </button>

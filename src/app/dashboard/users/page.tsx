@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Users, Search, Loader2, UserPlus, Shield } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Users, Search, Loader2, UserPlus, Shield } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/Badge";
+import { ManagementPageHeader } from "@/components/layout/ManagementPageHeader";
 import { toast } from "sonner";
 import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
 import { UserList } from "@/modules/users/presentation/components/UserList";
@@ -18,6 +18,8 @@ import { UserForm } from "@/modules/users/presentation/components/UserForm";
 import { User } from "@/modules/users/domain/entities";
 import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
 import { SystemIntegrityAlert } from "@/components/shared/SystemIntegrityAlert";
+
+type UserUpsertPayload = Record<string, unknown>;
 
 export default function UsersPage() {
     const [users, setUsers] = useState<User[]>([]);
@@ -50,14 +52,15 @@ export default function UsersPage() {
             const profileRes = await fetch('/api/profile');
             const profileData = await profileRes.json();
             if (profileData.nivelAcesso) setCurrentUserLevel(profileData.nivelAcesso);
-        } catch (error: any) {
-            toast.error("Erro ao carregar dados: " + error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha inesperada";
+            toast.error("Erro ao carregar dados: " + message);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleCreateOrUpdate = async (values: any) => {
+    const handleCreateOrUpdate = async (values: UserUpsertPayload) => {
         try {
             setIsSubmitting(true);
             const url = selectedUser ? `/api/users/${selectedUser.id}` : '/api/users';
@@ -86,8 +89,9 @@ export default function UsersPage() {
                 const errorData = await response.json();
                 toast.error("Erro: " + errorData.error);
             }
-        } catch (error: any) {
-            toast.error("Erro na requisição: " + error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha inesperada";
+            toast.error("Erro na requisição: " + message);
         } finally {
             setIsSubmitting(false);
         }
@@ -114,7 +118,7 @@ export default function UsersPage() {
                 try {
                     const errorData = await response.json();
                     if (errorData.error) errorMessage = errorData.error;
-                } catch (e) { }
+                } catch { }
 
                 if (response.status === 400) {
                     setIntegrityErrorMessage(errorMessage);
@@ -124,8 +128,9 @@ export default function UsersPage() {
                     toast.error(errorMessage);
                 }
             }
-        } catch (error: any) {
-            toast.error("Erro na requisição: " + error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha inesperada";
+            toast.error("Erro na requisição: " + message);
         } finally {
             setIsDeleting(false);
         }
@@ -137,74 +142,67 @@ export default function UsersPage() {
     );
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
-                <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
-                            <Users className="h-8 w-8 text-primary-foreground" />
+        <div className="space-y-7 animate-in fade-in duration-500 pb-12">
+            <ManagementPageHeader
+                icon={Users}
+                title="Gerenciamento de Usuários"
+                description="Administre os acessos corporativos e permissões do sistema."
+                action={{
+                    label: "Novo Usuário",
+                    icon: UserPlus,
+                    onClick: () => {
+                        setSelectedUser(null);
+                        setIsDialogOpen(true);
+                    },
+                    variant: "secondary",
+                }}
+                stats={(
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <div className="ui-lift flex items-center gap-3 rounded-lg bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                            <Users className="h-6 w-6 text-primary-foreground/60" />
+                            <div>
+                                <p className="text-[10px] font-medium text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Total</p>
+                                <p className="text-xl font-semibold text-primary-foreground leading-none">{loading ? "..." : users.length}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-primary-foreground leading-tight">Gerenciamento de Usuários</h1>
-                            <p className="mt-1 text-primary-foreground/90 font-medium text-sm">Administre os acessos corporativos e permissões do sistema.</p>
+                        <div className="ui-lift flex items-center gap-3 rounded-lg bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                            <Shield className="h-6 w-6 text-primary" />
+                            <div>
+                                <p className="text-[10px] font-medium text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Admins</p>
+                                <p className="text-xl font-semibold text-primary-foreground leading-none">{loading ? "..." : users.filter((user) => user.nivelAcesso === 1).length}</p>
+                            </div>
                         </div>
-                    </div>
-                    <Button
-                        onClick={() => {
-                            setSelectedUser(null);
-                            setIsDialogOpen(true);
-                        }}
-                        variant="secondary"
-                        className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all active:scale-95"
-                    >
-                        <UserPlus className="h-5 w-5" />
-                        Novo Usuário
-                    </Button>
-                </div>
-                {/* Mini stats */}
-                <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <Users className="h-6 w-6 text-primary-foreground/60" />
-                        <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Total</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : users.length}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <Shield className="h-6 w-6 text-primary" />
-                        <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Admins</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : users.filter(u => u.nivelAcesso === 1).length}</p>
+                        <div className="ui-lift hidden sm:flex items-center gap-3 rounded-lg bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                            <UserPlus className="h-6 w-6 text-amber-400" />
+                            <div>
+                                <p className="text-[10px] font-medium text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Vendedores</p>
+                                <p className="text-xl font-semibold text-primary-foreground leading-none">{loading ? "..." : users.filter((user) => user.nivelAcesso !== 1).length}</p>
+                            </div>
                         </div>
                     </div>
-                    <div className="hidden sm:flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
-                        <UserPlus className="h-6 w-6 text-amber-400" />
-                        <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Vendedores</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : users.filter(u => u.nivelAcesso !== 1).length}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                )}
+            />
 
-            <Card className="border border-slate-100 shadow-sm rounded-2xl bg-white overflow-hidden">
-                <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+            <Card className="border border-border/70 shadow-sm rounded-xl bg-card overflow-hidden">
+                <CardHeader className="bg-muted/30 border-b border-border/70 pb-4">
                     <div className="flex justify-between items-center gap-4">
                         <div className="relative flex-1 max-w-sm">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder="Buscar usuários..."
-                                className="pl-10 rounded-xl bg-white"
+                                className="pl-10 h-10 ui-focus-ring"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
+                        <Badge className="h-10 px-3 rounded-md bg-muted text-muted-foreground border border-border/70 text-[11px] font-medium whitespace-nowrap">
+                            {filteredUsers.length} de {users.length}
+                        </Badge>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
                     {loading ? (
-                        <div className="h-64 flex flex-col items-center justify-center gap-3 text-slate-600 font-medium">
+                        <div className="h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground font-medium">
                             <Loader2 className="h-8 w-8 animate-spin text-sidebar" />
                             <span>Carregando usuários...</span>
                         </div>
@@ -223,15 +221,15 @@ export default function UsersPage() {
             </Card>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden border-none shadow-2xl rounded-xl">
                     {/* Solid Primary Header */}
                     <div className="relative bg-primary px-6 py-5">
                         <div className="relative flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 shadow-inner">
                                 <Users className="h-5 w-5 text-primary-foreground" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-primary-foreground leading-none">
+                                <DialogTitle className="text-lg font-semibold text-primary-foreground leading-none">
                                     {selectedUser ? "Editar Usuário" : "Novo Usuário"}
                                 </DialogTitle>
                                 <DialogDescription className="text-primary-foreground/80 text-sm mt-1">

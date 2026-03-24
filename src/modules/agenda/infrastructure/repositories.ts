@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { Appointment, AppointmentRepository } from '../domain/entities';
+import { Prisma } from '@prisma/client';
 
 export class PrismaAppointmentRepository implements AppointmentRepository {
     async findById(id: string): Promise<Appointment | null> {
@@ -7,7 +8,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
             where: { id },
             include: { criador: true, destinatario: true }
         });
-        return appointment as any;
+        return appointment as unknown as Appointment | null;
     }
 
     async findAllByDate(date: Date, userId?: string): Promise<Appointment[]> {
@@ -17,7 +18,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
         const end = new Date(date);
         end.setHours(23, 59, 59, 999);
 
-        const where: any = {
+        const where: Prisma.AppointmentWhereInput = {
             data: {
                 gte: start,
                 lte: end
@@ -38,7 +39,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
             orderBy: { hora: 'asc' },
             include: { criador: true, destinatario: true }
         });
-        return appointments as any;
+        return appointments as unknown as Appointment[];
     }
 
     async findAllByMonth(month: number, year: number, userId?: string): Promise<Appointment[]> {
@@ -48,7 +49,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
         const end = new Date(year, month, 0);
         end.setHours(23, 59, 59, 999);
 
-        const where: any = {
+        const where: Prisma.AppointmentWhereInput = {
             data: {
                 gte: start,
                 lte: end
@@ -68,7 +69,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
             orderBy: [{ data: 'asc' }, { hora: 'asc' }],
             include: { criador: true, destinatario: true }
         });
-        return appointments as any;
+        return appointments as unknown as Appointment[];
     }
 
     async findAllByUser(userId: string): Promise<Appointment[]> {
@@ -77,7 +78,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
             orderBy: { data: 'desc' },
             include: { criador: true }
         });
-        return appointments as any;
+        return appointments as unknown as Appointment[];
     }
 
     async create(data: Appointment): Promise<Appointment> {
@@ -93,7 +94,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
                 status: data.status || "PENDENTE"
             }
         });
-        return appointment as any;
+        return appointment as unknown as Appointment;
     }
 
     async update(id: string, data: Partial<Appointment>): Promise<Appointment> {
@@ -109,7 +110,7 @@ export class PrismaAppointmentRepository implements AppointmentRepository {
                 status: data.status
             }
         });
-        return appointment as any;
+        return appointment as unknown as Appointment;
     }
 
     async delete(id: string): Promise<void> {

@@ -3,6 +3,7 @@ import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import crypto from 'crypto';
 import { getAuthUser } from '@/core/auth/getUser';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const ALLOWED_EXTENSIONS: Record<string, string> = {
@@ -55,8 +56,8 @@ export async function POST(request: NextRequest) {
 
         const url = `/uploads/${fileName}`;
         return NextResponse.json({ url });
-    } catch (error: any) {
-        console.error('Erro no upload:', error);
+    } catch (error) {
+        console.error('Erro no upload:', getErrorMessage(error));
         return NextResponse.json({ error: 'Falha ao processar upload' }, { status: 500 });
     }
 }

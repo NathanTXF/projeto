@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { CustomerList } from "@/modules/clients/presentation/components/CustomerList";
 import { CustomerForm } from "@/modules/clients/presentation/components/CustomerForm";
@@ -8,12 +8,11 @@ import { Customer } from "@/modules/clients/domain/entities";
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
     DialogTitle,
     DialogDescription
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, UserCheck, UserPlus, Trash2, AlertCircle, AlertTriangle, Loader2 } from "lucide-react";
+import { Users, UserCheck, UserPlus, Trash2, AlertCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { exportToCsv, exportToPdf, ExportColumn } from "@/lib/exportUtils";
@@ -33,7 +32,7 @@ function ClientsContent() {
     const searchParams = useSearchParams();
     const vendedorId = searchParams.get("vendedorId");
 
-    const fetchCustomers = async () => {
+    const fetchCustomers = useCallback(async () => {
         try {
             setLoading(true);
             const query = vendedorId ? `?vendedorId=${vendedorId}` : "";
@@ -46,16 +45,16 @@ function ClientsContent() {
             const profileRes = await fetch("/api/profile");
             const profileData = await profileRes.json();
             if (profileData.nivelAcesso) setUserLevel(profileData.nivelAcesso);
-        } catch (error) {
+        } catch {
             toast.error("Erro ao carregar dados");
         } finally {
             setLoading(false);
         }
-    };
+    }, [vendedorId]);
 
     useEffect(() => {
         fetchCustomers();
-    }, [vendedorId]);
+    }, [fetchCustomers]);
 
     const handleEdit = (customer: Customer) => {
         setSelectedCustomer(customer);
@@ -84,7 +83,7 @@ function ClientsContent() {
                 try {
                     const errorData = await response.json();
                     if (errorData.error) errorMessage = errorData.error;
-                } catch (e) { }
+                } catch { }
 
                 if (response.status === 400) {
                     setIntegrityErrorMessage(errorMessage);
@@ -94,8 +93,9 @@ function ClientsContent() {
                     toast.error(errorMessage);
                 }
             }
-        } catch (error: any) {
-            toast.error("Erro na requisição: " + error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha inesperada";
+            toast.error("Erro na requisição: " + message);
         } finally {
             setIsSubmitting(false);
         }
@@ -119,10 +119,10 @@ function ClientsContent() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 shadow-inner">
                             <Users className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
@@ -147,7 +147,7 @@ function ClientsContent() {
                                     setIsDialogOpen(true);
                                 }}
                                 variant="secondary"
-                                className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all active:scale-95"
+                                className="gap-2 rounded-lg font-semibold shadow-sm px-6 py-3 transition-all active:scale-95"
                             >
                                 <UserPlus className="h-5 w-5" />
                                 Novo Cliente
@@ -158,25 +158,25 @@ function ClientsContent() {
 
                 {/* Mini stats strip */}
                 <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-3 gap-6">
-                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                    <div className="flex items-center gap-3 rounded-lg bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
                         <Users className="h-6 w-6 text-primary-foreground/60" />
                         <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Total</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : customers.length}</p>
+                            <p className="text-[10px] font-medium text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Total</p>
+                            <p className="text-xl font-semibold text-primary-foreground leading-none">{loading ? "..." : customers.length}</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                    <div className="flex items-center gap-3 rounded-lg bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
                         <UserCheck className="h-6 w-6 text-primary" />
                         <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Ativos</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">{loading ? "..." : customers.length}</p>
+                            <p className="text-[10px] font-medium text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Ativos</p>
+                            <p className="text-xl font-semibold text-primary-foreground leading-none">{loading ? "..." : customers.length}</p>
                         </div>
                     </div>
-                    <div className="hidden sm:flex items-center gap-3 rounded-xl bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
+                    <div className="hidden sm:flex items-center gap-3 rounded-lg bg-primary-foreground/10 px-5 py-4 border border-primary-foreground/10">
                         <UserPlus className="h-6 w-6 text-amber-400" />
                         <div>
-                            <p className="text-[10px] font-bold text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Novos (mês)</p>
-                            <p className="text-xl font-black text-primary-foreground leading-none">
+                            <p className="text-[10px] font-medium text-primary-foreground/80 uppercase tracking-widest leading-none mb-1.5">Novos (mês)</p>
+                            <p className="text-xl font-semibold text-primary-foreground leading-none">
                                 {loading ? "..." : customers.filter(c => {
                                     if (!c.createdAt) return false;
                                     const now = new Date();
@@ -208,14 +208,14 @@ function ClientsContent() {
 
             {/* ── Dialog Novo/Editar Cliente ── */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-[95vw] sm:max-w-4xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                <DialogContent className="max-w-[95vw] sm:max-w-4xl p-0 overflow-hidden border-none shadow-2xl rounded-xl">
                     <div className="relative bg-primary px-6 py-5">
                         <div className="relative flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 shadow-inner">
                                 <Users className="h-5 w-5 text-primary-foreground" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-primary-foreground leading-none">
+                                <DialogTitle className="text-lg font-semibold text-primary-foreground leading-none">
                                     {selectedCustomer ? "Editar Cliente" : "Novo Cliente"}
                                 </DialogTitle>
                                 <DialogDescription className="text-primary-foreground/80 text-sm mt-1">
@@ -238,14 +238,14 @@ function ClientsContent() {
 
             {/* ── Modal de Confirmação de Exclusão ── */}
             <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
-                <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden border-none shadow-2xl rounded-xl">
                     <div className="bg-rose-600 px-6 py-5">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 shadow-inner">
                                 <Trash2 className="h-5 w-5 text-white" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-white leading-none">Excluir Cliente</DialogTitle>
+                                <DialogTitle className="text-lg font-semibold text-white leading-none">Excluir Cliente</DialogTitle>
                                 <DialogDescription className="text-white/80 text-sm mt-1">
                                     Esta ação é permanente e irreversível.
                                 </DialogDescription>
@@ -260,14 +260,14 @@ function ClientsContent() {
                             <Button
                                 variant="outline"
                                 onClick={() => setIsDeleteConfirmOpen(false)}
-                                className="rounded-xl border-slate-200 text-slate-600 font-bold order-2 sm:order-1"
+                                className="rounded-lg border-slate-200 text-slate-600 font-semibold order-2 sm:order-1"
                             >
                                 Cancelar
                             </Button>
                             <Button
                                 onClick={confirmDelete}
                                 disabled={isSubmitting}
-                                className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg shadow-rose-100 border-none font-bold gap-2 order-1 sm:order-2"
+                                className="bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-lg shadow-rose-100 border-none font-semibold gap-2 order-1 sm:order-2"
                             >
                                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                                 Confirmar Exclusão
@@ -279,14 +279,14 @@ function ClientsContent() {
 
             {/* ── Modal de Alerta de Integridade (Bloqueio) ── */}
             <Dialog open={isIntegrityAlertOpen} onOpenChange={setIsIntegrityAlertOpen}>
-                <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-xl">
                     <div className="bg-amber-500 px-6 py-5">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 shadow-inner">
                                 <AlertTriangle className="h-5 w-5 text-white" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-white leading-none">Ação Bloqueada</DialogTitle>
+                                <DialogTitle className="text-lg font-semibold text-white leading-none">Ação Bloqueada</DialogTitle>
                                 <DialogDescription className="text-white/80 text-sm mt-1">
                                     Integridade referencial do sistema.
                                 </DialogDescription>
@@ -294,10 +294,10 @@ function ClientsContent() {
                         </div>
                     </div>
                     <div className="p-6">
-                        <div className="flex items-start gap-4 p-4 rounded-xl bg-amber-50 border border-amber-100 mb-6">
+                        <div className="flex items-start gap-4 p-4 rounded-lg bg-amber-50 border border-amber-100 mb-6">
                             <AlertCircle className="h-6 w-6 text-amber-600 shrink-0" />
                             <div>
-                                <p className="font-bold text-amber-900 mb-1">Não é possível excluir</p>
+                                <p className="font-semibold text-amber-900 mb-1">Não é possível excluir</p>
                                 <p className="text-amber-800 text-sm leading-relaxed">
                                     {integrityErrorMessage}
                                 </p>
@@ -308,7 +308,7 @@ function ClientsContent() {
                         </p>
                         <Button
                             onClick={() => setIsIntegrityAlertOpen(false)}
-                            className="w-full bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold py-6"
+                            className="w-full bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-semibold py-6"
                         >
                             Compreendido
                         </Button>

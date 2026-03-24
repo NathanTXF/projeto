@@ -25,14 +25,14 @@ export function DeleteConfirmDialog({
 }: DeleteConfirmDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+            <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-none shadow-2xl rounded-xl">
                 <div className="bg-rose-600 px-6 py-5">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-inner">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 shadow-inner">
                             <Trash2 className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                            <DialogTitle className="text-lg font-bold text-white leading-none">Confirmar Exclusão</DialogTitle>
+                            <DialogTitle className="text-lg font-semibold text-white leading-none">Confirmar Exclusão</DialogTitle>
                             <DialogDescription className="text-white/80 text-sm mt-1">
                                 Esta ação não pode ser desfeita.
                             </DialogDescription>
@@ -47,14 +47,14 @@ export function DeleteConfirmDialog({
                         <Button
                             variant="outline"
                             onClick={() => onOpenChange(false)}
-                            className="rounded-xl border-slate-200 text-slate-600 font-semibold"
+                            className="rounded-lg border-slate-200 text-slate-600 font-semibold"
                         >
                             Manter Registro
                         </Button>
                         <Button
                             onClick={onConfirm}
                             disabled={isDeleting}
-                            className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg shadow-rose-200 border-none font-bold gap-2"
+                            className="bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-lg shadow-rose-200 border-none font-semibold gap-2"
                         >
                             {isDeleting ? (
                                 <><Loader2 className="h-4 w-4 animate-spin" />Excluindo...</>

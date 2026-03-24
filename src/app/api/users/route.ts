@@ -4,6 +4,7 @@ import { UserUseCases } from '@/modules/users/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 import { UserSchema } from '@/modules/users/domain/entities';
 import { z } from 'zod';
+import { getErrorMessage } from '@/lib/error-utils';
 
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
@@ -19,8 +20,8 @@ export async function GET() {
 
         const users = await useCases.listAll();
         return NextResponse.json(users);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -40,9 +41,9 @@ export async function POST(request: Request) {
 
         const validatedData = UserSchema.parse(data);
 
-        const user = await useCases.createUser(validatedData as any);
+        const user = await useCases.createUser(validatedData);
         return NextResponse.json(user);
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error creating user:', error);
         if (error instanceof z.ZodError) {
             return NextResponse.json({
@@ -50,6 +51,6 @@ export async function POST(request: Request) {
                 details: error.issues.map((e: z.ZodIssue) => `${e.path.join('.')}: ${e.message}`)
             }, { status: 400 });
         }
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

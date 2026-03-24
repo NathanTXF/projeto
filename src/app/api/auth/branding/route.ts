@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getErrorMessage } from '@/lib/error-utils';
 
 export async function GET() {
     try {
@@ -21,8 +22,10 @@ export async function GET() {
         }
 
         return NextResponse.json(company);
-    } catch (error: any) {
+    } catch (error) {
         console.error("Public Branding API Error:", error);
+        const message = getErrorMessage(error);
+        console.error("Public Branding API Error Message:", message);
         return NextResponse.json({
             nome: "Dinheiro Fácil",
             logoUrl: null,

@@ -21,6 +21,24 @@ export const CommissionSchema = z.object({
 
 export type Commission = z.infer<typeof CommissionSchema>;
 
+export interface PendingCommissionItem {
+    id: string;
+    loanId: string;
+    vendedorId: string;
+    mesAno: string;
+    status: 'PENDENTE_GERACAO';
+    valorCalculado: number;
+    tipoComissao: 'PORCENTAGEM' | 'VALOR_FIXO';
+    valorReferencia: number;
+    loan: {
+        id: string;
+        cod?: number;
+        cliente: unknown;
+        valorLiquido: number;
+    };
+    vendedor: unknown;
+}
+
 export interface CommissionRepository {
     findAll(): Promise<Commission[]>;
     findById(id: string): Promise<Commission | null>;
@@ -28,7 +46,7 @@ export interface CommissionRepository {
     findBySellerId(vendedorId: string): Promise<Commission[]>;
     findByPeriod(mesAno: string): Promise<Commission[]>;
     findByFilters(filters: { mesAno?: string; vendedorId?: string }): Promise<Commission[]>;
-    findPendingLoans(filters: { mesAno?: string; vendedorId?: string }): Promise<any[]>;
+    findPendingLoans(filters: { mesAno?: string; vendedorId?: string }): Promise<PendingCommissionItem[]>;
     create(data: Commission): Promise<Commission>;
     update(id: string, data: Partial<Commission>): Promise<Commission>;
     delete(id: string): Promise<void>;

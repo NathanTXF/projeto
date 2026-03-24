@@ -1,5 +1,6 @@
 import { prisma } from '../../../lib/prisma';
-import { Commission, CommissionRepository } from '../domain/entities';
+import { Commission, CommissionRepository, PendingCommissionItem } from '../domain/entities';
+import { Prisma } from '@prisma/client';
 
 export class PrismaCommissionRepository implements CommissionRepository {
     async findAll(): Promise<Commission[]> {
@@ -73,8 +74,8 @@ export class PrismaCommissionRepository implements CommissionRepository {
         return commissions as unknown as Commission[];
     }
 
-    async findPendingLoans(filters: { mesAno?: string; vendedorId?: string }): Promise<any[]> {
-        const where: any = {
+    async findPendingLoans(filters: { mesAno?: string; vendedorId?: string }): Promise<PendingCommissionItem[]> {
+        const where: Prisma.LoanWhereInput = {
             vendedorId: filters.vendedorId,
             commission: null, // Loans that don't have a commission record yet
         };
@@ -100,7 +101,7 @@ export class PrismaCommissionRepository implements CommissionRepository {
         });
 
         // Map loans to a structure that the frontend can easily handle next to commissions
-        return loans.map(loan => ({
+        return loans.map((loan) => ({
             id: `pending-${loan.id}`,
             loanId: loan.id,
             vendedorId: loan.vendedorId,
@@ -121,7 +122,7 @@ export class PrismaCommissionRepository implements CommissionRepository {
 
     async create(data: Commission): Promise<Commission> {
         const commission = await prisma.commission.create({
-            data: data as any,
+            data: data as unknown as Prisma.CommissionUncheckedCreateInput,
         });
         return commission as unknown as Commission;
     }
@@ -129,7 +130,7 @@ export class PrismaCommissionRepository implements CommissionRepository {
     async update(id: string, data: Partial<Commission>): Promise<Commission> {
         const commission = await prisma.commission.update({
             where: { id },
-            data: data as any,
+            data: data as unknown as Prisma.CommissionUncheckedUpdateInput,
         });
         return commission as unknown as Commission;
     }

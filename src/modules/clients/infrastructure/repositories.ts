@@ -1,5 +1,6 @@
 import { prisma } from '../../../lib/prisma';
 import { Customer, CustomerRepository } from '../domain/entities';
+import { Prisma } from '@prisma/client';
 
 export class PrismaCustomerRepository implements CustomerRepository {
     async findAll(): Promise<Customer[]> {
@@ -25,7 +26,7 @@ export class PrismaCustomerRepository implements CustomerRepository {
 
     async create(data: Customer): Promise<Customer> {
         const customer = await prisma.customer.create({
-            data: data as any,
+            data: data as unknown as Prisma.CustomerUncheckedCreateInput,
         });
         return customer as unknown as Customer;
     }
@@ -33,7 +34,7 @@ export class PrismaCustomerRepository implements CustomerRepository {
     async update(id: string, data: Partial<Customer>): Promise<Customer> {
         const customer = await prisma.customer.update({
             where: { id },
-            data: data as any,
+            data: data as unknown as Prisma.CustomerUncheckedUpdateInput,
         });
         return customer as unknown as Customer;
     }

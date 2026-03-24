@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Company } from '@/modules/company/domain/entities';
-import { Building2, Globe, Mail, Phone, MapPin } from 'lucide-react';
+import { Phone, MapPin } from 'lucide-react';
 import Image from 'next/image';
 
 interface ReportHeaderProps {
@@ -35,18 +35,20 @@ export function ReportHeader({ reportTitle, period }: ReportHeaderProps) {
                 <div className="flex gap-4">
                     {(company?.reportLogoUrl || company?.logoUrl) && (
                         <div className="h-16 w-16 flex items-center justify-center bg-white rounded-lg border border-slate-100 shadow-sm overflow-hidden shrink-0">
-                            <img 
-                                src={company.reportLogoUrl || company.logoUrl || ''} 
-                                alt="Logo" 
+                            <Image
+                                src={company.reportLogoUrl || company.logoUrl || ''}
+                                alt="Logo"
+                                width={64}
+                                height={64}
                                 className="max-h-full max-w-full object-contain"
                             />
                         </div>
                     )}
                     <div>
-                        <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">
+                        <h1 className="text-xl font-semibold text-slate-900 uppercase tracking-tight leading-none mb-1">
                             {company?.nome || "Empresa de Crédito"}
                         </h1>
-                        <div className="text-[9px] text-slate-500 font-bold flex gap-4 uppercase tracking-wider">
+                        <div className="text-[9px] text-slate-500 font-medium flex gap-4 uppercase tracking-wider">
                             <span>CNPJ: <span className="text-slate-700">{company?.cnpj}</span></span>
                             <span className="flex items-center gap-1"><Phone className="w-2.5 h-2.5" /> <span className="text-slate-700">{company?.contato}</span></span>
                             <span className="flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> <span className="text-slate-700 truncate max-w-[200px]">{company?.endereco}</span></span>
@@ -55,7 +57,7 @@ export function ReportHeader({ reportTitle, period }: ReportHeaderProps) {
                 </div>
 
                 {/* Report Metadata */}
-                <div className="text-right text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
+                <div className="text-right text-[9px] font-medium text-slate-400 uppercase tracking-widest leading-tight">
                     <p>Gerado em: <span className="text-slate-700">{today}</span></p>
                     {period && <p className="mt-0.5">Período: <span className="text-indigo-600">{period}</span></p>}
                 </div>
@@ -65,10 +67,10 @@ export function ReportHeader({ reportTitle, period }: ReportHeaderProps) {
             <div className="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3">
                 <div className="h-8 w-1 bg-indigo-600 rounded-full" />
                 <div>
-                    <h2 className="text-lg font-black text-slate-900 uppercase tracking-tighter leading-none">
+                    <h2 className="text-lg font-semibold text-slate-900 uppercase tracking-tighter leading-none">
                         {reportTitle}
                     </h2>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">
+                    <p className="text-[9px] font-medium text-slate-400 uppercase tracking-[0.2em] mt-1">
                         Relatório Analítico de Gestão • Confidencial
                     </p>
                 </div>

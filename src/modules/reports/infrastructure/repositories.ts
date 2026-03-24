@@ -5,12 +5,21 @@ import {
     SalesReportItem,
     CommissionReportItem,
     FinancialReportItem,
-    PerformanceReportItem
+    PerformanceReportItem,
+    CustomerReportItem
 } from '../domain/entities';
+import { Prisma } from '@prisma/client';
+
+interface CategoricalReportItem {
+    categoria: string;
+    qtdVendas: number;
+    valorBruto: number;
+    valorLiquido: number;
+}
 
 export class PrismaReportRepository {
     async getSalesReport(params: ReportParams): Promise<ReportData> {
-        const where: any = {
+        const where: Prisma.LoanWhereInput = {
             dataInicio: {
                 gte: params.startDate ? new Date(params.startDate) : undefined,
                 lte: params.endDate ? new Date(params.endDate) : undefined,
@@ -62,7 +71,7 @@ export class PrismaReportRepository {
     }
 
     async getCommissionReport(params: ReportParams): Promise<ReportData> {
-        const where: any = {
+        const where: Prisma.CommissionWhereInput = {
             createdAt: {
                 gte: params.startDate ? new Date(params.startDate) : undefined,
                 lte: params.endDate ? new Date(params.endDate) : undefined,
@@ -106,7 +115,7 @@ export class PrismaReportRepository {
     }
 
     async getFinancialReport(params: ReportParams): Promise<ReportData> {
-        const where: any = {
+        const where: Prisma.FinancialWhereInput = {
             createdAt: {
                 gte: params.startDate ? new Date(params.startDate) : undefined,
                 lte: params.endDate ? new Date(params.endDate) : undefined,
@@ -164,8 +173,8 @@ export class PrismaReportRepository {
             }
         });
 
-        const items: PerformanceReportItem[] = sellers.map((seller: any) => {
-            const realizado = seller.loans.reduce((acc: number, curr: any) => acc + Number(curr.valorBruto), 0);
+        const items: PerformanceReportItem[] = sellers.map((seller) => {
+            const realizado = seller.loans.reduce((acc, curr) => acc + Number(curr.valorBruto), 0);
             const meta = seller.metaVendasMensal ? Number(seller.metaVendasMensal) : 0;
             const percentual = meta > 0 ? (realizado / meta) * 100 : 0;
 
@@ -196,7 +205,7 @@ export class PrismaReportRepository {
             orderBy: { createdAt: 'desc' }
         });
 
-        const items: any[] = customers.map(c => ({
+        const items: CustomerReportItem[] = customers.map(c => ({
             id: c.id,
             nome: c.nome,
             cpf: c.cpfCnpj,
@@ -224,16 +233,15 @@ export class PrismaReportRepository {
     }
 
     async getCategoricalReport(params: ReportParams): Promise<ReportData> {
-        let groupByField = '';
-        let includeRelation = '';
+        let includeRelation: 'banco' | 'orgao' | 'grupo' | 'tabela' | 'tipo' | 'vendedor';
 
         switch (params.type) {
-            case 'BANKS': groupByField = 'banco'; includeRelation = 'banco'; break;
-            case 'ORGANS': groupByField = 'orgao'; includeRelation = 'orgao'; break;
-            case 'GROUPS': groupByField = 'grupo'; includeRelation = 'grupo'; break;
-            case 'TABLES': groupByField = 'tabela'; includeRelation = 'tabela'; break;
-            case 'LOAN_TYPES': groupByField = 'tipo'; includeRelation = 'tipo'; break;
-            case 'OPERATORS': groupByField = 'vendedor'; includeRelation = 'vendedor'; break;
+            case 'BANKS': includeRelation = 'banco'; break;
+            case 'ORGANS': includeRelation = 'orgao'; break;
+            case 'GROUPS': includeRelation = 'grupo'; break;
+            case 'TABLES': includeRelation = 'tabela'; break;
+            case 'LOAN_TYPES': includeRelation = 'tipo'; break;
+            case 'OPERATORS': includeRelation = 'vendedor'; break;
             default: throw new Error('Tipo de categoria inválido');
         }
 
@@ -245,15 +253,38 @@ export class PrismaReportRepository {
                 }
             },
             include: {
-                [includeRelation]: true
+                banco: true,
+                orgao: true,
+                grupo: true,
+                tabela: true,
+                tipo: true,
+                vendedor: true,
             }
         });
 
-        const grouping: Record<string, any> = {};
+        const grouping: Record<string, CategoricalReportItem> = {};
+
+        const getRelationName = (loan: (typeof loans)[number]): string => {
+            switch (includeRelation) {
+                case 'banco':
+                    return loan.banco?.nome || 'Não Informado';
+                case 'orgao':
+                    return loan.orgao?.nome || 'Não Informado';
+                case 'grupo':
+                    return loan.grupo?.nome || 'Não Informado';
+                case 'tabela':
+                    return loan.tabela?.nome || 'Não Informado';
+                case 'tipo':
+                    return loan.tipo?.nome || 'Não Informado';
+                case 'vendedor':
+                    return loan.vendedor?.nome || 'Não Informado';
+                default:
+                    return 'Não Informado';
+            }
+        };
 
         loans.forEach(loan => {
-            const relation = (loan as any)[includeRelation];
-            const key = relation?.nome || relation?.nome || 'Não Informado';
+            const key = getRelationName(loan);
 
             if (!grouping[key]) {
                 grouping[key] = {

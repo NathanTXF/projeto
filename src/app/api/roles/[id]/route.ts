@@ -4,6 +4,7 @@ import { RoleUseCases } from '@/modules/roles/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { RoleSchema } from '@/modules/roles/domain/entities';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaRoleRepository();
 const useCases = new RoleUseCases(repository);
@@ -26,8 +27,8 @@ export async function GET(
         }
 
         return NextResponse.json(role);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -48,11 +49,12 @@ export async function PUT(
 
         const role = await useCases.update(id, validatedData);
         return NextResponse.json(role);
-    } catch (error: any) {
-        if (error.name === 'ZodError') {
-            return NextResponse.json({ error: error.errors }, { status: 400 });
+    } catch (error) {
+        if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+            const zodError = error as { errors?: unknown };
+            return NextResponse.json({ error: zodError.errors }, { status: 400 });
         }
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -75,7 +77,7 @@ export async function DELETE(
 
         await useCases.delete(id);
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

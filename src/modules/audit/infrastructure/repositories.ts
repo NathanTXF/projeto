@@ -1,5 +1,6 @@
 import { Audit, AuditRepository } from '../domain/entities';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export class PrismaAuditRepository implements AuditRepository {
     async findAll(filters?: {
@@ -9,7 +10,7 @@ export class PrismaAuditRepository implements AuditRepository {
         startDate?: Date;
         endDate?: Date;
     }): Promise<Audit[]> {
-        const where: any = {};
+        const where: Prisma.AuditWhereInput = {};
 
         if (filters?.usuarioId) {
             where.usuarioId = filters.usuarioId;
@@ -34,7 +35,7 @@ export class PrismaAuditRepository implements AuditRepository {
             if (filters.endDate) where.timestamp.lte = filters.endDate;
         }
 
-        return await prisma.audit.findMany({
+        const rows = await prisma.audit.findMany({
             where,
             orderBy: { timestamp: 'desc' },
             include: {
@@ -42,17 +43,41 @@ export class PrismaAuditRepository implements AuditRepository {
                     select: { nome: true }
                 }
             }
-        }) as any;
+        });
+
+        return rows.map((row) => ({
+            id: row.id,
+            timestamp: row.timestamp,
+            usuarioId: row.usuarioId,
+            modulo: row.modulo,
+            acao: row.acao,
+            entidadeId: row.entidadeId ?? undefined,
+            ip: row.ip ?? undefined,
+        }));
     }
 
     async findById(id: string): Promise<Audit | null> {
-        return await prisma.audit.findUnique({
+        const row = await prisma.audit.findUnique({
             where: { id },
             include: {
                 usuario: {
                     select: { nome: true }
                 }
             }
-        }) as any;
+        });
+
+        if (!row) {
+            return null;
+        }
+
+        return {
+            id: row.id,
+            timestamp: row.timestamp,
+            usuarioId: row.usuarioId,
+            modulo: row.modulo,
+            acao: row.acao,
+            entidadeId: row.entidadeId ?? undefined,
+            ip: row.ip ?? undefined,
+        };
     }
 }

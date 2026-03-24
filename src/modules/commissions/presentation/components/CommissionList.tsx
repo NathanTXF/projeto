@@ -11,14 +11,40 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/Badge";
 import { CheckCircle, XCircle, Save, Edit } from "lucide-react";
-import { Commission } from "../../domain/entities";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 
+export interface CommissionApprovePayload {
+    tipo: string;
+    referencia: number;
+    loanId: string;
+    vendedorId: string;
+    mesAno: string;
+    valorBase: number;
+    isEdit: boolean;
+}
+
+export interface CommissionRow {
+    id: string;
+    loanId: string;
+    vendedorId: string;
+    mesAno: string;
+    status: string;
+    tipoComissao: string;
+    valorReferencia: number;
+    valorCalculado: number;
+    loan: {
+        cod?: number;
+        valorLiquido?: number;
+        cliente?: { nome?: string };
+    };
+    vendedor?: { nome?: string };
+}
+
 interface CommissionListProps {
-    commissions: any[];
-    onApprove: (id: string, data?: any) => void;
+    commissions: CommissionRow[];
+    onApprove: (id: string, data?: CommissionApprovePayload) => void;
     onCancel: (id: string) => void;
 }
 
@@ -33,7 +59,7 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
     const [pendingData, setPendingData] = useState<Record<string, { tipo: string, referencia: number }>>({});
     const [editingId, setEditingId] = useState<string | null>(null);
 
-    const handleDataChange = (id: string, field: string, value: any) => {
+    const handleDataChange = (id: string, field: "tipo" | "referencia", value: string | number) => {
         setPendingData(prev => ({
             ...prev,
             [id]: {
@@ -44,18 +70,18 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
     };
 
     return (
-        <div className="rounded-xl border border-slate-100 bg-white overflow-hidden shadow-sm">
+        <div className="rounded-lg border border-slate-100 bg-white overflow-hidden shadow-sm">
             <Table>
                 <TableHeader className="bg-slate-50 border-b border-slate-200">
                     <TableRow className="hover:bg-transparent border-none">
-                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Vendedor</TableHead>
-                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Contrato</TableHead>
-                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Cliente</TableHead>
-                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider text-center">Referência</TableHead>
-                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Tipo</TableHead>
-                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Valor Comissão</TableHead>
-                        <TableHead className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Status</TableHead>
-                        <TableHead className="text-right font-bold text-slate-500 text-[11px] uppercase tracking-wider">Ações</TableHead>
+                        <TableHead className="font-medium text-slate-500 text-[11px] uppercase tracking-wider">Vendedor</TableHead>
+                        <TableHead className="font-medium text-slate-500 text-[11px] uppercase tracking-wider">Contrato</TableHead>
+                        <TableHead className="font-medium text-slate-500 text-[11px] uppercase tracking-wider">Cliente</TableHead>
+                        <TableHead className="font-medium text-slate-500 text-[11px] uppercase tracking-wider text-center">Referência</TableHead>
+                        <TableHead className="font-medium text-slate-500 text-[11px] uppercase tracking-wider">Tipo</TableHead>
+                        <TableHead className="font-medium text-slate-500 text-[11px] uppercase tracking-wider">Valor Comissão</TableHead>
+                        <TableHead className="font-medium text-slate-500 text-[11px] uppercase tracking-wider">Status</TableHead>
+                        <TableHead className="text-right font-medium text-slate-500 text-[11px] uppercase tracking-wider">Ações</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -78,25 +104,25 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
 
                             const valorCalculado = showInputs
                                 ? (currentData.tipo === 'PORCENTAGEM'
-                                    ? (Number(c.loan.valorLiquido) * currentData.referencia) / 100
+                                    ? (Number(c.loan?.valorLiquido ?? 0) * currentData.referencia) / 100
                                     : currentData.referencia)
                                 : Number(c.valorCalculado);
 
                             return (
                                 <TableRow key={c.id} className="hover:bg-slate-50/50 transition-colors">
                                     <TableCell className="font-semibold text-slate-800">{c.vendedor?.nome || 'N/A'}</TableCell>
-                                    <TableCell className="font-semibold text-slate-500 font-outfit text-xs">#{c.loan?.cod || 'N/A'}</TableCell>
+                                    <TableCell className="font-medium text-slate-500 font-outfit text-xs">#{c.loan?.cod || 'N/A'}</TableCell>
                                     <TableCell className="text-slate-600">{c.loan?.cliente?.nome || 'N/A'}</TableCell>
                                     <TableCell className="text-center min-w-[120px]">
                                         {showInputs ? (
                                             <Input
                                                 type="number"
-                                                className="h-9 w-24 mx-auto text-center font-bold rounded-lg border-slate-200 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
+                                                className="h-9 w-24 mx-auto text-center font-semibold rounded-lg border-slate-200 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
                                                 value={currentData.referencia}
                                                 onChange={(e) => handleDataChange(c.id, 'referencia', Number(e.target.value))}
                                             />
                                         ) : (
-                                            <span className="font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-md text-xs">
+                                            <span className="font-medium text-slate-700 bg-slate-100 px-2 py-1 rounded-md text-xs">
                                                 {c.tipoComissao === 'PORCENTAGEM' ? `${c.valorReferencia}%` : `R$ ${c.valorReferencia}`}
                                             </span>
                                         )}
@@ -107,7 +133,7 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
                                                 value={currentData.tipo}
                                                 onValueChange={(v) => handleDataChange(c.id, 'tipo', v)}
                                             >
-                                                <SelectTrigger className="h-8 w-32 text-[10px] font-bold uppercase">
+                                                <SelectTrigger className="h-8 w-32 text-[10px] font-medium uppercase">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -116,16 +142,16 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
                                                 </SelectContent>
                                             </Select>
                                         ) : (
-                                            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+                                            <span className="text-[10px] uppercase font-medium text-slate-500 tracking-wider">
                                                 {c.tipoComissao.replace('_', ' ')}
                                             </span>
                                         )}
                                     </TableCell>
-                                    <TableCell className="font-bold text-emerald-600 font-outfit text-md">
+                                    <TableCell className="font-semibold text-emerald-600 font-outfit text-md">
                                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorCalculado)}
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant="outline" className={`${statusColors[(c.status || '').toUpperCase().replace(' ', '_')]} font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 border-none`}>
+                                        <Badge variant="outline" className={`${statusColors[(c.status || '').toUpperCase().replace(' ', '_')]} font-medium text-[10px] uppercase tracking-wider px-2 py-0.5 border-none`}>
                                             {(c.status || '').replace('_', ' ').replace('PENDENTE GERACAO', 'NÃO GERADA')}
                                         </Badge>
                                     </TableCell>
@@ -135,7 +161,7 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-8 w-8 rounded-xl transition-colors text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                                    className="h-8 w-8 rounded-lg transition-colors text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
                                                     onClick={() => {
                                                         handleDataChange(c.id, 'tipo', c.tipoComissao);
                                                         handleDataChange(c.id, 'referencia', Number(c.valorReferencia));
@@ -150,7 +176,7 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className={`h-8 w-8 rounded-xl transition-colors ${showInputs ? 'text-blue-500 hover:bg-blue-50' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
+                                                    className={`h-8 w-8 rounded-lg transition-colors ${showInputs ? 'text-blue-500 hover:bg-blue-50' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
                                                     onClick={() => {
                                                         onApprove(
                                                             c.id,
@@ -159,7 +185,7 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
                                                                 loanId: c.loanId,
                                                                 vendedorId: c.vendedorId,
                                                                 mesAno: c.mesAno,
-                                                                valorBase: Number(c.loan.valorLiquido),
+                                                                valorBase: Number(c.loan?.valorLiquido ?? 0),
                                                                 isEdit: isEditing
                                                             } : undefined
                                                         );
@@ -171,12 +197,12 @@ export function CommissionList({ commissions, onApprove, onCancel }: CommissionL
                                                 </Button>
                                             )}
                                             {c.status === 'EM_ABERTO' && (
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors" onClick={() => onCancel(c.id)} title="Cancelar Comissão">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" onClick={() => onCancel(c.id)} title="Cancelar Comissão">
                                                     <XCircle className="h-4 w-4" />
                                                 </Button>
                                             )}
                                             {isEditing && (
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors" onClick={() => setEditingId(null)} title="Cancelar Edição">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" onClick={() => setEditingId(null)} title="Cancelar Edição">
                                                     <XCircle className="h-4 w-4" />
                                                 </Button>
                                             )}

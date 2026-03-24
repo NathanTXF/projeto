@@ -39,7 +39,7 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                     placeholder="Buscar por nome ou CPF..."
-                    className="pl-10 rounded-xl border-slate-300 bg-white shadow-sm focus-visible:ring-sidebar/20 focus-visible:border-sidebar transition-all h-11"
+                    className="pl-10 rounded-lg border-slate-300 bg-white shadow-sm focus-visible:ring-sidebar/20 focus-visible:border-sidebar transition-all h-11"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -51,19 +51,19 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
             </div>
 
             {/* ── Tabela de Clientes ── */}
-            <Card className="border border-slate-100 shadow-sm overflow-hidden rounded-2xl bg-white">
+            <Card className="border border-slate-200/70 shadow-sm overflow-hidden rounded-xl bg-white">
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
                         <Table>
-                            <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold">
+                            <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-semibold">
                                 <TableRow className="hover:bg-transparent border-slate-100">
-                                    <TableHead className="font-semibold text-sidebar-foreground text-xs uppercase tracking-wider h-12 pl-6">Cliente</TableHead>
-                                    <TableHead className="font-semibold text-sidebar-foreground text-xs uppercase tracking-wider">CPF/CNPJ</TableHead>
-                                    <TableHead className="font-semibold text-sidebar-foreground text-xs uppercase tracking-wider">Idade</TableHead>
-                                    <TableHead className="font-semibold text-sidebar-foreground text-xs uppercase tracking-wider">Sexo</TableHead>
-                                    <TableHead className="font-semibold text-sidebar-foreground text-xs uppercase tracking-wider">Localidade</TableHead>
-                                    <TableHead className="font-semibold text-sidebar-foreground text-xs uppercase tracking-wider">Celular</TableHead>
-                                    <TableHead className="text-right font-semibold text-sidebar-foreground text-xs uppercase tracking-wider pr-6">Ações</TableHead>
+                                    <TableHead className="font-medium text-sidebar-foreground text-xs uppercase tracking-[0.14em] h-11 pl-5">Cliente</TableHead>
+                                    <TableHead className="font-medium text-sidebar-foreground text-xs uppercase tracking-[0.14em]">CPF/CNPJ</TableHead>
+                                    <TableHead className="font-medium text-sidebar-foreground text-xs uppercase tracking-[0.14em]">Idade</TableHead>
+                                    <TableHead className="font-medium text-sidebar-foreground text-xs uppercase tracking-[0.14em]">Sexo</TableHead>
+                                    <TableHead className="font-medium text-sidebar-foreground text-xs uppercase tracking-[0.14em]">Localidade</TableHead>
+                                    <TableHead className="font-medium text-sidebar-foreground text-xs uppercase tracking-[0.14em]">Celular</TableHead>
+                                    <TableHead className="text-right font-medium text-sidebar-foreground text-xs uppercase tracking-[0.14em] pr-5">Ações</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -81,31 +81,31 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                                     </TableRow>
                                 ) : (
                                     filteredCustomers.map((customer) => (
-                                        <TableRow key={customer.id} className="group hover:bg-indigo-50/30 transition-colors border-slate-100/80">
+                                        <TableRow key={customer.id} className="group hover:bg-muted/30 transition-colors border-slate-100/80">
                                             {/* Nome com Avatar */}
-                                            <TableCell className="pl-6">
+                                            <TableCell className="pl-5 py-3">
                                                 <div className="flex items-center gap-3">
                                                     <Avatar className="h-9 w-9 border-2 border-white shadow-sm">
-                                                        <AvatarFallback className="bg-sidebar text-white text-xs font-bold">
+                                                        <AvatarFallback className="bg-sidebar text-white text-xs font-medium">
                                                             {customer.nome.charAt(0).toUpperCase()}
                                                         </AvatarFallback>
                                                     </Avatar>
                                                     <div className="flex flex-col">
-                                                        <span className="font-semibold text-slate-800 text-sm">{customer.nome}</span>
-                                                        <span className="text-xs text-slate-500 font-bold">Cód. {customer.cod}</span>
+                                                        <span className="font-medium text-slate-800 text-sm">{customer.nome}</span>
+                                                        <span className="text-xs text-slate-500 font-medium">Cód. {customer.cod}</span>
                                                     </div>
                                                 </div>
                                             </TableCell>
 
                                             {/* CPF/CNPJ */}
-                                            <TableCell>
+                                            <TableCell className="py-3">
                                                 <span className="text-sm text-slate-600 font-mono bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
                                                     {customer.cpfCnpj}
                                                 </span>
                                             </TableCell>
 
                                             {/* Idade */}
-                                            <TableCell className="text-sm text-slate-600 font-medium">
+                                            <TableCell className="text-sm text-slate-600 font-medium py-3">
                                                 {customer.dataNascimento ? (
                                                     <span>{calculateAge(customer.dataNascimento)} anos</span>
                                                 ) : (
@@ -114,13 +114,13 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                                             </TableCell>
 
                                             {/* Sexo */}
-                                            <TableCell>
+                                            <TableCell className="py-3">
                                                 <Badge
                                                     variant="secondary"
                                                     className={
                                                         customer.sexo === "masculino"
-                                                            ? "bg-sidebar/10 text-sidebar border-sidebar/20 font-bold text-[10px]"
-                                                            : "bg-pink-50 text-pink-700 border-pink-100 font-bold text-[10px]"
+                                                            ? "bg-sidebar/10 text-sidebar border-sidebar/20 font-medium text-[10px]"
+                                                            : "bg-pink-50 text-pink-700 border-pink-100 font-medium text-[10px]"
                                                     }
                                                 >
                                                     {customer.sexo === "masculino" ? "M" : "F"}
@@ -128,7 +128,7 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                                             </TableCell>
 
                                             {/* Cidade/UF */}
-                                            <TableCell>
+                                            <TableCell className="py-3">
                                                 <div className="flex items-center gap-1.5 text-sm text-slate-600">
                                                     <MapPin className="h-3.5 w-3.5 text-slate-400" />
                                                     <span>{customer.cidade}/{customer.estado}</span>
@@ -136,7 +136,7 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                                             </TableCell>
 
                                             {/* Celular */}
-                                            <TableCell>
+                                            <TableCell className="py-3">
                                                 <div className="flex items-center gap-1.5 text-sm text-slate-600">
                                                     <Phone className="h-3.5 w-3.5 text-slate-400" />
                                                     <span>{customer.celular}</span>
@@ -144,7 +144,7 @@ export function CustomerList({ customers, userLevel, onEdit, onDelete }: Custome
                                             </TableCell>
 
                                             {/* Ações */}
-                                            <TableCell className="text-right pr-6">
+                                            <TableCell className="text-right pr-5 py-3">
                                                 {userLevel !== 3 && (
                                                     <div className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                                                         <Button

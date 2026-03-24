@@ -3,6 +3,7 @@ import { PrismaCommissionRepository } from '@/modules/commissions/infrastructure
 import { CommissionUseCases } from '@/modules/commissions/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaCommissionRepository();
 const useCases = new CommissionUseCases(repository);
@@ -15,7 +16,7 @@ export async function GET(request: Request) {
         }
 
         const { searchParams } = new URL(request.url);
-        let mesAno = searchParams.get('mesAno') || undefined;
+        const mesAno = searchParams.get('mesAno') || undefined;
         let vendedorId = searchParams.get('vendedorId') || undefined;
 
         // Regra Senior: Se não for gestor, só pode ver as próprias comissões
@@ -30,8 +31,8 @@ export async function GET(request: Request) {
 
         const commissions = await useCases.listAll();
         return NextResponse.json(commissions);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
         });
 
         return NextResponse.json(commission, { status: 201 });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

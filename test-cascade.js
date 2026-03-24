@@ -1,9 +1,6 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-
-async function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 async function main() {
     console.log('--- INITIALIZING SMART CASCADE DELETION TEST ---');

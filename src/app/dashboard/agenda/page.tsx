@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Calendar as CalendarIcon, Clock, MoreVertical, Trash2, Search, MapPin, CheckCircle2, Circle, Filter } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, Clock, Trash2, MapPin, CheckCircle2, Circle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import {
     Dialog,
@@ -22,6 +21,8 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { KpiCard } from "@/components/layout/KpiCard";
+
+type AppointmentPayload = Record<string, unknown>;
 
 export default function AgendaPage() {
     const [month, setMonth] = useState<Date>(new Date());
@@ -49,7 +50,7 @@ export default function AgendaPage() {
                 const data = await response.json();
                 setMonthlyAppointments(data);
             }
-        } catch (error) {
+        } catch {
             toast.error("Não foi possível carregar os compromissos.");
         } finally {
             setLoading(false);
@@ -64,7 +65,7 @@ export default function AgendaPage() {
         return aptDate.toISOString().split('T')[0] === date.toISOString().split('T')[0];
     });
 
-    const handleCreate = async (values: any) => {
+    const handleCreate = async (values: AppointmentPayload) => {
         try {
             setIsSubmitting(true);
             const response = await fetch('/api/agenda', {
@@ -81,8 +82,9 @@ export default function AgendaPage() {
                 const errorData = await response.json();
                 toast.error("Erro: " + errorData.error);
             }
-        } catch (error: any) {
-            toast.error("Erro na requisição: " + error.message);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Falha inesperada";
+            toast.error("Erro na requisição: " + message);
         } finally {
             setIsSubmitting(false);
         }
@@ -107,7 +109,7 @@ export default function AgendaPage() {
             if (!response.ok) throw new Error();
 
             toast.success(nextStatus === "CONCLUIDO" ? "Compromisso concluído!" : "Compromisso reaberto.");
-        } catch (error) {
+        } catch {
             setMonthlyAppointments(originalAppointments);
             toast.error("Erro ao sincronizar status.");
         }
@@ -135,7 +137,7 @@ export default function AgendaPage() {
             } else {
                 throw new Error();
             }
-        } catch (error: any) {
+        } catch {
             setMonthlyAppointments(originalAppointments);
             toast.error("Erro ao remover.");
         } finally {
@@ -155,13 +157,13 @@ export default function AgendaPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-8 shadow-[0_24px_60px_rgba(5,50,94,0.28)] border border-white/10">
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-8 shadow-[0_24px_60px_rgba(5,50,94,0.28)] border border-white/10">
                 <div className="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
                     <CalendarIcon className="h-64 w-64 text-white" />
                 </div>
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md shadow-inner border border-white/20">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md shadow-inner border border-white/20">
                             <CalendarIcon className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
@@ -176,7 +178,7 @@ export default function AgendaPage() {
                     <Button
                         onClick={() => setIsDialogOpen(true)}
                         variant="secondary"
-                        className="gap-2 rounded-xl font-bold shadow-sm px-6 py-3 transition-all hover:scale-105 active:scale-95 bg-white text-[#00355E] hover:bg-white/90"
+                        className="gap-2 rounded-lg font-semibold shadow-sm px-6 py-3 transition-all hover:scale-105 active:scale-95 bg-white text-[#00355E] hover:bg-white/90"
                     >
                         <Plus className="h-5 w-5" />
                         Novo Compromisso
@@ -191,10 +193,10 @@ export default function AgendaPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <Card className="lg:col-span-4 border border-slate-100 shadow-xl rounded-3xl bg-white/80 backdrop-blur-xl overflow-hidden h-fit sticky top-6">
+                <Card className="lg:col-span-4 border border-slate-100 shadow-xl rounded-2xl bg-white/80 backdrop-blur-xl overflow-hidden h-fit sticky top-6">
                     <CardHeader className="bg-slate-50/30 border-b border-slate-100">
-                        <CardTitle className="text-xl font-black text-slate-800">Calendário</CardTitle>
-                        <CardDescription className="font-bold text-slate-500 uppercase tracking-widest text-[10px]">Visualização do Mês</CardDescription>
+                        <CardTitle className="text-xl font-semibold text-slate-800">Calendário</CardTitle>
+                        <CardDescription className="font-medium text-slate-500 uppercase tracking-widest text-[10px]">Visualização do Mês</CardDescription>
                     </CardHeader>
                     <CardContent className="p-5 flex flex-col items-center">
                         <Calendar
@@ -211,7 +213,7 @@ export default function AgendaPage() {
                                 cobranca: (date) => monthlyAppointments.some(a => new Date(a.data).toDateString() === date.toDateString() && a.tipo === 'Cobrança')
                             }}
                             modifiersClassNames={{
-                                hasAppointment: "relative font-bold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1.5 after:w-1.5 after:rounded-full after:bg-primary/20",
+                                hasAppointment: "relative font-semibold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1.5 after:w-1.5 after:rounded-full after:bg-primary/20",
                                 visia: "after:bg-blue-500",
                                 cobranca: "after:bg-amber-500"
                             }}
@@ -221,22 +223,22 @@ export default function AgendaPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="lg:col-span-8 border border-slate-100 shadow-sm rounded-2xl bg-white overflow-hidden">
+                <Card className="lg:col-span-8 border border-slate-100 shadow-sm rounded-xl bg-white overflow-hidden">
                     <CardHeader className="bg-white border-b border-slate-100 p-6">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
-                                <CardTitle className="text-2xl font-black text-slate-900 tracking-tight">
+                                <CardTitle className="text-2xl font-semibold text-slate-900 tracking-tight">
                                     {date ? format(date, "EEEE, d 'de' MMMM", { locale: ptBR }) : "Selecione uma data"}
                                 </CardTitle>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <CardDescription className="font-bold text-slate-500">{appointments.length} compromissos encontrados.</CardDescription>
+                                    <CardDescription className="font-semibold text-slate-500">{appointments.length} compromissos encontrados.</CardDescription>
                                     <div className="h-1 w-1 rounded-full bg-slate-300" />
-                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">
+                                    <span className="text-[10px] font-medium text-primary uppercase tracking-widest">
                                         {Math.round((appointments.filter(a => a.status === 'CONCLUIDO').length / (appointments.length || 1)) * 100)}% concluído
                                     </span>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-6 bg-slate-50/50 p-2 pr-4 rounded-3xl border border-slate-100 shadow-inner">
+                            <div className="flex items-center gap-6 bg-slate-50/50 p-2 pr-4 rounded-2xl border border-slate-100 shadow-inner">
                                 <div className="relative h-12 w-12 flex items-center justify-center">
                                     <svg className="h-full w-full -rotate-90 transform">
                                         <circle
@@ -261,7 +263,7 @@ export default function AgendaPage() {
                                             className="text-primary transition-all duration-1000 ease-out"
                                         />
                                     </svg>
-                                    <span className="absolute text-[10px] font-black text-slate-700">
+                                    <span className="absolute text-[10px] font-medium text-slate-700">
                                         {Math.round((appointments.filter(a => a.status === 'CONCLUIDO').length / (appointments.length || 1)) * 100)}%
                                     </span>
                                 </div>
@@ -274,7 +276,7 @@ export default function AgendaPage() {
                                             size="sm"
                                             onClick={() => setFilterStatus(id)}
                                             className={cn(
-                                                "rounded-2xl h-8 px-4 font-bold text-[10px] uppercase tracking-wider transition-all",
+                                                "rounded-xl h-8 px-4 font-medium text-[10px] uppercase tracking-wider transition-all",
                                                 filterStatus === id ? "bg-white text-primary shadow-sm hover:bg-white border border-slate-100" : "text-slate-500 hover:bg-slate-200/50"
                                             )}
                                         >
@@ -290,7 +292,7 @@ export default function AgendaPage() {
                             <div className="flex h-64 items-center justify-center">
                                 <div className="flex flex-col items-center gap-2">
                                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                                    <span className="text-xs font-bold text-slate-500 animate-pulse">CARREGANDO...</span>
+                                    <span className="text-xs font-medium text-slate-500 animate-pulse">CARREGANDO...</span>
                                 </div>
                             </div>
                         ) : filteredAppointments.length === 0 ? (
@@ -298,13 +300,13 @@ export default function AgendaPage() {
                                 <div className="h-20 w-20 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 mb-6 group-hover:scale-110 transition-transform duration-500">
                                     <CalendarIcon className="h-10 w-10 text-slate-200" />
                                 </div>
-                                <h3 className="text-xl font-black text-slate-800 mb-2">Folga Merecida!</h3>
-                                <p className="text-sm text-slate-500 font-bold max-w-[240px] text-center leading-relaxed">
+                                <h3 className="text-xl font-semibold text-slate-800 mb-2">Folga Merecida!</h3>
+                                <p className="text-sm text-slate-500 font-medium max-w-[240px] text-center leading-relaxed">
                                     Tudo limpo para este dia. Que tal adiantar as tarefas de amanhã?
                                 </p>
                                 <Button
                                     variant="outline"
-                                    className="mt-8 rounded-2xl border-slate-200 font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm"
+                                    className="mt-8 rounded-xl border-slate-200 font-medium text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm"
                                     onClick={() => setIsDialogOpen(true)}
                                 >
                                     CRIAR AGENDA
@@ -318,7 +320,7 @@ export default function AgendaPage() {
                                             <button
                                                 onClick={() => toggleStatus(apt.id!, apt.status)}
                                                 className={cn(
-                                                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 transition-all shadow-sm",
+                                                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-2 transition-all shadow-sm",
                                                     apt.status === "CONCLUIDO"
                                                         ? "bg-primary/10 border-primary text-primary scale-95"
                                                         : "bg-white border-slate-200 text-slate-300 hover:border-primary hover:text-primary"
@@ -333,9 +335,9 @@ export default function AgendaPage() {
 
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1.5">
-                                                    <span className="text-sm font-black text-slate-900 group-hover:text-primary transition-colors">{apt.hora}</span>
+                                                    <span className="text-sm font-medium text-slate-900 group-hover:text-primary transition-colors">{apt.hora}</span>
                                                     <Badge className={cn(
-                                                        "rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest border-none transition-all",
+                                                        "rounded-full px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-widest border-none transition-all",
                                                         apt.tipo === 'Visita' ? "bg-blue-100 text-blue-700 group-hover:bg-blue-200" :
                                                             apt.tipo === 'Cobrança' ? "bg-amber-100 text-amber-700 group-hover:bg-amber-200" :
                                                                 "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
@@ -343,11 +345,11 @@ export default function AgendaPage() {
                                                         {apt.tipo}
                                                     </Badge>
                                                     {apt.visibilidade === 'GLOBAL' && (
-                                                        <Badge className="bg-sidebar/10 text-sidebar-foreground rounded-full px-2 py-0.5 text-[8px] font-black border-none animate-pulse">GLOBAL</Badge>
+                                                        <Badge className="bg-sidebar/10 text-sidebar-foreground rounded-full px-2 py-0.5 text-[8px] font-medium border-none animate-pulse">GLOBAL</Badge>
                                                     )}
                                                 </div>
                                                 <h4 className={cn(
-                                                    "font-bold text-slate-700 text-base leading-tight transition-all",
+                                                    "font-semibold text-slate-700 text-base leading-tight transition-all",
                                                     apt.status === "CONCLUIDO" && "line-through text-slate-400"
                                                 )}>
                                                     {apt.observacao || "Compromisso sem descrição"}
@@ -366,7 +368,7 @@ export default function AgendaPage() {
                                                 variant="ghost"
                                                 size="icon"
                                                 className={cn(
-                                                    "h-10 w-10 rounded-xl transition-all",
+                                                    "h-10 w-10 rounded-lg transition-all",
                                                     apt.status === "CONCLUIDO"
                                                         ? "text-slate-300 cursor-not-allowed cursor-not-allowed opacity-50"
                                                         : "text-slate-400 hover:text-destructive hover:bg-destructive/5"
@@ -387,15 +389,15 @@ export default function AgendaPage() {
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl max-h-[90vh] flex flex-col">
+                <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden border-none shadow-2xl rounded-xl max-h-[90vh] flex flex-col">
                     {/* Solid Primary Header */}
                     <div className="relative bg-primary px-6 py-5 shrink-0">
                         <div className="relative flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 shadow-inner">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 shadow-inner">
                                 <CalendarIcon className="h-5 w-5 text-primary-foreground" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-primary-foreground leading-none">
+                                <DialogTitle className="text-lg font-semibold text-primary-foreground leading-none">
                                     Novo Compromisso
                                 </DialogTitle>
                                 <DialogDescription className="text-primary-foreground/80 text-sm mt-1">
@@ -416,7 +418,7 @@ export default function AgendaPage() {
             </Dialog>
 
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <DialogContent className="max-w-[400px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                <DialogContent className="max-w-[400px] p-0 overflow-hidden border-none shadow-2xl rounded-xl">
                     <DialogHeader className="bg-red-600">
                         <DialogTitle>Remover Compromisso</DialogTitle>
                         <DialogDescription className="text-white/80">
@@ -424,10 +426,10 @@ export default function AgendaPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="bg-white">
-                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="rounded-xl border-slate-200 font-bold">
+                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="rounded-lg border-slate-200 font-semibold">
                             Cancelar
                         </Button>
-                        <Button variant="destructive" onClick={confirmDelete} className="rounded-xl font-bold bg-red-600 hover:bg-red-700 shadow-sm shadow-red-200/50">
+                        <Button variant="destructive" onClick={confirmDelete} className="rounded-lg font-semibold bg-red-600 hover:bg-red-700 shadow-sm shadow-red-200/50">
                             Confirmar Exclusão
                         </Button>
                     </DialogFooter>

@@ -2,11 +2,20 @@ import { NextResponse } from 'next/server';
 import { PrismaAuditRepository } from '@/modules/audit/infrastructure/repositories';
 import { AuditUseCases } from '@/modules/audit/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
+import { getErrorMessage } from '@/lib/error-utils';
 
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
 const repository = new PrismaAuditRepository();
 const useCases = new AuditUseCases(repository);
+
+interface AuditFilters {
+    usuarioId?: string;
+    usuarioNome?: string;
+    modulo?: string;
+    startDate?: Date;
+    endDate?: Date;
+}
 
 export async function GET(request: Request) {
     try {
@@ -22,7 +31,7 @@ export async function GET(request: Request) {
         const startDateParam = searchParams.get('startDate');
         const endDateParam = searchParams.get('endDate');
 
-        const filters: any = { usuarioId, usuarioNome, modulo };
+        const filters: AuditFilters = { usuarioId, usuarioNome, modulo };
 
         if (startDateParam) filters.startDate = new Date(startDateParam);
         if (endDateParam) filters.endDate = new Date(endDateParam);
@@ -38,11 +47,11 @@ export async function GET(request: Request) {
                 failedLogins: allLogs.filter(l => l.acao.includes('LOGIN_FAILED')).length,
                 criticalDeletes: allLogs.filter(l => l.acao.includes('DELETE')).length,
                 mostActiveModule: Object.entries(
-                    allLogs.reduce((acc: any, curr) => {
+                    allLogs.reduce<Record<string, number>>((acc, curr) => {
                         acc[curr.modulo] = (acc[curr.modulo] || 0) + 1;
                         return acc;
                     }, {})
-                ).sort((a: any, b: any) => b[1] - a[1])[0]?.[0] || 'N/A',
+                ).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A',
                 totalActivities: allLogs.length
             };
 
@@ -51,7 +60,7 @@ export async function GET(request: Request) {
 
         const logs = await useCases.listLogs(filters);
         return NextResponse.json(logs);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

@@ -1,6 +1,29 @@
 import { Loan, LoanRepository } from '../domain/entities';
 import { logAudit } from '../../../core/audit/logger';
 
+interface CommissionUseCasesBridge {
+    calculateAndCreate(params: {
+        loanId: string;
+        vendedorId: string;
+        valorBase: number;
+        tipo: 'PORCENTAGEM' | 'VALOR_FIXO';
+        referencia: number;
+        mesAno: string;
+        requesterId: string;
+    }): Promise<unknown>;
+}
+
+interface FinancialUseCasesBridge {
+    registerTransaction(data: {
+        data: Date;
+        valor: number;
+        tipo: 'ENTRADA' | 'SAIDA';
+        categoria: string;
+        descricao: string;
+        referenciaId: string;
+    }, requesterId: string): Promise<unknown>;
+}
+
 export class LoanUseCases {
     constructor(private repository: LoanRepository) { }
 
@@ -12,11 +35,15 @@ export class LoanUseCases {
         return await this.repository.findById(id);
     }
 
-    async create(data: Loan, requesterId: string, commissionUseCases?: any) {
+    async create(data: Loan, requesterId: string, commissionUseCases?: CommissionUseCasesBridge) {
         // Garantir status inicial padrão como ATIVO de forma explícita se necessário, 
         // embora venha do schema ou formulário por padrão.
-        const loanData = { ...data, status: data.status || 'ATIVO' as any };
+        const loanData: Loan = { ...data, status: data.status ?? 'ATIVO' };
         const loan = await this.repository.create(loanData);
+
+        if (!loan.id) {
+            throw new Error('Empréstimo criado sem identificador');
+        }
 
         await logAudit({
             usuarioId: requesterId,
@@ -43,7 +70,7 @@ export class LoanUseCases {
         return loan;
     }
 
-    async updateStatus(id: string, status: Loan['status'], requesterId: string, commissionUseCases?: any, financialUseCases?: any) {
+    async updateStatus(id: string, status: Loan['status'], requesterId: string, commissionUseCases?: CommissionUseCasesBridge, financialUseCases?: FinancialUseCasesBridge) {
         const loan = await this.repository.update(id, { status });
 
         await logAudit({

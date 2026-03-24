@@ -23,8 +23,13 @@ module.exports = {
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
       },
       borderRadius: {
-        lg: 'var(--radius-md)',
-        xl: 'var(--radius-lg)',
+        sm: 'var(--radius-sm)',
+        md: 'var(--radius-md)',
+        lg: 'var(--radius-lg)',
+        xl: 'var(--radius-xl)',
+        '2xl': 'var(--radius-2xl)',
+        '3xl': 'var(--radius-3xl)',
+        '4xl': 'var(--radius-4xl)',
       },
       boxShadow: {
         card: '0 6px 18px rgba(8,15,30,0.06)',

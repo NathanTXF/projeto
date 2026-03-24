@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 import { JWT_SECRET } from '@/core/auth/jwt';
+import { getErrorMessage } from '@/lib/error-utils';
 
 export async function middleware(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
@@ -13,6 +14,9 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!token) {
+        if (pathname.startsWith('/api')) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        }
         return NextResponse.redirect(new URL('/login', request.url));
     }
 
@@ -65,8 +69,9 @@ export async function middleware(request: NextRequest) {
         }
 
         return NextResponse.next();
-    } catch (err: any) {
-        console.error('Middleware: JWT verification failed:', err.message);
+    } catch (err) {
+        const message = getErrorMessage(err);
+        console.error('Middleware: JWT verification failed:', message);
         if (pathname.startsWith('/api')) {
             return NextResponse.json({ error: 'Token inválido ou expirado' }, { status: 401 });
         }

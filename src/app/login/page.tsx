@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -17,8 +17,6 @@ export default function LoginPage() {
         logoUrl: null,
         reportLogoUrl: null
     });
-    const router = useRouter();
-
     useEffect(() => {
         fetch('/api/auth/branding')
             .then(res => res.json())
@@ -49,7 +47,7 @@ export default function LoginPage() {
             } else {
                 toast.error(data.message || "Erro ao realizar login");
             }
-        } catch (error) {
+        } catch {
             toast.error("Ocorreu um erro ao tentar realizar o login.");
         } finally {
             setLoading(false);
@@ -70,7 +68,7 @@ export default function LoginPage() {
                 {/* Content */}
                 <div className="relative z-10 animate-in fade-in slide-in-from-left-8 duration-700">
                     <div className="max-w-md space-y-6">
-                        <h1 className="text-5xl font-black text-white leading-tight tracking-tight">
+                        <h1 className="text-5xl font-semibold text-white leading-tight tracking-tight">
                             Gestão inteligente para <span className="text-[#8CC63F]">resultados superiores.</span>
                         </h1>
                         <p className="text-xl text-white/70 font-medium">
@@ -86,9 +84,15 @@ export default function LoginPage() {
                     {/* Compact Header for Mobile/Title */}
                     <div className="flex justify-center mb-8">
                         {(branding.reportLogoUrl || branding.logoUrl) ? (
-                            <img src={branding.reportLogoUrl || branding.logoUrl || ''} alt={branding.nome} className="h-16 w-auto object-contain" />
+                            <Image
+                                src={branding.reportLogoUrl || branding.logoUrl || ''}
+                                alt={branding.nome}
+                                width={160}
+                                height={64}
+                                className="h-16 w-auto object-contain"
+                            />
                         ) : (
-                            <div className="h-16 w-16 bg-primary rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg">
+                            <div className="h-16 w-16 bg-primary rounded-xl flex items-center justify-center text-white font-semibold text-2xl shadow-lg">
                                 {branding.nome.charAt(0)}
                             </div>
                         )}
@@ -97,7 +101,7 @@ export default function LoginPage() {
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className="space-y-5">
                             <div className="space-y-2.5">
-                                <Label htmlFor="usuario" className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Usuário</Label>
+                                <Label htmlFor="usuario" className="text-xs font-medium uppercase tracking-widest text-slate-500 ml-1">Usuário</Label>
                                 <div className="relative group">
                                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8CC63F] transition-colors">
                                         <User className="h-5 w-5" />
@@ -108,14 +112,14 @@ export default function LoginPage() {
                                         placeholder="Seu nome de usuário"
                                         value={usuario}
                                         onChange={(e) => setUsuario(e.target.value)}
-                                        className="h-14 pl-12 rounded-2xl border-slate-200 bg-white shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-[#8CC63F]/20 focus-visible:border-[#8CC63F] font-semibold text-slate-700 placeholder:text-slate-300"
+                                        className="h-14 pl-12 rounded-xl border-slate-200 bg-white shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-[#8CC63F]/20 focus-visible:border-[#8CC63F] font-semibold text-slate-700 placeholder:text-slate-300"
                                         required
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2.5">
-                                <Label htmlFor="senha" className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Senha</Label>
+                                <Label htmlFor="senha" className="text-xs font-medium uppercase tracking-widest text-slate-500 ml-1">Senha</Label>
                                 <div className="relative group">
                                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8CC63F] transition-colors">
                                         <Lock className="h-5 w-5" />
@@ -126,7 +130,7 @@ export default function LoginPage() {
                                         placeholder="••••••••"
                                         value={senha}
                                         onChange={(e) => setSenha(e.target.value)}
-                                        className="h-14 pl-12 rounded-2xl border-slate-200 bg-white shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-[#8CC63F]/20 focus-visible:border-[#8CC63F] font-semibold text-slate-700"
+                                        className="h-14 pl-12 rounded-xl border-slate-200 bg-white shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-[#8CC63F]/20 focus-visible:border-[#8CC63F] font-semibold text-slate-700"
                                         required
                                     />
                                 </div>
@@ -135,7 +139,7 @@ export default function LoginPage() {
 
                         <Button
                             type="submit"
-                            className="w-full h-14 bg-[#8CC63F] hover:bg-[#7ab336] text-white rounded-2xl shadow-lg shadow-[#8CC63F]/20 transition-all font-black text-lg group overflow-hidden relative"
+                            className="w-full h-14 bg-[#8CC63F] hover:bg-[#7ab336] text-white rounded-xl shadow-lg shadow-[#8CC63F]/20 transition-all font-semibold text-lg group overflow-hidden relative"
                             disabled={loading}
                         >
                             {loading ? (
@@ -153,7 +157,7 @@ export default function LoginPage() {
 
                         <div className="flex items-center justify-center gap-2 pt-4 py-2 border-t border-slate-100">
                             <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Conexão segura via SSL 256-bit</span>
+                            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Conexão segura via SSL 256-bit</span>
                         </div>
                     </form>
 

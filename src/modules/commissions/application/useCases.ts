@@ -1,6 +1,17 @@
 import { Commission, CommissionRepository } from '../domain/entities';
 import { logAudit } from '../../../core/audit/logger';
 
+interface FinancialRecordInput {
+    commissionId: string;
+    vendedorId: string;
+    mesAno: string;
+    valorTotal: number;
+}
+
+interface FinancialUseCasesBridge {
+    createFinancialRecord(data: FinancialRecordInput, requesterId: string): Promise<unknown>;
+}
+
 export class CommissionUseCases {
     constructor(private repository: CommissionRepository) { }
 
@@ -59,11 +70,15 @@ export class CommissionUseCases {
         return commission;
     }
 
-    async approve(id: string, requesterId: string, financialUseCases?: any) {
+    async approve(id: string, requesterId: string, financialUseCases?: FinancialUseCasesBridge) {
         const commission = await this.repository.update(id, {
             status: 'APROVADO',
             aprovadoEm: new Date(),
         });
+
+        if (!commission.id) {
+            throw new Error('Comissão sem identificador após aprovação');
+        }
 
         if (financialUseCases) {
             await financialUseCases.createFinancialRecord({

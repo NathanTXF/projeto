@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { PrismaCustomerRepository } from '@/modules/clients/infrastructure/repositories';
 import { CustomerUseCases } from '@/modules/clients/application/useCases';
-import { CustomerSchema } from '@/modules/clients/domain/entities';
 import { getAuthUser } from '@/core/auth/getUser';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaCustomerRepository();
 const useCases = new CustomerUseCases(repository);
@@ -24,8 +24,8 @@ export async function GET(
             return NextResponse.json({ error: 'Cliente não encontrado' }, { status: 404 });
         }
         return NextResponse.json(customer);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -47,8 +47,8 @@ export async function PATCH(
 
         const customer = await useCases.update(id, body, user.id);
         return NextResponse.json(customer);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -65,8 +65,9 @@ export async function DELETE(
         const { id } = await params;
         await useCases.remove(id, user.id);
         return new NextResponse(null, { status: 204 });
-    } catch (error: any) {
-        const status = error.message?.includes('não pode ser excluído') ? 400 : 500;
-        return NextResponse.json({ error: error.message }, { status });
+    } catch (error) {
+        const message = getErrorMessage(error);
+        const status = message.includes('não pode ser excluído') ? 400 : 500;
+        return NextResponse.json({ error: message }, { status });
     }
 }

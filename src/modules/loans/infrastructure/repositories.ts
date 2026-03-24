@@ -1,5 +1,6 @@
 import { prisma } from '../../../lib/prisma';
 import { Loan, LoanRepository } from '../domain/entities';
+import { Prisma } from '@prisma/client';
 
 export class PrismaLoanRepository implements LoanRepository {
     async findAll(): Promise<Loan[]> {
@@ -59,7 +60,7 @@ export class PrismaLoanRepository implements LoanRepository {
 
     async create(data: Loan): Promise<Loan> {
         const loan = await prisma.loan.create({
-            data: data as any,
+            data: data as unknown as Prisma.LoanUncheckedCreateInput,
         });
         return loan as unknown as Loan;
     }
@@ -67,7 +68,7 @@ export class PrismaLoanRepository implements LoanRepository {
     async update(id: string, data: Partial<Loan>): Promise<Loan> {
         const loan = await prisma.loan.update({
             where: { id },
-            data: data as any,
+            data: data as unknown as Prisma.LoanUncheckedUpdateInput,
         });
         return loan as unknown as Loan;
     }

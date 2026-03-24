@@ -25,25 +25,25 @@ interface KpiCardProps {
 export const KpiCard = ({ title, value, icon: Icon, tone = "neutral", subtitle, href }: KpiCardProps) => {
   const toneClass = toneStyles[tone]
   const content = (
-    <div className="h-full rounded-3xl border border-border/60 bg-card shadow-sm hover:shadow-lg transition-shadow p-5 flex flex-col gap-3">
+    <div className="h-full rounded-2xl border border-border/60 bg-card shadow-sm hover:shadow-lg transition-shadow p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <div className={cn("h-10 w-10 rounded-2xl flex items-center justify-center", toneClass.icon)}>
+        <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center", toneClass.icon)}>
           <Icon className="h-5 w-5" />
         </div>
-        <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] px-2 py-1 rounded-full", toneClass.pill)}>
+        <span className={cn("text-[10px] font-medium uppercase tracking-[0.2em] px-2 py-1 rounded-full", toneClass.pill)}>
           {title}
         </span>
       </div>
       <div>
-        <p className={cn("text-2xl font-black leading-tight", toneClass.value)}>{value}</p>
-        {subtitle && <p className="text-xs text-muted-foreground mt-1 font-medium">{subtitle}</p>}
+        <p className={cn("text-2xl font-semibold leading-tight", toneClass.value)}>{value}</p>
+        {subtitle && <p className="mt-1 text-[11px] text-muted-foreground font-medium leading-relaxed">{subtitle}</p>}
       </div>
     </div>
   )
 
   if (href) {
     return (
-      <Link href={href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-3xl">
+      <Link href={href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-2xl">
         {content}
       </Link>
     )

@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/core/auth/getUser';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { PrismaReportRepository } from '@/modules/reports/infrastructure/repositories';
-import { ReportTypeEnum } from '@/modules/reports/domain/entities';
+import { ReportType, ReportTypeEnum } from '@/modules/reports/domain/entities';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaReportRepository();
 
@@ -26,8 +27,10 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Tipo de relatório inválido' }, { status: 400 });
         }
 
+        const parsedType = ReportTypeEnum.parse(type) as ReportType;
+
         const params = {
-            type: type as any,
+            type: parsedType,
             startDate,
             endDate,
             sellerId,
@@ -72,8 +75,8 @@ export async function GET(request: Request) {
         }
 
         return NextResponse.json(data);
-    } catch (error: any) {
+    } catch (error) {
         console.error('Reports API Error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

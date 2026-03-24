@@ -16,12 +16,12 @@ export function ExportButton({ onExportCsv, onExportPdf }: ExportButtonProps) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="secondary" className="h-10 gap-2 rounded-xl font-bold shadow-sm px-6 transition-all active:scale-95">
+                <Button variant="secondary" className="h-10 gap-2 rounded-lg font-semibold shadow-sm px-6 transition-all active:scale-95">
                     <Download className="h-4 w-4" />
                     Exportar
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 shadow-lg border-slate-100 rounded-xl p-1">
+            <DropdownMenuContent align="end" className="w-48 shadow-lg border-slate-100 rounded-lg p-1">
                 <DropdownMenuItem
                     onClick={onExportCsv}
                     className="cursor-pointer gap-2 font-medium p-2"

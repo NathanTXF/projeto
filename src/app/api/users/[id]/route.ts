@@ -3,6 +3,7 @@ import { PrismaUserRepository } from '@/modules/users/infrastructure/repositorie
 import { UserUseCases } from '@/modules/users/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 import { UserSchema } from '@/modules/users/domain/entities';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaUserRepository();
 const useCases = new UserUseCases(repository);
@@ -32,9 +33,9 @@ export async function PUT(
 
         const user = await useCases.updateProfile(id, validatedData);
         return NextResponse.json(user);
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error updating user:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -57,8 +58,9 @@ export async function DELETE(
 
         await useCases.removeUser(id);
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        const status = error.message?.includes('não pode ser excluído') ? 400 : 500;
-        return NextResponse.json({ error: error.message }, { status });
+    } catch (error) {
+        const message = getErrorMessage(error);
+        const status = message.includes('não pode ser excluído') ? 400 : 500;
+        return NextResponse.json({ error: message }, { status });
     }
 }

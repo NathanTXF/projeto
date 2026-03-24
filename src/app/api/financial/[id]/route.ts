@@ -3,6 +3,7 @@ import { PrismaFinancialRepository } from '@/modules/financial/infrastructure/re
 import { FinancialUseCases } from '@/modules/financial/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaFinancialRepository();
 const useCases = new FinancialUseCases(repository);
@@ -49,8 +50,8 @@ export async function PATCH(
         }
 
         return NextResponse.json({ error: 'Ação inválida' }, { status: 400 });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -69,7 +70,7 @@ export async function DELETE(
 
         await useCases.reverseTransaction(id, user.id);
         return new NextResponse(null, { status: 204 });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

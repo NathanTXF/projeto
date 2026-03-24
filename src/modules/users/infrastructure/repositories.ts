@@ -1,5 +1,6 @@
 import { User, UserRepository } from '../domain/entities';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export class PrismaUserRepository implements UserRepository {
     async findById(id: string): Promise<User | null> {
@@ -15,7 +16,7 @@ export class PrismaUserRepository implements UserRepository {
                 }
             }
         });
-        return user as any;
+        return user as unknown as User | null;
     }
 
     async findByUsername(username: string): Promise<User | null> {
@@ -31,7 +32,7 @@ export class PrismaUserRepository implements UserRepository {
                 }
             }
         });
-        return user as any;
+        return user as unknown as User | null;
     }
 
     async findAll(): Promise<User[]> {
@@ -47,7 +48,7 @@ export class PrismaUserRepository implements UserRepository {
                 }
             }
         });
-        return users as any;
+        return users as unknown as User[];
     }
 
     async update(id: string, data: Partial<User>): Promise<User> {
@@ -72,14 +73,14 @@ export class PrismaUserRepository implements UserRepository {
                 horarioFimFds: data.horarioFimFds,
             }
         });
-        return user as any;
+        return user as unknown as User;
     }
 
     async create(data: User): Promise<User> {
         const user = await prisma.user.create({
-            data: data as any
+            data: data as unknown as Prisma.UserUncheckedCreateInput
         });
-        return user as any;
+        return user as unknown as User;
     }
 
     async delete(id: string): Promise<void> {

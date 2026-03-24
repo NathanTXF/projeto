@@ -1,11 +1,19 @@
 import { prisma } from '../../../lib/prisma';
 import { FinancialTransaction, FinancialRepository, FinancialStatus } from '../domain/entities';
+import { Prisma } from '@prisma/client';
+
+type FinancialWithRelations = Prisma.FinancialGetPayload<{
+    include: {
+        commission: { include: { loan: { include: { cliente: true } } } };
+        vendedor: true;
+    };
+}>;
 
 export class PrismaFinancialRepository implements FinancialRepository {
     async findAll(): Promise<FinancialTransaction[]> {
         const records = await prisma.financial.findMany({
             orderBy: { createdAt: 'desc' },
-            include: { commission: { include: { loan: true } }, vendedor: true },
+            include: { commission: { include: { loan: { include: { cliente: true } } } }, vendedor: true },
         });
         return records.map(this.mapToFinancialTransaction);
     }
@@ -13,7 +21,7 @@ export class PrismaFinancialRepository implements FinancialRepository {
     async findById(id: string): Promise<FinancialTransaction | null> {
         const record = await prisma.financial.findUnique({
             where: { id },
-            include: { commission: { include: { loan: true } }, vendedor: true },
+            include: { commission: { include: { loan: { include: { cliente: true } } } }, vendedor: true },
         });
         return record ? this.mapToFinancialTransaction(record) : null;
     }
@@ -22,7 +30,7 @@ export class PrismaFinancialRepository implements FinancialRepository {
         const records = await prisma.financial.findMany({
             where: { mesAno },
             orderBy: { createdAt: 'desc' },
-            include: { commission: { include: { loan: true } }, vendedor: true },
+            include: { commission: { include: { loan: { include: { cliente: true } } } }, vendedor: true },
         });
         return records.map(this.mapToFinancialTransaction);
     }
@@ -31,7 +39,7 @@ export class PrismaFinancialRepository implements FinancialRepository {
         const records = await prisma.financial.findMany({
             where: { vendedorId },
             orderBy: { createdAt: 'desc' },
-            include: { commission: { include: { loan: true } }, vendedor: true },
+            include: { commission: { include: { loan: { include: { cliente: true } } } }, vendedor: true },
         });
         return records.map(this.mapToFinancialTransaction);
     }
@@ -47,7 +55,7 @@ export class PrismaFinancialRepository implements FinancialRepository {
                 pagoEm: data.pagoEm,
                 comprovanteUrl: data.comprovanteUrl,
             },
-            include: { commission: { include: { loan: true } }, vendedor: true },
+            include: { commission: { include: { loan: { include: { cliente: true } } } }, vendedor: true },
         });
         return this.mapToFinancialTransaction(record);
     }
@@ -60,12 +68,12 @@ export class PrismaFinancialRepository implements FinancialRepository {
                 pagoEm: data.pagoEm,
                 comprovanteUrl: data.comprovanteUrl,
             },
-            include: { commission: { include: { loan: true } }, vendedor: true },
+            include: { commission: { include: { loan: { include: { cliente: true } } } }, vendedor: true },
         });
         return this.mapToFinancialTransaction(record);
     }
 
-    private mapToFinancialTransaction(record: any): FinancialTransaction {
+    private mapToFinancialTransaction(record: FinancialWithRelations): FinancialTransaction {
         return {
             id: record.id,
             commissionId: record.commissionId,

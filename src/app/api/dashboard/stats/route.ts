@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/core/auth/getUser';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { getErrorMessage } from '@/lib/error-utils';
 
 export async function GET(request: Request) {
     try {
@@ -23,7 +24,6 @@ export async function GET(request: Request) {
         const endOfLastMonth = new Date(year, month - 1, 0, 23, 59, 59);
 
         const startOfYear = new Date(year, 0, 1);
-        const endOfYear = new Date(year, 11, 31, 23, 59, 59);
 
         const isAdmin = hasPermission(user.permissions || [], PERMISSIONS.VIEW_DASHBOARD) && hasPermission(user.permissions || [], PERMISSIONS.VIEW_FINANCIAL);
         const whereVendedor = isAdmin ? {} : { vendedorId: user.id };
@@ -42,7 +42,6 @@ export async function GET(request: Request) {
             loansByBankRaw,
             loansByTypeRaw,
             volumeMonthRaw,
-            company,
             allUsers,
             allGoals,
             loansThisMonth
@@ -93,7 +92,6 @@ export async function GET(request: Request) {
                 _count: true,
                 where: { ...whereVendedor, dataInicio: { gte: startOfMonth, lte: endOfMonth } }
             }),
-            prisma.company.findFirst(),
             prisma.user.findMany({
                 select: { id: true, nome: true, metaVendasMensal: true }
             }),
@@ -131,8 +129,8 @@ export async function GET(request: Request) {
 
         // Carregar nomes de Bancos e Tipos
         const [banks, loanTypes] = await Promise.all([
-            prisma.bank.findMany({ where: { id: { in: loansByBankRaw.map((b: any) => b.bancoId) } } }),
-            prisma.loanType.findMany({ where: { id: { in: loansByTypeRaw.map((t: any) => t.tipoId) } } })
+            prisma.bank.findMany({ where: { id: { in: loansByBankRaw.map((b) => b.bancoId) } } }),
+            prisma.loanType.findMany({ where: { id: { in: loansByTypeRaw.map((t) => t.tipoId) } } })
         ]);
 
         const bankMap = new Map(banks.map(b => [b.id, b.nome]));
@@ -145,10 +143,10 @@ export async function GET(request: Request) {
         const growthComm = lastComm === 0 ? (currentComm > 0 ? 100 : 0) : ((currentComm - lastComm) / lastComm) * 100;
 
         // Cálculo de metas por vendedor
-        const sellersProgress = allUsers.map((u: any) => {
-            const specificGoal = allGoals.find((g: any) => g.tipo === 'INDIVIDUAL' && g.userId === u.id);
+        const sellersProgress = allUsers.map((u) => {
+            const specificGoal = allGoals.find((g) => g.tipo === 'INDIVIDUAL' && g.userId === u.id);
             const goalValue = specificGoal ? specificGoal.valor : Number(u.metaVendasMensal || 10);
-            const salesCount = loansThisMonth.find((l: any) => l.vendedorId === u.id)?._count || 0;
+            const salesCount = loansThisMonth.find((l) => l.vendedorId === u.id)?._count || 0;
             const percentage = goalValue > 0 ? (salesCount / goalValue) * 100 : 0;
 
             return {
@@ -160,7 +158,7 @@ export async function GET(request: Request) {
             };
         });
 
-        const aggregatedGlobalGoal = sellersProgress.reduce((acc: number, curr: any) => acc + curr.goal, 0);
+        const aggregatedGlobalGoal = sellersProgress.reduce((acc, curr) => acc + curr.goal, 0);
 
         // Ticket Médio
         const totalVolumeMonth = Number(volumeMonthRaw._sum?.valorBruto || 0);
@@ -210,8 +208,9 @@ export async function GET(request: Request) {
             })),
             availableYears
         });
-    } catch (error: any) {
-        console.error('Dashboard stats error:', error.message);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        const message = getErrorMessage(error);
+        console.error('Dashboard stats error:', message);
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

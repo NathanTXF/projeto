@@ -38,17 +38,17 @@ const statusColors: Record<string, string> = {
 
 export function LoanList({ loans, userLevel, onEdit, onDelete }: LoanListProps) {
     return (
-        <div className="rounded-xl border bg-white overflow-hidden shadow-sm">
+        <div className="rounded-lg border bg-white overflow-hidden shadow-sm">
             <Table>
-                <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-bold border-b-none">
+                <TableHeader className="bg-sidebar [&_th]:text-sidebar-foreground font-semibold border-b-none">
                     <TableRow>
-                        <TableHead className="w-[80px] font-bold">Cód</TableHead>
-                        <TableHead className="font-bold">Cliente</TableHead>
-                        <TableHead className="font-bold">Vendedor / Órgão</TableHead>
-                        <TableHead className="font-bold">Banco / Tipo</TableHead>
-                        <TableHead className="font-bold">Valores</TableHead>
-                        <TableHead className="font-bold">Status</TableHead>
-                        <TableHead className="text-right font-bold">Ações</TableHead>
+                        <TableHead className="w-[80px] font-semibold">Cód</TableHead>
+                        <TableHead className="font-semibold">Cliente</TableHead>
+                        <TableHead className="font-semibold">Vendedor / Órgão</TableHead>
+                        <TableHead className="font-semibold">Banco / Tipo</TableHead>
+                        <TableHead className="font-semibold">Valores</TableHead>
+                        <TableHead className="font-semibold">Status</TableHead>
+                        <TableHead className="text-right font-semibold">Ações</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -61,7 +61,7 @@ export function LoanList({ loans, userLevel, onEdit, onDelete }: LoanListProps) 
                     ) : (
                         loans.map((loan) => (
                             <TableRow key={loan.id} className="hover:bg-slate-50/30 transition-colors">
-                                <TableCell className="font-bold text-slate-400 font-outfit">
+                                <TableCell className="font-semibold text-slate-400 font-outfit">
                                     #{loan.cod?.toString().padStart(4, '0')}
                                 </TableCell>
                                 <TableCell>
@@ -87,13 +87,13 @@ export function LoanList({ loans, userLevel, onEdit, onDelete }: LoanListProps) 
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex flex-col">
-                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-tight">{loan.banco?.nome || 'N/A'}</span>
+                                        <span className="text-xs font-medium text-slate-700 uppercase tracking-tight">{loan.banco?.nome || 'N/A'}</span>
                                         <span className="text-[10px] font-medium text-slate-400">{loan.tipo?.nome || 'N/A'}</span>
                                     </div>
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-bold text-emerald-600 font-outfit">
+                                        <span className="text-sm font-medium text-emerald-600 font-outfit">
                                             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(loan.valorLiquido))}
                                         </span>
                                         <span className="text-[10px] font-medium text-slate-400">
@@ -102,7 +102,7 @@ export function LoanList({ loans, userLevel, onEdit, onDelete }: LoanListProps) 
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant="outline" className={`${statusColors[loan.status || 'ATIVO']} font-bold text-[10px] border-none px-2 py-0.5`}>
+                                    <Badge variant="outline" className={`${statusColors[loan.status || 'ATIVO']} font-medium text-[10px] border-none px-2 py-0.5`}>
                                         {loan.status}
                                     </Badge>
                                 </TableCell>

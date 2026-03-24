@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { User } from '../../users/domain/entities';
 
 export const FinancialStatusSchema = z.enum(['Em aberto', 'Pago']);
 export type FinancialStatus = z.infer<typeof FinancialStatusSchema>;

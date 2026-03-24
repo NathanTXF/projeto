@@ -4,6 +4,7 @@ import { RoleUseCases } from '@/modules/roles/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { RoleSchema } from '@/modules/roles/domain/entities';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaRoleRepository();
 const useCases = new RoleUseCases(repository);
@@ -17,8 +18,8 @@ export async function GET() {
 
         const roles = await useCases.listAll();
         return NextResponse.json(roles);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -34,10 +35,11 @@ export async function POST(request: Request) {
 
         const role = await useCases.create(validatedData);
         return NextResponse.json(role, { status: 201 });
-    } catch (error: any) {
-        if (error.name === 'ZodError') {
-            return NextResponse.json({ error: error.errors }, { status: 400 });
+    } catch (error) {
+        if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+            const zodError = error as { errors?: unknown };
+            return NextResponse.json({ error: zodError.errors }, { status: 400 });
         }
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }

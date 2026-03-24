@@ -3,15 +3,12 @@
 import { useState, useEffect } from "react";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { AnalyticalTable } from "./components/AnalyticalTable";
+import type { Column } from "./components/AnalyticalTable";
 import {
     Card,
     CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
     Select,
@@ -29,8 +26,6 @@ import {
     Users,
     Wallet,
     Calendar,
-    ArrowRight,
-    Building2,
     Landmark,
     Briefcase,
     LayoutGrid,
@@ -38,13 +33,13 @@ import {
     Layers,
     UserCircle,
     CheckCircle,
-    PlusCircle,
     PieChart,
 } from "lucide-react";
 import { Target as LucideTarget } from "lucide-react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { KpiCard } from "@/components/layout/KpiCard";
+import { TemporalContextChip } from "@/components/shared/TemporalContextChip";
+import { useYearSelection } from "@/hooks/useYearSelection";
 
 const REPORT_TYPES = [
     { id: 'SALES', label: 'Vendas Analítico', icon: TrendingUp, color: 'indigo', description: 'Listagem detalhada de todos os contratos e status.' },
@@ -62,14 +57,72 @@ const REPORT_TYPES = [
     { id: 'GOALS_INDIVIDUAL', label: 'Relatório Individual de Metas', icon: Users, color: 'orange', description: 'Desempenho mensal detalhado de metas por vendedor.' },
 ];
 
+interface ReportSummary {
+    totalItems?: number;
+    totalValue?: number;
+    totalLiquido?: number;
+    avgPerformance?: number;
+}
+
+interface ReportResponse {
+    summary?: ReportSummary;
+    items?: unknown[];
+}
+
+interface SellerOption {
+    id: string;
+    nome: string;
+    nivelAcesso: number;
+    role?: {
+        name?: string;
+    };
+}
+
 export default function ReportsPage() {
     const [reportType, setReportType] = useState<string>('SALES');
     const [startDate, setStartDate] = useState<string>(format(new Date(), 'yyyy-MM-01'));
     const [endDate, setEndDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<ReportResponse | null>(null);
     const [loading, setLoading] = useState(false);
-    const [sellers, setSellers] = useState<any[]>([]);
+    const [sellers, setSellers] = useState<SellerOption[]>([]);
     const [selectedSeller, setSelectedSeller] = useState<string>('all');
+    
+    // Novo estado para sincronizar com o padrão do Painel Estratégico
+    const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString());
+    const {
+        selectedYear,
+        setSelectedYear,
+        yearOptions,
+    } = useYearSelection();
+
+    const months = [
+        { value: "1", label: "Janeiro" },
+        { value: "2", label: "Fevereiro" },
+        { value: "3", label: "Março" },
+        { value: "4", label: "Abril" },
+        { value: "5", label: "Maio" },
+        { value: "6", label: "Junho" },
+        { value: "7", label: "Julho" },
+        { value: "8", label: "Agosto" },
+        { value: "9", label: "Setembro" },
+        { value: "10", label: "Outubro" },
+        { value: "11", label: "Novembro" },
+        { value: "12", label: "Dezembro" },
+    ];
+
+    // Sincroniza as datas (startDate/endDate) quando o mês ou ano muda
+    useEffect(() => {
+        const monthInt = parseInt(selectedMonth, 10);
+        const yearInt = parseInt(selectedYear, 10);
+        
+        // Primeiro dia do mês
+        const start = new Date(yearInt, monthInt - 1, 1);
+        // Último dia do mês
+        const end = new Date(yearInt, monthInt, 0);
+
+        setStartDate(format(start, 'yyyy-MM-dd'));
+        setEndDate(format(end, 'yyyy-MM-dd'));
+    }, [selectedMonth, selectedYear]);
 
     const formatSafeDate = (dateStr: string) => {
         if (!dateStr) return '';
@@ -80,9 +133,10 @@ export default function ReportsPage() {
     useEffect(() => {
         fetch('/api/users')
             .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data)) {
-                    setSellers(data.filter((u: any) => u.role?.name?.toLowerCase().includes('vendedor') || u.nivelAcesso > 1));
+            .then((users: unknown) => {
+                if (Array.isArray(users)) {
+                    const sellerCandidates = users as SellerOption[];
+                    setSellers(sellerCandidates.filter((user) => user.role?.name?.toLowerCase().includes('vendedor') || user.nivelAcesso > 1));
                 }
             })
             .catch(console.error);
@@ -132,7 +186,7 @@ export default function ReportsPage() {
                     { header: 'V. BRUTO', accessorKey: 'valorBruto', format: (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) },
                     {
                         header: 'STATUS', accessorKey: 'status', format: (v: string) => (
-                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${v === 'ATIVO' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
+                            <span className={`px-2 py-1 rounded-full text-[10px] font-medium ${v === 'ATIVO' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
                                 {v}
                             </span>
                         )
@@ -184,7 +238,7 @@ export default function ReportsPage() {
                     { header: 'TOTAL BRUTO', accessorKey: 'valorTotalBruto', format: (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) },
                     {
                         header: 'TIPO', accessorKey: 'status', format: (v: string) => (
-                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${v === 'RECORRENTE' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                            <span className={`px-2 py-1 rounded-full text-[10px] font-medium ${v === 'RECORRENTE' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
                                 {v}
                             </span>
                         )
@@ -202,7 +256,7 @@ export default function ReportsPage() {
                                 <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
                                     <div className={`h-full ${v >= 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`} style={{ width: `${Math.min(v, 100)}%` }} />
                                 </div>
-                                <span className="font-bold">{v.toFixed(1)}%</span>
+                                <span className="font-semibold">{v.toFixed(1)}%</span>
                             </div>
                         )
                     },
@@ -213,6 +267,11 @@ export default function ReportsPage() {
 
     const currentPeriod = `${formatSafeDate(startDate)} até ${formatSafeDate(endDate)}`;
     const activeReport = REPORT_TYPES.find(r => r.id === reportType);
+    
+    // Label de competência baseada nos selects de mês/ano
+    const selectedMonthLabel = months.find(m => m.value === selectedMonth)?.label || selectedMonth;
+    const selectedCompetenciaLabel = `${selectedMonthLabel} de ${selectedYear}`;
+    
     const summary = data?.summary || {};
     const totalItems = summary.totalItems ?? 0;
     const totalValue = summary.totalValue ?? 0;
@@ -222,11 +281,11 @@ export default function ReportsPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ── Enterprise Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-6 md:p-8 shadow-[0_24px_60px_rgba(5,50,94,0.28)] border border-white/10 print:hidden">
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-6 md:p-8 shadow-[0_24px_60px_rgba(5,50,94,0.28)] border border-white/10 print:hidden">
                 <div className="absolute top-0 right-0 -mt-16 -mr-16 h-64 w-64 rounded-full bg-primary/15 blur-[90px]" />
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4 text-center sm:text-left justify-center sm:justify-start">
-                        <div className="hidden sm:flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                        <div className="hidden sm:flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 shadow-inner">
                             <PieChart className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
@@ -236,12 +295,20 @@ export default function ReportsPage() {
                             <p className="mt-1 text-primary-foreground/80 font-medium text-xs md:text-sm">
                                 Dashboards analíticos e documentos para gestão de alta performance.
                             </p>
+                            <TemporalContextChip
+                                key={selectedCompetenciaLabel}
+                                label="Competência ativa"
+                                value={selectedCompetenciaLabel}
+                                icon={Calendar}
+                                tone="competencia"
+                                className="mt-2"
+                            />
                         </div>
                     </div>
                 </div>
 
                 {/* Mini stats strip */}
-                <div className="relative mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div key={selectedCompetenciaLabel} className="period-transition-enter relative mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <KpiCard title="Registros" value={loading ? "..." : totalItems} icon={FileText} tone="primary" subtitle="Itens retornados" />
                     <KpiCard title="Total Bruto" value={loading ? "..." : totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })} icon={DollarSign} tone="emerald" subtitle="Valor acumulado" />
                     <KpiCard title="Total Líquido" value={loading ? "..." : totalLiquido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })} icon={CheckCircle} tone="neutral" subtitle="Após descontos" />
@@ -250,22 +317,22 @@ export default function ReportsPage() {
             </div>
 
             {/* Filters Section */}
-            <Card className="border-none shadow-xl shadow-slate-200/50 print:hidden overflow-hidden bg-white rounded-2xl">
-                <CardContent className="p-0">
-                    <div className="grid grid-cols-1 lg:grid-cols-12">
-                        <div className="lg:col-span-4 bg-slate-50 border-r border-slate-100 p-6 space-y-4">
+            <Card className="border-none shadow-xl shadow-slate-200/50 print:hidden overflow-hidden bg-white rounded-xl">
+                <CardContent className="p-5 md:p-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                        <div className="lg:col-span-4 rounded-xl border border-slate-100 bg-slate-50 p-5 space-y-4 h-fit">
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                <Label className="text-[10px] font-medium text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                     <Filter className="w-3 h-3" />
                                     Selecionar Relatório
                                 </Label>
                                 <Select value={reportType || "SALES"} onValueChange={setReportType}>
-                                    <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 shadow-sm font-bold text-slate-700">
+                                    <SelectTrigger className="h-12 font-semibold text-slate-700">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="rounded-xl border-slate-200 shadow-xl max-h-80">
+                                    <SelectContent className="rounded-lg border-slate-200 shadow-xl max-h-80">
                                         {REPORT_TYPES.map(rt => (
-                                            <SelectItem key={rt.id} value={rt.id} className="font-bold py-3 focus:bg-indigo-50 focus:text-indigo-700">
+                                            <SelectItem key={rt.id} value={rt.id} className="font-semibold py-3 focus:bg-indigo-50 focus:text-indigo-700">
                                                 <div className="flex items-center gap-2">
                                                     <rt.icon className={`w-4 h-4 text-indigo-600`} />
                                                     {rt.label}
@@ -282,45 +349,59 @@ export default function ReportsPage() {
                             </div>
                         </div>
 
-                        <div className="lg:col-span-8 p-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="lg:col-span-8 rounded-xl border border-slate-100 bg-white p-5 md:p-6 h-fit">
+                            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Data Inicial</Label>
-                                    <Input
-                                        type="date"
-                                        value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
-                                        className="h-12 rounded-xl bg-white border-slate-200 shadow-sm font-bold text-slate-700"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Data Final</Label>
-                                    <Input
-                                        type="date"
-                                        value={endDate}
-                                        onChange={(e) => setEndDate(e.target.value)}
-                                        className="h-12 rounded-xl bg-white border-slate-200 shadow-sm font-bold text-slate-700"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filtro por Vendedor</Label>
-                                    <Select value={selectedSeller || "all"} onValueChange={setSelectedSeller}>
-                                        <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 shadow-sm font-bold text-slate-700">
+                                    <Label className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Mês</Label>
+                                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                                        <SelectTrigger className="h-10 font-semibold text-slate-700">
                                             <SelectValue />
                                         </SelectTrigger>
-                                        <SelectContent className="rounded-xl border-slate-200 shadow-xl">
-                                            <SelectItem value="all" className="font-bold py-3 text-slate-500 italic">Global (Todos)</SelectItem>
-                                            {sellers.map(s => (
-                                                <SelectItem key={s.id} value={s.id} className="font-bold py-3">{s.nome}</SelectItem>
+                                        <SelectContent>
+                                            {months.map(m => (
+                                                <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Ano</Label>
+                                    <Select value={selectedYear} onValueChange={setSelectedYear}>
+                                        <SelectTrigger className="h-10 font-semibold text-slate-700">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {yearOptions.map(y => (
+                                                <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Filtro por Vendedor</Label>
+                                    <Select value={selectedSeller || "all"} onValueChange={setSelectedSeller}>
+                                        <SelectTrigger className="h-10 font-semibold text-slate-700">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-lg border-slate-200 shadow-xl">
+                                            <SelectItem value="all" className="font-semibold py-3 text-slate-500 italic">Global (Todos)</SelectItem>
+                                            {sellers.map(s => (
+                                                <SelectItem key={s.id} value={s.id} className="font-semibold py-3">{s.nome}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2 lg:col-span-1 md:col-span-3">
+                                    <Label className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Período Selecionado</Label>
+                                    <div className="h-10 px-3 bg-slate-50 rounded-md border border-slate-100 flex items-center text-xs font-semibold text-slate-500">
+                                        {formatSafeDate(startDate)} - {formatSafeDate(endDate)}
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="flex justify-center md:justify-end mt-6 md:mt-8">
+                            <div className="flex justify-center md:justify-end mt-5 md:mt-6">
                                 <Button
-                                    className="h-12 md:h-14 w-full md:w-auto md:px-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-xs tracking-[0.15em] gap-3 shadow-lg shadow-primary/20 transition-all active:scale-95"
+                                    className="h-12 md:h-14 w-full md:w-auto md:px-12 rounded-lg bg-primary hover:bg-primary/90 text-white font-medium uppercase text-xs tracking-[0.15em] gap-3 shadow-lg shadow-primary/20 transition-all active:scale-95"
                                     onClick={fetchReport}
                                     disabled={loading}
                                 >
@@ -336,7 +417,7 @@ export default function ReportsPage() {
             {/* Print Section / Results */}
             {data ? (
                 <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">
-                    <div className="p-8 bg-white border border-slate-100 rounded-3xl shadow-sm print:p-0 print:border-none print:shadow-none min-h-[500px]">
+                    <div className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm print:p-0 print:border-none print:shadow-none min-h-[500px]">
                         <ReportHeader
                             reportTitle={activeReport?.label || "Relatório"}
                             period={currentPeriod}
@@ -344,18 +425,18 @@ export default function ReportsPage() {
                         <div className="mt-8 border-t border-slate-50 pt-8">
                             <AnalyticalTable
                                 title={activeReport?.label || "Relatório"}
-                                columns={getColumns()}
-                                data={data?.items || []}
+                                columns={getColumns() as Column[]}
+                                data={(data?.items as Array<Record<string, unknown>>) || []}
                             />
                         </div>
                     </div>
                 </div>
             ) : !loading && (
-                <div className="py-32 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/20 opacity-60">
-                    <div className="h-20 w-20 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6">
+                <div className="py-32 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/20 opacity-60">
+                    <div className="h-20 w-20 bg-white rounded-xl shadow-sm flex items-center justify-center mb-6">
                         <Filter className="w-10 h-10 text-slate-300" />
                     </div>
-                    <p className="font-black text-slate-400 uppercase tracking-widest text-sm">
+                    <p className="font-medium text-slate-400 uppercase tracking-widest text-sm">
                         Selecione as dimensões para visualização analítica
                     </p>
                     <p className="text-xs text-slate-300 mt-2 font-medium">Os dados serão processados e exibidos em tempo real</p>

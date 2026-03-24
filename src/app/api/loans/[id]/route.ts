@@ -7,14 +7,10 @@ import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { PrismaCommissionRepository } from '@/modules/commissions/infrastructure/repositories';
 import { CommissionUseCases } from '@/modules/commissions/application/useCases';
 
-import { PrismaFinancialRepository } from '@/modules/financial/infrastructure/repositories';
-import { FinancialUseCases } from '@/modules/financial/application/useCases';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaLoanRepository();
 const commissionRepo = new PrismaCommissionRepository();
-const financialRepo = new PrismaFinancialRepository();
-
-const financialUseCases = new FinancialUseCases(financialRepo);
 const commissionUseCases = new CommissionUseCases(commissionRepo);
 const useCases = new LoanUseCases(repository);
 
@@ -34,8 +30,8 @@ export async function GET(
             return NextResponse.json({ error: 'Empréstimo não encontrado' }, { status: 404 });
         }
         return NextResponse.json(loan);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -61,8 +57,8 @@ export async function PATCH(
 
         const loan = await useCases.update(id, body, user.id);
         return NextResponse.json(loan);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -79,8 +75,9 @@ export async function DELETE(
 
         await useCases.remove(id, user.id);
         return new NextResponse(null, { status: 204 });
-    } catch (error: any) {
-        const status = error.message?.includes('não pode ser excluído') || error.message?.includes('possui') ? 400 : 500;
-        return NextResponse.json({ error: error.message }, { status });
+    } catch (error) {
+        const message = getErrorMessage(error);
+        const status = message.includes('não pode ser excluído') || message.includes('possui') ? 400 : 500;
+        return NextResponse.json({ error: message }, { status });
     }
 }

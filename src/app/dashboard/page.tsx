@@ -6,8 +6,6 @@ import {
     TrendingUp,
     Calendar,
     DollarSign,
-    ArrowUpRight,
-    ArrowDownRight,
     Clock,
     ChevronRight,
     Loader2,
@@ -40,8 +38,49 @@ import {
     Tooltip
 } from "recharts";
 
+interface DashboardAppointment {
+    id: string;
+    status: string;
+    hora: string;
+    tipo: string;
+    observacao?: string;
+}
+
+interface DashboardData {
+    user?: {
+        nome?: string;
+        nivelAcesso?: number;
+    };
+    metrics?: {
+        metaVendasMensal?: number;
+        totalSalesMonth?: number;
+        rankingPosition?: number;
+        commissions?: {
+            pending?: number;
+            received?: number;
+        };
+        customers?: {
+            month?: number;
+            today?: number;
+        };
+    };
+    appointments?: DashboardAppointment[];
+    history?: Array<{ month: string; count: number }>;
+    pipeline?: {
+        digitacao?: number;
+        analise?: number;
+        averbacao?: number;
+        pagos?: number;
+        volumePendente?: number;
+    };
+    hub?: {
+        pendingApproval?: number;
+        totalLoansMonth?: number;
+    };
+}
+
 export default function DashboardPage() {
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
     const [isMounted, setIsMounted] = useState(false);
 
@@ -83,9 +122,9 @@ export default function DashboardPage() {
 
             if (response.ok) {
                 // Atualizar localmente para feedback instantâneo
-                setData((prev: any) => ({
+                setData((prev) => ({
                     ...prev,
-                    appointments: prev.appointments.map((apt: any) =>
+                    appointments: (prev?.appointments ?? []).map((apt) =>
                         apt.id === id ? { ...apt, status: nextStatus } : apt
                     )
                 }));
@@ -104,6 +143,7 @@ export default function DashboardPage() {
     }
 
     const { user: authUser, metrics, appointments, history, pipeline, hub } = data || {};
+    const agendaItems = appointments ?? [];
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
@@ -112,27 +152,27 @@ export default function DashboardPage() {
     const goalPercent = metrics?.metaVendasMensal ? Math.min(100, ((metrics?.totalSalesMonth || 0) / metrics.metaVendasMensal) * 100) : 0;
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+        <div className="space-y-7 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
 
             {/* ── Strategic Hero Banner ── */}
-            <div className="relative overflow-hidden rounded-3xl md:rounded-[2.5rem] bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-8 md:p-12 border border-white/10 shadow-[0_30px_80px_rgba(5,50,94,0.35)]">
+            <div className="relative overflow-hidden rounded-2xl md:rounded-2xl bg-gradient-to-br from-[#0A2F52] to-[#05325E] p-8 md:p-12 border border-white/10 shadow-[0_22px_60px_rgba(5,50,94,0.28)]">
                 <div className="absolute top-0 right-0 -mt-20 -mr-20 h-80 w-80 rounded-full bg-primary/15 blur-[90px]" />
                 <div className="absolute bottom-0 left-0 -mb-24 -ml-24 h-72 w-72 rounded-full bg-white/5 blur-[90px]" />
 
                 <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
                     <div className="space-y-6">
                         <div className="flex items-center gap-3">
-                            <Badge className="bg-primary/20 text-primary border-primary/30 font-black px-3 py-1 text-[10px] uppercase tracking-widest rounded-full">
+                            <Badge className="bg-primary/20 text-primary border-primary/30 font-medium px-3 py-1 text-[10px] uppercase tracking-widest rounded-full">
                                 {authUser?.nivelAcesso === 1 ? "Painel do Gestor" : "Portal de Resultados"}
                             </Badge>
                             {metrics?.rankingPosition && (
-                                <div className="flex items-center gap-1.5 text-amber-400 font-black text-xs">
+                                <div className="flex items-center gap-1.5 text-amber-400 font-medium text-xs">
                                     <Trophy className="h-4 w-4" />
                                     <span>#{metrics.rankingPosition} no Ranking</span>
                                 </div>
                             )}
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white leading-[1.1]">
+                        <h1 className="text-4xl md:text-5xl font-semibold tracking-tighter text-white leading-[1.1]">
                             Olá, <span className="text-primary">{authUser?.nome?.split(' ')[0]}</span>. <br />
                             Pronto para <span className="italic underline decoration-primary/30">vencer?</span>
                         </h1>
@@ -143,13 +183,13 @@ export default function DashboardPage() {
                         </p>
                     </div>
 
-                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-8 min-w-[340px] shadow-2xl relative overflow-hidden group">
+                    <div className="bg-white/6 backdrop-blur-3xl border border-white/15 rounded-2xl p-8 min-w-[340px] shadow-xl relative overflow-hidden group">
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         <div className="relative z-10">
                             <div className="flex justify-between items-end mb-5">
                                 <div>
-                                    <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">{authUser?.nivelAcesso === 1 ? "Meta Global" : "Sua Meta"}</p>
-                                    <p className="text-4xl font-black text-white tracking-tighter">{Math.round(goalPercent)}%</p>
+                                    <p className="text-[10px] font-medium text-white/50 uppercase tracking-widest mb-1">{authUser?.nivelAcesso === 1 ? "Meta Global" : "Sua Meta"}</p>
+                                    <p className="text-4xl font-semibold text-white tracking-tighter">{Math.round(goalPercent)}%</p>
                                 </div>
                                 <div className="text-right">
                                     <Badge className="bg-white/10 text-white border-white/10 mb-2">{goalPercent >= 100 ? "🏆 Meta Batida!" : "Em progresso"}</Badge>
@@ -162,13 +202,13 @@ export default function DashboardPage() {
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
-                                    <p className="text-[9px] font-black text-white/40 uppercase tracking-tighter mb-1">Pendentes</p>
-                                    <p className="text-md font-bold text-white leading-none">{formatCurrency(metrics?.commissions.pending)}</p>
+                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                                    <p className="text-[9px] font-medium text-white/40 uppercase tracking-tighter mb-1">Pendentes</p>
+                                    <p className="text-md font-semibold text-white leading-none">{formatCurrency(metrics?.commissions?.pending || 0)}</p>
                                 </div>
-                                <div className="p-4 rounded-3xl bg-primary/10 border border-primary/10 hover:bg-primary/20 transition-colors">
-                                    <p className="text-[9px] font-black text-primary uppercase tracking-tighter mb-1">Cadastros</p>
-                                    <p className="text-md font-bold text-white leading-none">{metrics?.customers.month}</p>
+                                <div className="p-4 rounded-2xl bg-primary/10 border border-primary/10 hover:bg-primary/20 transition-colors">
+                                    <p className="text-[9px] font-medium text-primary uppercase tracking-tighter mb-1">Cadastros</p>
+                                    <p className="text-md font-semibold text-white leading-none">{metrics?.customers?.month || 0}</p>
                                 </div>
                             </div>
                         </div>
@@ -188,14 +228,14 @@ export default function DashboardPage() {
                         <Button
                             variant="ghost"
                             className={cn(
-                                "w-full h-auto p-6 rounded-2xl flex flex-col items-center gap-3 transition-all hover:-translate-y-0.5",
-                                "border border-border/70 bg-card shadow-sm hover:shadow-lg hover:bg-white"
+                                "w-full h-auto p-6 rounded-xl flex flex-col items-center gap-3 transition-all hover:-translate-y-0.5",
+                                "border border-border/70 bg-card shadow-sm hover:shadow-md hover:border-primary/25 hover:bg-white"
                             )}
                         >
-                            <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shadow-inner", action.bg, action.color)}>
+                            <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center shadow-inner", action.bg, action.color)}>
                                 <action.icon className="h-6 w-6" />
                             </div>
-                            <span className="font-bold text-slate-700 text-xs uppercase tracking-wider">{action.label}</span>
+                            <span className="font-medium text-slate-700 text-xs uppercase tracking-wider">{action.label}</span>
                         </Button>
                     </Link>
                 ))}
@@ -204,57 +244,57 @@ export default function DashboardPage() {
             {/* ── Admin Specific Strategic View ── */}
             {authUser?.nivelAcesso === 1 && hub && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in slide-in-from-left-4 duration-500 delay-150">
-                    <Card className="border-none shadow-xl rounded-[2rem] bg-sidebar p-1">
-                        <div className="bg-white rounded-[1.9rem] p-6 h-full">
+                    <Card className="border-none shadow-xl rounded-xl bg-sidebar p-1">
+                        <div className="bg-white rounded-lg p-6 h-full">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="h-10 w-10 bg-sidebar/10 rounded-xl flex items-center justify-center text-sidebar">
+                                <div className="h-10 w-10 bg-sidebar/10 rounded-lg flex items-center justify-center text-sidebar">
                                     <Shield className="h-5 w-5" />
                                 </div>
-                                <Badge className="bg-indigo-100/50 text-indigo-700 border-none font-bold">Gestão Global</Badge>
+                                <Badge className="bg-indigo-100/50 text-indigo-700 border-none font-semibold">Gestão Global</Badge>
                             </div>
-                            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Aprovação Pendente</h3>
-                            <p className="text-3xl font-black text-slate-900">{hub.pendingApproval}</p>
+                            <h3 className="text-[10px] font-medium text-slate-500 uppercase tracking-[0.2em] mb-1">Aprovação Pendente</h3>
+                            <p className="text-3xl font-semibold text-slate-900">{hub.pendingApproval}</p>
                             <p className="text-xs text-slate-500 mt-2 font-medium">Comissões aguardando sua revisão.</p>
                             <Link href="/dashboard/commissions">
-                                <Button variant="link" className="p-0 h-auto mt-4 text-primary font-bold text-xs gap-1 group">
+                                <Button variant="link" className="p-0 h-auto mt-4 text-primary font-medium text-xs gap-1 group">
                                     Acessar Comissões <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
                                 </Button>
                             </Link>
                         </div>
                     </Card>
 
-                    <Card className="border-none shadow-xl rounded-[2rem] bg-gradient-to-br from-primary to-primary/80 p-1">
-                        <div className="bg-white rounded-[1.9rem] p-6 h-full">
+                    <Card className="border-none shadow-lg rounded-xl bg-gradient-to-br from-primary to-primary/80 p-1">
+                        <div className="bg-white rounded-lg p-5 h-full">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="h-10 w-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                                <div className="h-10 w-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600">
                                     <DollarSign className="h-5 w-5" />
                                 </div>
-                                <Badge className="bg-emerald-100 text-emerald-700 border-none font-bold">Fluxo de Caixa</Badge>
+                                <Badge className="bg-emerald-100 text-emerald-700 border-none font-semibold">Fluxo de Caixa</Badge>
                             </div>
-                            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Total Recebido</h3>
-                            <p className="text-3xl font-black text-slate-900">{formatCurrency(metrics?.commissions.received || 0)}</p>
+                            <h3 className="text-[10px] font-medium text-slate-500 uppercase tracking-[0.2em] mb-1">Total Recebido</h3>
+                            <p className="text-3xl font-semibold text-slate-900">{formatCurrency(metrics?.commissions?.received || 0)}</p>
                             <p className="text-xs text-slate-500 mt-2 font-medium">Suas comissões pagas neste mês.</p>
                             <Link href="/dashboard/commissions">
-                                <Button variant="link" className="p-0 h-auto mt-4 text-primary font-bold text-xs gap-1 group">
+                                <Button variant="link" className="p-0 h-auto mt-4 text-primary font-medium text-xs gap-1 group">
                                     Ver Minhas Comissões <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
                                 </Button>
                             </Link>
                         </div>
                     </Card>
 
-                    <Card className="border-none shadow-xl rounded-[2rem] bg-gradient-to-br from-amber-500 to-orange-500 p-1">
-                        <div className="bg-white rounded-[1.9rem] p-6 h-full">
+                    <Card className="border-none shadow-lg rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 p-1">
+                        <div className="bg-white rounded-lg p-5 h-full">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="h-10 w-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+                                <div className="h-10 w-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600">
                                     <TrendingUp className="h-5 w-5" />
                                 </div>
-                                <Badge className="bg-amber-100 text-amber-900 border-none font-bold">Performance</Badge>
+                                <Badge className="bg-amber-100 text-amber-900 border-none font-semibold">Performance</Badge>
                             </div>
-                            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Vendas do Mês</h3>
-                            <p className="text-3xl font-black text-slate-900">{hub.totalLoansMonth}</p>
+                            <h3 className="text-[10px] font-medium text-slate-500 uppercase tracking-[0.2em] mb-1">Vendas do Mês</h3>
+                            <p className="text-3xl font-semibold text-slate-900">{hub.totalLoansMonth}</p>
                             <p className="text-xs text-slate-500 mt-2 font-medium">Contratos gerados globalmente.</p>
                             <Link href="/dashboard/loans">
-                                <Button variant="link" className="p-0 h-auto mt-4 text-amber-600 font-bold text-xs gap-1 group">
+                                <Button variant="link" className="p-0 h-auto mt-4 text-amber-600 font-medium text-xs gap-1 group">
                                     Explorar Vendas <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
                                 </Button>
                             </Link>
@@ -264,10 +304,10 @@ export default function DashboardPage() {
             )}
 
             {/* ── Pipeline Section (Senior Action Grid) ── */}
-            <div className="space-y-4">
+            <div className="space-y-4 rounded-xl border border-border/70 bg-card/60 p-5">
                 <div className="flex items-center gap-2 px-2">
                     <Activity className="h-5 w-5 text-primary" />
-                    <h2 className="text-xl font-black tracking-tight">Pipeline de Vendas (Mês)</h2>
+                    <h2 className="text-xl font-semibold tracking-tight">Pipeline de Vendas (Mês)</h2>
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
@@ -287,14 +327,14 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {/* Evolution Chart */}
-                <div className="lg:col-span-2 space-y-8">
-                    <Card className="border-none shadow-xl rounded-2xl bg-card overflow-hidden">
-                        <CardHeader className="flex flex-row items-center justify-between pb-8">
+                <div className="lg:col-span-2 space-y-6">
+                    <Card className="rounded-xl border border-border/70 shadow-lg bg-card overflow-hidden">
+                        <CardHeader className="flex flex-row items-center justify-between pb-6">
                             <div>
-                                <CardTitle className="text-xl font-extrabold text-foreground">Sua Evolução</CardTitle>
+                                <CardTitle className="text-xl font-semibold text-foreground">Sua Evolução</CardTitle>
                                 <CardDescription>Consistência de cadastros nos últimos 12 meses.</CardDescription>
                             </div>
                             <TrendingUp className="h-6 w-6 text-primary" />
@@ -328,7 +368,7 @@ export default function DashboardPage() {
                     </Card>
 
                     {/* Quick Stats Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <KpiCard
                             title="Volume em Análise"
                             value={formatCurrency(pipeline?.volumePendente || 0)}
@@ -338,7 +378,7 @@ export default function DashboardPage() {
                         />
                         <KpiCard
                             title="Novos Cadastros"
-                            value={`${metrics?.customers.today || 0}`}
+                            value={`${metrics?.customers?.today || 0}`}
                             icon={Users}
                             tone="neutral"
                             subtitle="Entradas registradas hoje"
@@ -347,28 +387,28 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Agenda Widget */}
-                <div className="space-y-8 flex flex-col">
-                    <Card className="border-none shadow-xl rounded-3xl bg-card overflow-hidden flex-1 flex flex-col">
-                        <CardHeader className="bg-primary/5 border-b border-border/40 p-6">
+                <div className="space-y-6 flex flex-col">
+                    <Card className="rounded-xl border border-border/70 shadow-lg bg-card overflow-hidden flex-1 flex flex-col">
+                        <CardHeader className="bg-primary/4 border-b border-border/40 p-6">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <CalendarDays className="h-6 w-6 text-primary" />
-                                    <CardTitle className="text-lg font-black">Agenda do Dia</CardTitle>
+                                    <CardTitle className="text-lg font-semibold">Agenda do Dia</CardTitle>
                                 </div>
-                                <Badge variant="outline" className="rounded-full border-primary/20 text-primary font-black px-2 py-0.5 text-[9px]">Hoje</Badge>
+                                <Badge variant="outline" className="rounded-full border-primary/20 text-primary font-medium px-2 py-0.5 text-[9px]">Hoje</Badge>
                             </div>
                         </CardHeader>
                         <CardContent className="p-0 flex-1 overflow-y-auto max-h-[500px]">
                             <div className="divide-y divide-border/30">
-                                {appointments?.length > 0 ? appointments.map((appointment: any) => (
+                                {agendaItems.length > 0 ? agendaItems.map((appointment) => (
                                     <div key={appointment.id} className={cn(
-                                        "p-5 hover:bg-muted/30 transition-all group flex gap-4 items-start",
+                                        "p-4 hover:bg-muted/30 transition-all group flex gap-3 items-start",
                                         appointment.status === "CONCLUIDO" && "opacity-60"
                                     )}>
                                         <button
                                             onClick={() => toggleAppointmentStatus(appointment.id, appointment.status)}
                                             className={cn(
-                                                "h-10 w-10 shrink-0 rounded-2xl flex items-center justify-center transition-all shadow-sm border mt-1",
+                                                "h-10 w-10 shrink-0 rounded-xl flex items-center justify-center transition-all shadow-sm border mt-1",
                                                 appointment.status === "CONCLUIDO"
                                                     ? "bg-primary border-primary text-white"
                                                     : "bg-white border-border text-slate-300 hover:border-primary hover:text-primary"
@@ -383,16 +423,16 @@ export default function DashboardPage() {
 
                                         <div className="flex-1 space-y-1">
                                             <div className="flex items-center justify-between">
-                                                <span className="text-xs font-black text-primary">{appointment.hora}</span>
+                                                <span className="text-xs font-medium text-primary">{appointment.hora}</span>
                                                 <Badge className={cn(
-                                                    "bg-muted text-muted-foreground border-none text-[8px] font-black uppercase tracking-tighter",
+                                                    "bg-muted text-muted-foreground border-none text-[8px] font-medium uppercase tracking-tighter",
                                                     appointment.status === 'CONCLUIDO' && 'bg-primary/10 text-primary'
                                                 )}>
                                                     {appointment.status === 'CONCLUIDO' ? 'FEITO' : appointment.tipo}
                                                 </Badge>
                                             </div>
                                             <h4 className={cn(
-                                                "font-bold text-sm text-foreground tracking-tight leading-tight",
+                                                "font-medium text-sm text-foreground tracking-tight leading-tight",
                                                 appointment.status === "CONCLUIDO" && "line-through"
                                             )}>
                                                 {appointment.observacao || 'Sem observações'}
@@ -404,15 +444,15 @@ export default function DashboardPage() {
                                         <div className="h-16 w-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto mb-4">
                                             <Calendar className="h-8 w-8 text-muted-foreground/30" />
                                         </div>
-                                        <p className="text-sm font-bold text-muted-foreground">Tudo limpo por aqui!</p>
+                                        <p className="text-sm font-medium text-muted-foreground">Tudo limpo por aqui!</p>
                                         <p className="text-[11px] text-muted-foreground/60 mt-1 uppercase tracking-widest">Nada agendado para hoje</p>
                                     </div>
                                 )}
                             </div>
                         </CardContent>
-                        <div className="p-6 bg-muted/10 border-t border-border/40 shrink-0">
+                        <div className="p-5 bg-muted/10 border-t border-border/40 shrink-0">
                             <Link href="/dashboard/agenda">
-                                <Button variant="outline" className="w-full rounded-2xl font-black text-[10px] uppercase tracking-widest border-border/50 h-11 bg-white shadow-sm hover:shadow-md transition-all">
+                                <Button variant="outline" className="w-full rounded-lg font-medium text-[10px] uppercase tracking-widest border-border/50 h-11 bg-white shadow-sm hover:shadow-md transition-all">
                                     Ver Agenda Completa
                                 </Button>
                             </Link>

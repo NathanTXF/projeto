@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Building2, Save, Upload, Briefcase, Hash, Phone, MapPin, Loader2 } from "lucide-react";
@@ -27,11 +27,7 @@ export default function CompanyPage() {
         reportLogoUrl: "",
     });
 
-    useEffect(() => {
-        fetchCompanyData();
-    }, []);
-
-    const fetchCompanyData = async () => {
+    const fetchCompanyData = useCallback(async () => {
         setLoading(true);
         try {
             // Verifica permissão e dados
@@ -56,12 +52,16 @@ export default function CompanyPage() {
                     reportLogoUrl: data.reportLogoUrl || "",
                 });
             }
-        } catch (error) {
+        } catch {
             toast.error("Erro ao carregar dados da empresa.");
         } finally {
             setLoading(false);
         }
-    };
+    }, [router]);
+
+    useEffect(() => {
+        fetchCompanyData();
+    }, [fetchCompanyData]);
 
     const handleSave = async () => {
         setSaving(true);
@@ -79,7 +79,7 @@ export default function CompanyPage() {
             } else {
                 throw new Error("Falha ao salvar");
             }
-        } catch (error) {
+        } catch {
             toast.error("Erro ao atualizar dados.");
         } finally {
             setSaving(false);
@@ -131,9 +131,9 @@ export default function CompanyPage() {
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
             {/* Banner */}
-            <div className="relative overflow-hidden rounded-2xl bg-[#00355E] p-8 shadow-sm">
+            <div className="relative overflow-hidden rounded-xl bg-[#00355E] p-8 shadow-sm">
                 <div className="relative flex items-center gap-4">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-inner">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 shadow-inner">
                         <Building2 className="h-8 w-8 text-primary-foreground" />
                     </div>
                     <div>
@@ -145,7 +145,7 @@ export default function CompanyPage() {
                 </div>
             </div>
 
-            <Card className="border-none shadow-xl rounded-2xl overflow-hidden">
+            <Card className="border-none shadow-xl rounded-xl overflow-hidden">
                 <CardHeader className="bg-slate-50 border-b border-slate-100 pb-6">
                     <CardTitle className="text-xl text-slate-800">Identidade & Fiscal</CardTitle>
                     <CardDescription>Estes dados serão utilizados no cabeçalho das exportações PDF.</CardDescription>
@@ -158,12 +158,12 @@ export default function CompanyPage() {
                         <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
                             <Avatar className="h-24 w-24 border-4 border-slate-50 shadow-md">
                                 <AvatarImage src={form.logoUrl} alt="Logo Sistema" className="object-contain bg-white" />
-                                <AvatarFallback className="bg-slate-100 text-slate-400 font-bold text-xl">
+                                <AvatarFallback className="bg-slate-100 text-slate-400 font-semibold text-xl">
                                     SYS
                                 </AvatarFallback>
                             </Avatar>
                             <div className="space-y-2">
-                                <h3 className="font-bold text-slate-700 text-sm">Logomarca da Sidebar</h3>
+                                <h3 className="font-medium text-slate-700 text-sm">Logomarca da Sidebar</h3>
                                 <p className="text-[11px] text-slate-500 leading-relaxed">Exclusiva para o menu lateral (sidebar).</p>
                                 <input
                                     type="file"
@@ -176,7 +176,7 @@ export default function CompanyPage() {
                                     variant="outline"
                                     size="sm"
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="gap-2 font-bold h-9"
+                                    className="gap-2 font-semibold h-9"
                                 >
                                     <Upload className="h-3.5 w-3.5" />
                                     Alterar Logo
@@ -188,12 +188,12 @@ export default function CompanyPage() {
                         <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
                             <Avatar className="h-24 w-24 border-4 border-slate-50 shadow-md">
                                 <AvatarImage src={form.reportLogoUrl} alt="Logo Relatórios" className="object-contain bg-white" />
-                                <AvatarFallback className="bg-slate-100 text-slate-400 font-bold text-xl">
+                                <AvatarFallback className="bg-slate-100 text-slate-400 font-semibold text-xl">
                                     PDF
                                 </AvatarFallback>
                             </Avatar>
                             <div className="space-y-2">
-                                <h3 className="font-bold text-slate-700 text-sm">Logomarca (Login & Relatórios)</h3>
+                                <h3 className="font-medium text-slate-700 text-sm">Logomarca (Login & Relatórios)</h3>
                                 <p className="text-[11px] text-slate-500 leading-relaxed">Usada na tela de login e no cabeçalho das exportações PDF.</p>
                                 <input
                                     type="file"
@@ -206,7 +206,7 @@ export default function CompanyPage() {
                                     variant="outline"
                                     size="sm"
                                     onClick={() => reportFileInputRef.current?.click()}
-                                    className="gap-2 font-bold h-9"
+                                    className="gap-2 font-semibold h-9"
                                 >
                                     <Upload className="h-3.5 w-3.5" />
                                     Alterar Logo
@@ -218,57 +218,57 @@ export default function CompanyPage() {
                     {/* Linha 2 e 3: DADOS FISCAIS E ENDEREÇO */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <Label className="text-slate-600 font-bold flex items-center gap-2">
+                            <Label className="text-slate-600 font-semibold flex items-center gap-2">
                                 <Briefcase className="h-4 w-4 text-slate-400" /> Razão Social / Nome Fantasia
                             </Label>
                             <Input
                                 value={form.nome}
                                 onChange={(e) => setForm({ ...form, nome: e.target.value })}
-                                className="bg-slate-50 h-12 rounded-xl"
+                                className="h-12"
                                 placeholder="Ex: Dinheiro Fácil Crédito Ltda"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-slate-600 font-bold flex items-center gap-2">
+                            <Label className="text-slate-600 font-semibold flex items-center gap-2">
                                 <Hash className="h-4 w-4 text-slate-400" /> CNPJ
                             </Label>
                             <Input
                                 value={form.cnpj}
                                 onChange={(e) => setForm({ ...form, cnpj: e.target.value })}
-                                className="bg-slate-50 h-12 rounded-xl"
+                                className="h-12"
                                 placeholder="00.000.000/0001-00"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-slate-600 font-bold flex items-center gap-2">
+                            <Label className="text-slate-600 font-semibold flex items-center gap-2">
                                 <Phone className="h-4 w-4 text-slate-400" /> Contato Comercial
                             </Label>
                             <Input
                                 value={form.contato}
                                 onChange={(e) => setForm({ ...form, contato: e.target.value })}
-                                className="bg-slate-50 h-12 rounded-xl"
+                                className="h-12"
                                 placeholder="(11) 99999-9999"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-slate-600 font-bold flex items-center gap-2">
+                            <Label className="text-slate-600 font-semibold flex items-center gap-2">
                                 <MapPin className="h-4 w-4 text-slate-400" /> Endereço Completo
                             </Label>
                             <Input
                                 value={form.endereco}
                                 onChange={(e) => setForm({ ...form, endereco: e.target.value })}
-                                className="bg-slate-50 h-12 rounded-xl"
+                                className="h-12"
                                 placeholder="Rua das Finanças, 100 - Centro"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-slate-600 font-bold flex items-center gap-2">
+                            <Label className="text-slate-600 font-semibold flex items-center gap-2">
                                 <MapPin className="h-4 w-4 text-slate-400" /> Cidade
                             </Label>
                             <Input
                                 value={form.cidade}
                                 onChange={(e) => setForm({ ...form, cidade: e.target.value })}
-                                className="bg-slate-50 h-12 rounded-xl"
+                                className="h-12"
                                 placeholder="Sua Cidade - UF"
                             />
                         </div>
@@ -278,7 +278,7 @@ export default function CompanyPage() {
                         <Button
                             onClick={handleSave}
                             disabled={saving}
-                            className="bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground h-12 px-8 rounded-xl font-bold gap-2 text-base shadow-lg shadow-sidebar/20 transition-all hover:-translate-y-0.5"
+                            className="bg-sidebar hover:bg-sidebar/90 text-sidebar-foreground h-12 px-8 rounded-lg font-semibold gap-2 text-base shadow-lg shadow-sidebar/20 transition-all hover:-translate-y-0.5"
                         >
                             {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
                             Salvar Configurações

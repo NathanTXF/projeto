@@ -3,6 +3,7 @@ import { PrismaAppointmentRepository } from '@/modules/agenda/infrastructure/rep
 import { AgendaUseCases } from '@/modules/agenda/application/useCases';
 import { getAuthUser } from '@/core/auth/getUser';
 import { logAudit } from '@/core/audit/logger';
+import { getErrorMessage } from '@/lib/error-utils';
 
 const repository = new PrismaAppointmentRepository();
 const useCases = new AgendaUseCases(repository);
@@ -40,8 +41,8 @@ export async function PATCH(
         }
 
         return NextResponse.json(updated);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
 
@@ -79,7 +80,7 @@ export async function DELETE(
         });
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
     }
 }
