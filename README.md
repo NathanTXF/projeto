@@ -32,8 +32,8 @@ Atalhos via npm:
 O ambiente Docker sobe automaticamente um servico `rate-limit-cleaner`, que executa a limpeza periodica sem acao manual.
 
 Padroes atuais no compose:
-- `RATE_LIMIT_RETENTION_MINUTES=60`
-- `RATE_LIMIT_CLEANUP_INTERVAL_SECONDS=3600`
+- `RATE_LIMIT_RETENTION_MINUTES=30`
+- `RATE_LIMIT_CLEANUP_INTERVAL_SECONDS=900`
 
 Voce pode ajustar esses valores no `docker-compose.yml` conforme a necessidade.
 

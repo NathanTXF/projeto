@@ -52,8 +52,8 @@ services:
     restart: always
     environment:
       - DATABASE_URL=postgresql://admin:admin@db:5432/dinheiro_facil?schema=public
-      - RATE_LIMIT_RETENTION_MINUTES=60
-      - RATE_LIMIT_CLEANUP_INTERVAL_SECONDS=3600
+      - RATE_LIMIT_RETENTION_MINUTES=30
+      - RATE_LIMIT_CLEANUP_INTERVAL_SECONDS=900
     depends_on:
       - db
     command:
