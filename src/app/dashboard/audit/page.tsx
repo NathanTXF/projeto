@@ -413,14 +413,14 @@ export default function AuditPage() {
                             <div className="flex flex-col sm:flex-row gap-2">
                                 <Button
                                     onClick={handleExportCsv}
-                                    className="ui-lift ui-focus-ring ui-press w-full rounded-lg bg-foreground hover:bg-foreground/90 text-background font-medium uppercase text-xs tracking-widest h-10 shadow-sm"
+                                    className="ui-lift ui-focus-ring ui-press w-full sm:flex-1 rounded-lg bg-foreground hover:bg-foreground/90 text-background font-medium uppercase text-xs tracking-widest h-10 shadow-sm"
                                 >
                                     <Download className="h-4 w-4 mr-2" />
                                     Exportar CSV
                                 </Button>
                                 <Button
                                     onClick={handleExportPrint}
-                                    className="ui-lift ui-focus-ring ui-press w-full rounded-lg bg-foreground hover:bg-foreground/90 text-background font-medium uppercase text-xs tracking-widest h-10 shadow-sm"
+                                    className="ui-lift ui-focus-ring ui-press w-full sm:flex-1 rounded-lg bg-foreground hover:bg-foreground/90 text-background font-medium uppercase text-xs tracking-widest h-10 shadow-sm"
                                 >
                                     <Printer className="h-4 w-4 mr-2" />
                                     Exportar impressão
