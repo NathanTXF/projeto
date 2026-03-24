@@ -27,6 +27,26 @@ Atalhos via npm:
 - npm run work:stop
 - npm run work:down
 
+## Limpeza de buckets de rate limit
+
+O ambiente Docker sobe automaticamente um servico `rate-limit-cleaner`, que executa a limpeza periodica sem acao manual.
+
+Padroes atuais no compose:
+- `RATE_LIMIT_RETENTION_MINUTES=60`
+- `RATE_LIMIT_CLEANUP_INTERVAL_SECONDS=3600`
+
+Voce pode ajustar esses valores no `docker-compose.yml` conforme a necessidade.
+
+Para evitar crescimento continuo da tabela de buckets, execute periodicamente:
+
+- Preview (sem remover):
+	- npm run rate-limit:cleanup:dry
+- Limpeza efetiva:
+	- npm run rate-limit:cleanup
+
+Configuracao opcional de retencao (em minutos):
+- RATE_LIMIT_RETENTION_MINUTES=60 npm run rate-limit:cleanup
+
 ## Acesso ao banco via navegador (pgAdmin)
 
 O ambiente Docker agora inclui o pgAdmin, e o sistema principal roda com HTTPS local via Nginx.

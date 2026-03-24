@@ -250,3 +250,13 @@ model Goal {
 
   @@unique([tipo, userId, mes, ano])
 }
+
+model RateLimitBucket {
+  key       String   @id
+  count     Int
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resetAt])
+}

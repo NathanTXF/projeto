@@ -235,7 +235,7 @@ start_env() {
   build_if_needed
 
   info "Subindo containers..."
-  docker compose up -d db pgadmin app nginx
+  docker compose up -d db pgadmin app rate-limit-cleaner nginx
   wait_for_health
 
   info "Status dos servicos:"
@@ -260,7 +260,7 @@ rebuild_env() {
   hash_paths "${NGINX_WATCH_PATHS[@]}" > "$NGINX_HASH_FILE"
 
   info "Subindo containers..."
-  docker compose up -d db pgadmin app nginx
+  docker compose up -d db pgadmin app rate-limit-cleaner nginx
   wait_for_health
   docker compose ps
 }

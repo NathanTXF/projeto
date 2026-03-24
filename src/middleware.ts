@@ -3,25 +3,47 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 import { JWT_SECRET } from '@/core/auth/jwt';
 import { getErrorMessage } from '@/lib/error-utils';
+import { getRequestIdHeaderName, resolveRequestId } from '@/lib/request-id';
 
 const PUBLIC_MEDIA_PREFIXES = ['/uploads', '/avatars', '/documents'];
+const PUBLIC_API_PREFIXES = ['/api/auth', '/api/health', '/api/ready'];
+
+function buildPassThroughResponse(request: NextRequest, requestId: string) {
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set(getRequestIdHeaderName(), requestId);
+
+    const response = NextResponse.next({
+        request: {
+            headers: requestHeaders,
+        },
+    });
+    response.headers.set(getRequestIdHeaderName(), requestId);
+    return response;
+}
+
+function withRequestId(response: NextResponse, requestId: string) {
+    response.headers.set(getRequestIdHeaderName(), requestId);
+    return response;
+}
 
 export async function middleware(request: NextRequest) {
+    const requestId = resolveRequestId(request.headers);
     const token = request.cookies.get('token')?.value;
     const { pathname } = request.nextUrl;
 
     const isPublicMedia = PUBLIC_MEDIA_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+    const isPublicApi = PUBLIC_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
     // Rotas públicas
-    if (pathname.startsWith('/login') || pathname.startsWith('/api/auth') || isPublicMedia) {
-        return NextResponse.next();
+    if (pathname.startsWith('/login') || isPublicApi || isPublicMedia) {
+        return buildPassThroughResponse(request, requestId);
     }
 
     if (!token) {
         if (pathname.startsWith('/api')) {
-            return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+            return withRequestId(NextResponse.json({ error: 'Não autorizado' }, { status: 401 }), requestId);
         }
-        return NextResponse.redirect(new URL('/login', request.url));
+        return withRequestId(NextResponse.redirect(new URL('/login', request.url)), requestId);
     }
 
     try {
@@ -57,9 +79,9 @@ export async function middleware(request: NextRequest) {
                     // Usuário não tem permissão para acessar este módulo
                     // Se for uma chamada de API, retorna 401 em vez de redirecionar para o dashboard
                     if (pathname.startsWith('/api')) {
-                        return NextResponse.json({ error: 'Permissões insuficientes' }, { status: 403 });
+                        return withRequestId(NextResponse.json({ error: 'Permissões insuficientes' }, { status: 403 }), requestId);
                     }
-                    return NextResponse.redirect(new URL('/dashboard', request.url));
+                    return withRequestId(NextResponse.redirect(new URL('/dashboard', request.url)), requestId);
                 }
                 break;
             }
@@ -68,18 +90,18 @@ export async function middleware(request: NextRequest) {
         // Bloqueio genérico para qualquer outra rota /api que não seja auth
         if (pathname.startsWith('/api') && !pathname.startsWith('/api/auth')) {
             if (!payload) {
-                return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+                return withRequestId(NextResponse.json({ error: 'Não autorizado' }, { status: 401 }), requestId);
             }
         }
 
-        return NextResponse.next();
+        return buildPassThroughResponse(request, requestId);
     } catch (err) {
         const message = getErrorMessage(err);
-        console.error('Middleware: JWT verification failed:', message);
+        console.error('Middleware: JWT verification failed:', { requestId, message });
         if (pathname.startsWith('/api')) {
-            return NextResponse.json({ error: 'Token inválido ou expirado' }, { status: 401 });
+            return withRequestId(NextResponse.json({ error: 'Token inválido ou expirado' }, { status: 401 }), requestId);
         }
-        return NextResponse.redirect(new URL('/login', request.url));
+        return withRequestId(NextResponse.redirect(new URL('/login', request.url)), requestId);
     }
 }
 

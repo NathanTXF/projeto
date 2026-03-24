@@ -5,21 +5,57 @@ import { JWT_SECRET } from '@/core/auth/jwt';
 import { SignJWT } from 'jose';
 import { PERMISSIONS } from '@/lib/permissions';
 import { getErrorMessage } from '@/lib/error-utils';
+import { consumeRateLimit, rateLimitHeaders } from '@/lib/rate-limit';
+
+const LOGIN_RATE_LIMIT = {
+    limit: 20,
+    windowMs: 15 * 60 * 1000,
+};
+
+function getClientIp(request: Request): string {
+    const forwarded = request.headers.get('x-forwarded-for');
+    if (!forwarded) return '127.0.0.1';
+    return forwarded.split(',')[0]?.trim() || '127.0.0.1';
+}
 
 export async function POST(request: Request) {
     try {
+        const ip = getClientIp(request);
+
+        const loginRateLimit = await consumeRateLimit({
+            key: `login:${ip}`,
+            limit: LOGIN_RATE_LIMIT.limit,
+            windowMs: LOGIN_RATE_LIMIT.windowMs,
+        });
+
+        if (!loginRateLimit.allowed) {
+            console.warn('Rate limit atingido para login', { ip, retryAfterSeconds: loginRateLimit.retryAfterSeconds });
+            return NextResponse.json(
+                { message: 'Muitas tentativas. Tente novamente em instantes.' },
+                {
+                    status: 429,
+                    headers: {
+                        ...rateLimitHeaders(loginRateLimit),
+                        'Retry-After': String(loginRateLimit.retryAfterSeconds),
+                    },
+                }
+            );
+        }
+
         const { usuario, senha } = await request.json();
 
         const repository = new PrismaUserRepository();
         const useCases = new UserUseCases(repository);
 
-        const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
         const result = await useCases.login(usuario, senha, ip);
 
         if (result.error) {
             return NextResponse.json(
                 { message: result.error },
-                { status: result.error.includes('bloqueada') ? 403 : 401 }
+                {
+                    status: result.error.includes('bloqueada') ? 403 : 401,
+                    headers: rateLimitHeaders(loginRateLimit),
+                }
             );
         }
 
@@ -84,6 +120,10 @@ export async function POST(request: Request) {
             maxAge: 60 * 60 * 8,
             path: '/',
         });
+
+        for (const [header, value] of Object.entries(rateLimitHeaders(loginRateLimit))) {
+            response.headers.set(header, value);
+        }
 
         return response;
     } catch (error) {
